@@ -13,7 +13,7 @@ Add the most recent release to your `Cargo.toml`
 
 ```Rust
 [dependencies]
-stats-ci = "0.1"
+stats-ci = "0.0.1"
 ```
 
 ## Examples
