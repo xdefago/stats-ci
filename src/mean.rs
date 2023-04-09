@@ -18,8 +18,8 @@
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(*ci.low().unwrap(), 48.0948, 1e-3);
-//! assert_approx_eq!(*ci.high().unwrap(), 59.2452, 1e-3);
+//! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
+//! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
 //! ``` 
 use super::*;
 
@@ -57,8 +57,8 @@ use num_traits::Float;
 ///
 /// use num_traits::Float;
 /// use assert_approx_eq::assert_approx_eq;
-/// assert_approx_eq!(*ci.low().unwrap(), 48.0948, 1e-3);
-/// assert_approx_eq!(*ci.high().unwrap(), 59.2452, 1e-3);
+/// assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
+/// assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
 /// ```
 ///
 pub fn ci<T, I>(confidence: f64, data: I) -> CIResult<Interval<T>>
@@ -112,8 +112,8 @@ mod tests {
         let ci = ci(0.95, data).unwrap();
         // mean: 53.67
         // stddev: 28.097613040716798
-        assert_approx_eq!(*ci.low().unwrap(), 48.0948, 1e-3);
-        assert_approx_eq!(*ci.high().unwrap(), 59.2452, 1e-3);
+        assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
+        assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
         assert_approx_eq!(ci.low().unwrap() + ci.high().unwrap(), 2. * 53.67, 1e-3);
     }
 }
