@@ -1,4 +1,4 @@
-//! compute confidence intervals for quantiles
+//! Confidence intervals for quantiles
 //! 
 //! # Examples
 //! 

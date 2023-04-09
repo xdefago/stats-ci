@@ -1,5 +1,4 @@
-///
-/// Defines an interval over a partially ordered type (NB: floating point numbers are partially ordered because of `NaN`).
+/// Interval over a partially ordered type (NB: floating point numbers are partially ordered because of `NaN`).
 /// The interval is defined by its lower and upper bounds.
 ///
 /// # Examples

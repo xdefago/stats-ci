@@ -1,4 +1,4 @@
-//! computes the (two sided) confidence interval over the mean of a given sample
+//! Confidence intervals (two sided) over the mean of a given sample
 //! 
 //! # Examples
 //!
