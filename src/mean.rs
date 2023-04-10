@@ -1,5 +1,5 @@
 //! Confidence intervals (two sided) over the mean of a given sample
-//! 
+//!
 //! # Examples
 //!
 //! ```
@@ -20,7 +20,7 @@
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
 //! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
-//! ``` 
+//! ```
 use super::*;
 
 use error::*;
@@ -81,7 +81,7 @@ where
         // z value from normal distribution
         T::from(z_value(confidence)).unwrap(),
         // t value from student's t distribution
-        T::from(t_value(confidence, population - 1)).unwrap()
+        T::from(t_value(confidence, population - 1)).unwrap(),
     );
     let n = T::from(population).unwrap();
 
@@ -91,7 +91,7 @@ where
     Ok(Interval::new(
         mean - z_or_t * std_dev / n.sqrt(),
         mean + z_or_t * std_dev / n.sqrt(),
-    ))    
+    ))
 }
 
 #[cfg(test)]
@@ -115,5 +115,53 @@ mod tests {
         assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
         assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
         assert_approx_eq!(ci.low().unwrap() + ci.high().unwrap(), 2. * 53.67, 1e-3);
+    }
+
+    #[test]
+    fn test_confidence_level() {
+        type Float = f64;
+        use rand::Rng;
+
+        let mut rng = rand::thread_rng();
+
+        const POPULATION_SIZE: usize = 10_000;
+        let repetitions = 10_000;
+        let sample_size = 10;
+        let confidence = 0.95;
+        let tolerance = 0.02;
+
+        // generate population (uniformly distributed between 0 and 1)
+        let mut population = [0 as Float; POPULATION_SIZE];
+        rng.fill(&mut population[..]);
+        let population_mean = population.iter().sum::<Float>() / POPULATION_SIZE as Float;
+        println!("population_mean: {}", population_mean);
+        println!("population head: {:?}", &population[..10]);
+
+        // generate samples and compute confidence intervals
+        let mut count_in_ci = 0;
+        for _ in 0..repetitions {
+            // generate sample
+            let sample = random_sample(&population, sample_size, &mut rng);
+            let sample_ci = ci(confidence, sample).unwrap();
+            if sample_ci.contains(&population_mean) {
+                count_in_ci += 1;
+            }
+        }
+        let ci_contains_mean = count_in_ci as f64 / repetitions as f64;
+        assert_approx_eq!(ci_contains_mean, confidence, tolerance);
+    }
+
+    fn random_sample<T: Copy>(
+        data: &[T],
+        sample_size: usize,
+        rng: &mut rand::rngs::ThreadRng,
+    ) -> Vec<T> {
+        use rand::Rng;
+        assert!(sample_size < data.len());
+
+        (0..sample_size)
+            .map(|_| rng.gen_range(0..data.len()))
+            .map(|i| data[i])
+            .collect()
     }
 }
