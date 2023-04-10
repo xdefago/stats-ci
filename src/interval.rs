@@ -82,7 +82,10 @@ impl<T: PartialOrd> Interval<T> {
         } else if low == high {
             Interval::Degenerate(low)
         } else {
-            Interval::Concrete { left: low, right: high }
+            Interval::Concrete {
+                left: low,
+                right: high,
+            }
         }
     }
 
@@ -90,7 +93,10 @@ impl<T: PartialOrd> Interval<T> {
         match self {
             Interval::Empty => false,
             Interval::Degenerate(y) => x == y,
-            Interval::Concrete { left: low, right: high } => low <= x && x <= high,
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => low <= x && x <= high,
         }
     }
     pub fn intersects(&self, other: &Self) -> bool {
@@ -98,9 +104,10 @@ impl<T: PartialOrd> Interval<T> {
             (Interval::Empty, _) | (_, Interval::Empty) => false,
             (Interval::Degenerate(x), _) => other.contains(x),
             (_, Interval::Degenerate(y)) => self.contains(y),
-            (Interval::Concrete { left: x, right: y }, Interval::Concrete { left: a, right: b }) => {
-                x <= b && a <= y
-            }
+            (
+                Interval::Concrete { left: x, right: y },
+                Interval::Concrete { left: a, right: b },
+            ) => x <= b && a <= y,
         }
     }
 }
@@ -127,7 +134,10 @@ impl<T: PartialOrd + Clone> From<Interval<T>> for (Option<T>, Option<T>) {
         match interval {
             Interval::Empty => (None, None),
             Interval::Degenerate(x) => (Some(x.clone()), Some(x.clone())),
-            Interval::Concrete { left: low, right: high } => (Some(low.clone()), Some(high.clone())),
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => (Some(low.clone()), Some(high.clone())),
         }
     }
 }
@@ -137,7 +147,10 @@ impl<T: PartialOrd + Clone> From<Interval<T>> for Option<(T, T)> {
         match interval {
             Interval::Empty => None,
             Interval::Degenerate(x) => Some((x.clone(), x.clone())),
-            Interval::Concrete { left: low, right: high } => Some((low.clone(), high.clone())),
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => Some((low.clone(), high.clone())),
         }
     }
 }
@@ -166,12 +179,15 @@ impl<T: PartialOrd> RangeBounds<T> for Interval<T> {
     }
 }
 
-impl<T: std::ops::Sub<Output=T> + num_traits::Zero + Clone> Interval<T> {
+impl<T: std::ops::Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
     pub fn width(&self) -> Option<T> {
         match self {
             Interval::Empty => None,
             Interval::Degenerate(_) => Some(T::zero()),
-            Interval::Concrete { left: low, right: high } => Some(high.clone() - low.clone()),
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => Some(high.clone() - low.clone()),
         }
     }
 }
