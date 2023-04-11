@@ -19,5 +19,8 @@ pub enum CIError {
 
     #[error("Invalid number of successes: {0} (population: {1})")]
     InvalidSuccesses(usize, usize),
+
+    #[error("Float type conversion error: {0}")]
+    FloatConversionError(String),
     // wrapper errors
 }
