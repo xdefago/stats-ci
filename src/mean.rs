@@ -66,6 +66,9 @@ where
     T: Float,
     I: IntoIterator<Item = T>,
 {
+    if confidence <= 0. || confidence >= 1. {
+        return Err(CIError::InvalidConfidenceLevel(confidence));
+    }
     let mut sum = T::zero();
     let mut sum_sq = T::zero();
     let population = data
@@ -77,13 +80,20 @@ where
         return Err(CIError::TooFewSamples(population));
     }
 
-    let z_or_t = T::max(
-        // z value from normal distribution
-        T::from(z_value(confidence)).unwrap(),
-        // t value from student's t distribution
-        T::from(t_value(confidence, population - 1)).unwrap(),
-    );
-    let n = T::from(population).unwrap();
+    // use the t-distribution regardless of the population size
+    let z_or_t = T::from(t_value_two_sided(confidence, population - 1)).ok_or_else(|| {
+        CIError::FloatConversionError(format!(
+            "converting t-value into type {}",
+            std::any::type_name::<T>()
+        ))
+    })?;
+    let n = T::from(population).ok_or_else(|| {
+        CIError::FloatConversionError(format!(
+            "converting population ({}) into type {}",
+            population,
+            std::any::type_name::<T>()
+        ))
+    })?;
 
     let mean = sum / n;
     let variance = (sum_sq - sum * sum / n) / (n - T::one());

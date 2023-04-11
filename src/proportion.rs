@@ -178,11 +178,11 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
     let p = x / n;
     let q = 1. - p;
 
-    if n * p <= 5. {
+    if n * p < 10. {
         // too few successes for statistical significance
         return Err(CIError::TooFewSuccesses(successes, population, n * p));
     }
-    if n * q <= 5. {
+    if n * q < 10. {
         // too few failures for statistical significance
         return Err(CIError::TooFewFailures(
             population - successes,
@@ -192,7 +192,7 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
     }
 
     let std_dev = (p * q / n).sqrt();
-    let z = z_value(confidence);
+    let z = z_value_two_sided(confidence);
     Ok(Interval::new(p - z * std_dev, p + z * std_dev))
 }
 
@@ -217,8 +217,8 @@ mod tests {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         ];
         let confidence = 0.95;
-        let interval = ci_if(confidence, &data, |&x| x < 10).unwrap();
-        assert_approx_eq!(interval.low().unwrap(), 0.23, 1e-2);
-        assert_approx_eq!(interval.high().unwrap(), 0.67, 1e-2);
+        let interval = ci_if(confidence, &data, |&x| x <= 10).unwrap();
+        assert_approx_eq!(interval.low().unwrap(), 0.28, 1e-2);
+        assert_approx_eq!(interval.high().unwrap(), 0.72, 1e-2);
     }
 }
