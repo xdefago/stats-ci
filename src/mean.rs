@@ -27,7 +27,7 @@ use error::*;
 use num_traits::Float;
 
 ///
-/// computes the (two sided) confidence interval over the mean of a given sample
+/// computes the two-sided confidence interval over the arithmetic mean of a given sample
 ///
 /// # Arguments
 ///
