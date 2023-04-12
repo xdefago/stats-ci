@@ -172,18 +172,18 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
 ///
 /// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
 /// This is the method used by default when calling the function [ci] of this module.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `confidence` - the confidence level (must be in (0, 1))
 /// * `population` - the size of the population
 /// * `successes` - the number of successes in the sample
-/// 
+///
 /// # References
-/// 
+///
 /// * [Wikipedia article on Wilson score interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval)
 /// * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/)
-/// 
+///
 pub fn ci_wilson(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
@@ -213,12 +213,16 @@ pub fn ci_wilson(confidence: f64, population: usize, successes: usize) -> CIResu
     let z_2 = z * z;
 
     let mean = (n_s + z_2 / 2.) / (n + z_2);
-    let span = (z / (n + z_2)) * ( (n_s * n_f / n) + (z_2 / 4.)).sqrt();
+    let span = (z / (n + z_2)) * ((n_s * n_f / n) + (z_2 / 4.)).sqrt();
 
     Ok(Interval::new(mean - span, mean + span))
 }
 
-pub fn ci_z_normal(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
+pub fn ci_z_normal(
+    confidence: f64,
+    population: usize,
+    successes: usize,
+) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
     }
