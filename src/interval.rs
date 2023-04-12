@@ -30,22 +30,13 @@ impl<T> Interval<T> {
         Interval::Concrete { left, right }
     }
     pub fn is_empty(&self) -> bool {
-        match self {
-            Interval::Empty => true,
-            _ => false,
-        }
+        matches!(self, Interval::Empty)
     }
     pub fn is_degenerate(&self) -> bool {
-        match self {
-            Interval::Degenerate(_) => true,
-            _ => false,
-        }
+        matches!(self, Interval::Degenerate(_))
     }
     pub fn is_concrete(&self) -> bool {
-        match self {
-            Interval::Concrete { .. } => true,
-            _ => false,
-        }
+        matches!(self, Interval::Concrete { .. })
     }
 }
 
@@ -133,11 +124,11 @@ impl<T: PartialOrd + Clone> From<Interval<T>> for (Option<T>, Option<T>) {
     fn from(interval: Interval<T>) -> Self {
         match interval {
             Interval::Empty => (None, None),
-            Interval::Degenerate(x) => (Some(x.clone()), Some(x.clone())),
+            Interval::Degenerate(x) => (Some(x.clone()), Some(x)),
             Interval::Concrete {
                 left: low,
                 right: high,
-            } => (Some(low.clone()), Some(high.clone())),
+            } => (Some(low), Some(high)),
         }
     }
 }
@@ -146,11 +137,11 @@ impl<T: PartialOrd + Clone> From<Interval<T>> for Option<(T, T)> {
     fn from(interval: Interval<T>) -> Self {
         match interval {
             Interval::Empty => None,
-            Interval::Degenerate(x) => Some((x.clone(), x.clone())),
+            Interval::Degenerate(x) => Some((x.clone(), x)),
             Interval::Concrete {
                 left: low,
                 right: high,
-            } => Some((low.clone(), high.clone())),
+            } => Some((low, high)),
         }
     }
 }
