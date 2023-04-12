@@ -13,6 +13,10 @@
 /// assert!(interval.is_concrete());
 /// assert!(interval.contains(&0.5));
 /// assert!(!interval.contains(&2.));
+/// 
+/// let interval2: Interval<_> = Interval::from(0..=10);
+/// assert_eq!(interval2.low().unwrap(), 0);
+/// assert_eq!(interval2.high().unwrap(), 10);
 /// ```
 #[derive(Debug, Default, PartialEq)]
 pub enum Interval<T> {
@@ -25,48 +29,29 @@ pub enum Interval<T> {
     },
 }
 
-impl<T> Interval<T> {
-    pub fn new_unordered_unchecked(left: T, right: T) -> Self {
-        Interval::Concrete { left, right }
-    }
-    pub fn is_empty(&self) -> bool {
-        matches!(self, Interval::Empty)
-    }
-    pub fn is_degenerate(&self) -> bool {
-        matches!(self, Interval::Degenerate(_))
-    }
-    pub fn is_concrete(&self) -> bool {
-        matches!(self, Interval::Concrete { .. })
-    }
-}
 
-impl<T> Interval<T> {
-    pub fn left(&self) -> Option<&T> {
-        match self {
-            Interval::Empty => None,
-            Interval::Degenerate(x) => Some(x),
-            Interval::Concrete { left: low, .. } => Some(low),
-        }
-    }
-    pub fn right(&self) -> Option<&T> {
-        match self {
-            Interval::Empty => None,
-            Interval::Degenerate(x) => Some(x),
-            Interval::Concrete { right: high, .. } => Some(high),
-        }
-    }
-}
-
-impl<T: PartialOrd + Copy> Interval<T> {
-    pub fn low(&self) -> Option<T> {
-        self.left().copied()
-    }
-
-    pub fn high(&self) -> Option<T> {
-        self.right().copied()
-    }
-}
 impl<T: PartialOrd> Interval<T> {
+    ///
+    /// Create a new interval from its left and right bounds for ordered types with equality.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::Interval;
+    /// let interval = Interval::new(0., 1.);
+    /// assert_eq!(interval.low().unwrap(), 0.);
+    /// assert_eq!(interval.high().unwrap(), 1.);
+    /// assert!(!interval.is_empty());
+    /// let interval2 = Interval::new("A", "Z");
+    /// assert_eq!(interval2.low().unwrap(), "A");
+    /// assert_eq!(interval2.high().unwrap(), "Z");
+    /// let interval3 = Interval::new(0, 0_usize);
+    /// assert_eq!(interval3.low().unwrap(), 0);
+    /// assert_eq!(interval3.high().unwrap(), 0);
+    /// assert!(interval3.is_degenerate());
+    /// let interval4 = Interval::new(1, 0);
+    /// assert!(interval4.is_empty());
+    /// ```
     pub fn new(low: T, high: T) -> Self {
         if low > high {
             Interval::Empty
@@ -80,6 +65,9 @@ impl<T: PartialOrd> Interval<T> {
         }
     }
 
+    ///
+    /// Test whether the interval contains a value.
+    /// 
     pub fn contains(&self, x: &T) -> bool {
         match self {
             Interval::Empty => false,
@@ -90,6 +78,9 @@ impl<T: PartialOrd> Interval<T> {
             } => low <= x && x <= high,
         }
     }
+    ///
+    /// Test whether the interval intersects another interval.
+    /// 
     pub fn intersects(&self, other: &Self) -> bool {
         match (self, other) {
             (Interval::Empty, _) | (_, Interval::Empty) => false,
@@ -99,6 +90,165 @@ impl<T: PartialOrd> Interval<T> {
                 Interval::Concrete { left: x, right: y },
                 Interval::Concrete { left: a, right: b },
             ) => x <= b && a <= y,
+        }
+    }
+    ///
+    /// Test whether the interval is included in another interval.
+    /// 
+    /// The inclusion is not strict, i.e. an interval is included in itself.
+    /// 
+    pub fn is_included_in(&self, other: &Self) -> bool {
+        other.includes(self)
+    }
+    ///
+    /// Test whether the interval includes another interval.
+    /// 
+    /// The inclusion is not strict, i.e. an interval includes itself.
+    /// 
+    pub fn includes(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Interval::Empty, _) | (_, Interval::Empty) => false,
+            (Interval::Degenerate(x), Interval::Degenerate(y)) => x == y,
+            (Interval::Degenerate(_), _) => false,
+            (_, Interval::Degenerate(y)) => self.contains(y),
+            (
+                Interval::Concrete { left: x, right: y },
+                Interval::Concrete { left: a, right: b },
+            ) => x <= a && b <= y,
+        }
+    }
+}
+
+impl<T> Interval<T> {
+    ///
+    /// Create a new interval from its left and right bounds for unordered types.
+    /// The function is unchecked and always results in a concrete interval.
+    /// NB: this function is not meant for ordered types; in particular for numerical types.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::Interval;
+    /// #[derive(Debug)]
+    /// enum Directions { North, South, East, West};
+    /// let interval = Interval::new_unordered_unchecked(Directions::North, Directions::West);
+    /// assert!(matches!(interval.left().unwrap(), Directions::North));
+    /// assert!(matches!(interval.right().unwrap(), Directions::West));
+    /// assert!(!interval.is_empty());
+    /// assert!(!interval.is_degenerate());
+    /// assert!(interval.is_concrete());
+    /// let interval = Interval::new_unordered_unchecked(Directions::North, Directions::North);
+    /// // NB: the interval is not degenerate because the bounds equality is not checked
+    /// assert!(!interval.is_degenerate());
+    /// ```
+    /// 
+    pub fn new_unordered_unchecked(left: T, right: T) -> Self {
+        Interval::Concrete { left, right }
+    }
+
+    ///
+    /// Test if the interval is empty.
+    /// 
+    pub fn is_empty(&self) -> bool {
+        matches!(self, Interval::Empty)
+    }
+    ///
+    /// Test if the interval is degenerate, in the sense that it contains a single element.
+    /// 
+    pub fn is_degenerate(&self) -> bool {
+        matches!(self, Interval::Degenerate(_))
+    }
+    ///
+    /// Test if the interval is concrete, in the sense that it contains at least two elements.
+    /// 
+    pub fn is_concrete(&self) -> bool {
+        matches!(self, Interval::Concrete { .. })
+    }
+
+    ///
+    /// Get the left bound of the interval (if any).
+    /// 
+    pub fn left(&self) -> Option<&T> {
+        match self {
+            Interval::Empty => None,
+            Interval::Degenerate(x) => Some(x),
+            Interval::Concrete { left: low, .. } => Some(low),
+        }
+    }
+    ///
+    /// Get the right bound of the interval (if any).
+    /// 
+    pub fn right(&self) -> Option<&T> {
+        match self {
+            Interval::Empty => None,
+            Interval::Degenerate(x) => Some(x),
+            Interval::Concrete { right: high, .. } => Some(high),
+        }
+    }
+}
+
+impl<T: PartialOrd + Clone> Interval<T> {
+    ///
+    /// Get the lower bound of the interval (if any) for partially ordered types.
+    /// 
+    /// This function clones the bound. If cloning is an issue, use [`Self::low_as_ref()`] instead.
+    /// 
+    pub fn low(&self) -> Option<T> {
+        self.left().cloned()
+    }
+    ///
+    /// Get the upper bound of the interval (if any) for partially ordered types.
+    /// 
+    /// This function clones the bound. If cloning is an issue, use [`Self::high_as_ref()`] instead.
+    /// 
+    pub fn high(&self) -> Option<T> {
+        self.right().cloned()
+    }
+}
+
+impl<T: PartialOrd> Interval<T> {
+    ///
+    /// Get a reference to the lower bound of the interval (if any) for ordered types.
+    /// 
+    /// See also [`Self::low()`] if cloning is not an issue.
+    /// 
+    pub fn low_as_ref(&self) -> Option<&T> {
+        self.left()
+    }
+    ///
+    /// Get a reference to the upper bound of the interval (if any) for ordered types.
+    /// 
+    /// See also [`Self::high()`] if cloning is not an issue.
+    /// 
+    pub fn high_as_ref(&self) -> Option<&T> {
+        self.right()
+    }
+}
+
+impl<T: PartialEq> Interval<T> {
+    ///
+    /// Create a new interval from its left and right bounds for unordered types with equality.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::Interval;
+    /// #[derive(Debug, PartialEq)]
+    /// enum Directions { North, South, East, West};
+    /// let interval = Interval::new_unordered(Directions::North, Directions::West);
+    /// assert_eq!(interval.left().unwrap(), &Directions::North);
+    /// assert_eq!(interval.right().unwrap(), &Directions::West);
+    /// assert!(!interval.is_empty());
+    /// assert!(!interval.is_degenerate());
+    /// assert!(interval.is_concrete());
+    /// let interval = Interval::new_unordered(Directions::North, Directions::North);
+    /// assert!(interval.is_degenerate());
+    /// ```
+    pub fn new_unordered(left: T, right: T) -> Self {
+        if left == right {
+            Interval::Degenerate(left)
+        } else {
+            Interval::Concrete { left, right }
         }
     }
 }
@@ -146,12 +296,13 @@ impl<T: PartialOrd + Clone> From<Interval<T>> for Option<(T, T)> {
     }
 }
 
-use std::ops::Range;
+use std::ops::RangeInclusive;
 use std::ops::RangeBounds;
 
-impl<T: PartialOrd> From<Range<T>> for Interval<T> {
-    fn from(range: Range<T>) -> Self {
-        Interval::new(range.start, range.end)
+impl<T: Ord> From<RangeInclusive<T>> for Interval<T> {
+    fn from(range: RangeInclusive<T>) -> Self {
+        let (start, end) = range.into_inner();
+        Interval::new(start, end)
     }
 }
 
@@ -201,7 +352,7 @@ mod tests {
 
     #[test]
     fn test_interval_from_range() {
-        let interval = Interval::from(0..3);
+        let interval = Interval::from(0..=3);
         assert_eq!(interval, Interval::new(0, 3));
         assert_eq!(interval.low().unwrap(), 0);
         assert_eq!(interval.high().unwrap(), 3);
