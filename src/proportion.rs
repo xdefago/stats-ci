@@ -26,36 +26,6 @@ use super::*;
 use error::*;
 
 ///
-/// computes the (two sided) confidence interval over the proportion of a given sample that satisfies a given condition.
-///
-/// # Arguments
-///
-/// * `confidence` - the confidence level (must be in (0, 1))
-/// * `population` - the size of the population
-/// * `successes` - the number of successes in the sample
-///
-/// # Errors
-///
-/// * `TooFewSuccesses` - if the number of successes is too small to compute a confidence interval
-/// * `TooFewFailures` - if the number of failures is too small to compute a confidence interval
-/// * `InvalidSuccesses` - if the number of successes is larger than the population size
-/// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
-///
-/// # Examples
-///
-/// ```
-/// # use stats_ci::proportion;
-/// use assert_approx_eq::assert_approx_eq;
-///
-/// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-/// let confidence = 0.95;
-/// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
-/// assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
-/// assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
-/// ```
-///
-
-///
 /// computes the (two sided) confidence interval over the proportion of true values in a given sample.
 ///
 /// # Arguments
@@ -151,6 +121,10 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// * `InvalidSuccesses` - if the number of successes is larger than the population size
 /// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
 ///
+/// # Notes
+///
+/// This function is an alias for [`ci_wilson`].
+///
 /// # Examples
 ///
 /// ```
@@ -171,13 +145,27 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
 
 ///
 /// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
-/// This is the method used by default when calling the function [ci] of this module.
+/// This is the method used by default when calling the function [`ci`] of this module.
 ///
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
 /// * `population` - the size of the population
 /// * `successes` - the number of successes in the sample
+///
+/// # Errors
+///
+/// * `TooFewSuccesses` - if the number of successes is too small to compute a confidence interval
+/// * `TooFewFailures` - if the number of failures is too small to compute a confidence interval
+/// * `InvalidSuccesses` - if the number of successes is larger than the population size
+/// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
+///
+/// # Notes
+///
+/// This method is based on the Wilson score interval, which is a modification of the normal approximation interval.
+/// It is more robust than the normal approximation interval, but it is also more conservative.
+/// In particular, it is more conservative when the sample size is small.
+/// It is also more conservative when the sample size is large and the proportion is close to 0 or 1.
 ///
 /// # References
 ///
@@ -218,6 +206,32 @@ pub fn ci_wilson(confidence: f64, population: usize, successes: usize) -> CIResu
     Ok(Interval::new(mean - span, mean + span))
 }
 
+///
+/// computes the (two sided) confidence interval over the proportion of successes a given sample using the normal approximation interval.
+///
+/// # Arguments
+///
+/// * `confidence` - the confidence level (must be in (0, 1))
+/// * `population` - the size of the population
+/// * `successes` - the number of successes in the sample
+///
+/// # Errors
+///
+/// * `TooFewSuccesses` - if the number of successes is too small to compute a confidence interval
+/// * `TooFewFailures` - if the number of failures is too small to compute a confidence interval
+/// * `InvalidSuccesses` - if the number of successes is larger than the population size
+/// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
+///
+/// # Notes
+///
+/// This method is based on the normal approximation interval.
+/// It is less robust than the Wilson score interval, but it is also less conservative.
+///
+/// # References
+///
+/// * [Wikipedia article on normal approximation interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Normal_approximation_interval)
+/// * Francis J. DiTraglia. [Blog post: The Normal Approximation Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-normal-approximation-confidence-interval-for-a-proportion/)
+///
 pub fn ci_z_normal(
     confidence: f64,
     population: usize,
