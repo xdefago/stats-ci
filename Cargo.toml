@@ -11,6 +11,7 @@ statrs = "0.16.0"
 num-traits = "0.2.15"
 
 thiserror = "1.0.30"
+lazy_static = "1.4.0"
 
 # dependencies for tests
 [dev-dependencies]

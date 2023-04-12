@@ -7,26 +7,30 @@ pub mod quantile;
 
 pub use interval::Interval;
 
+use lazy_static::lazy_static;
+use statrs::distribution::ContinuousCDF;
+use statrs::distribution::{Normal, StudentsT};
+
 ///
 /// return the z-value of the normal distribution for a given confidence level.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `confidence` - the confidence level, e.g. 0.95 for 95% confidence
 /// * `two_sided` - if true, return the z-value for a two-sided test, otherwise return the z-value for a one-sided test
-/// 
+///
 /// # Panics
-/// 
+///
 /// * if `confidence` is not in the range (0, 1)
-/// 
+///
 pub fn z_value(confidence: f64, two_sided: bool) -> f64 {
+    lazy_static! {
+        static ref NORMAL: Normal = Normal::new(0., 1.).unwrap();
+    }
     assert!(confidence > 0. && confidence < 1.);
-    use statrs::distribution::ContinuousCDF;
-    use statrs::distribution::Normal;
     let alpha = 1. - confidence;
-    let n = Normal::new(0., 1.).unwrap();
     let alpha_prime = if two_sided { alpha / 2. } else { alpha };
-    n.inverse_cdf(1. - alpha_prime)
+    NORMAL.inverse_cdf(1. - alpha_prime)
 }
 
 fn z_value_two_sided(confidence: f64) -> f64 {
@@ -35,25 +39,23 @@ fn z_value_two_sided(confidence: f64) -> f64 {
 
 ///
 /// return the t-value of the t-distribution for a given confidence level.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `confidence` - the confidence level, e.g. 0.95 for 95% confidence
 /// * `degrees_of_freedom` - the degrees of freedom of the t-distribution
 /// * `two_sided` - if true, return the t-value for a two-sided test, otherwise return the t-value for a one-sided test
-/// 
+///
 /// # Panics
-/// 
+///
 /// * if `confidence` is not in the range (0, 1)
-/// 
+///
 fn t_value(confidence: f64, degrees_of_freedom: usize, two_sided: bool) -> f64 {
     assert!(confidence > 0. && confidence < 1.);
-    use statrs::distribution::ContinuousCDF;
-    use statrs::distribution::StudentsT;
     let alpha = 1. - confidence;
-    let t = StudentsT::new(0., 1., degrees_of_freedom as f64).unwrap();
+    let student_t = StudentsT::new(0., 1., degrees_of_freedom as f64).unwrap();
     let alpha_prime = if two_sided { alpha / 2. } else { alpha };
-    t.inverse_cdf(1. - alpha_prime)
+    student_t.inverse_cdf(1. - alpha_prime)
 }
 
 fn t_value_two_sided(confidence: f64, degrees_of_freedom: usize) -> f64 {
