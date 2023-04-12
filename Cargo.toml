@@ -11,6 +11,12 @@ license-file = "LICENSE.md"
 
 description = "Provides functions to compute confidence intervals for various situations."
 keywords = ["math", "statistics", "stats", "sampling", "analysis"]
+categories = ["mathematics", "science", ]
+
+
+[features]
+default = ["serde"]
+serde = ["dep:serde"]
 
 
 [dependencies]
@@ -20,6 +26,7 @@ num-traits = "0.2.15"
 thiserror = "1.0.30"
 lazy_static = "1.4.0"
 
+serde = { version = "1.0", optional = true, features = ["derive"] }
 
 # dependencies for tests
 [dev-dependencies]

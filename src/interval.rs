@@ -19,6 +19,7 @@
 /// assert_eq!(interval2.high().unwrap(), 10);
 /// ```
 #[derive(Debug, Default, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Interval<T> {
     #[default]
     Empty,
@@ -333,6 +334,62 @@ impl<T: std::ops::Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
     }
 }
 
+impl<T: Clone> Clone for Interval<T> {
+    fn clone(&self) -> Self {
+        match self {
+            Interval::Empty => Interval::Empty,
+            Interval::Degenerate(x) => Interval::Degenerate(x.clone()),
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => Interval::Concrete {
+                left: low.clone(),
+                right: high.clone(),
+            },
+        }
+    }
+}
+
+impl<T: Copy> Copy for Interval<T> {}
+
+use std::fmt::Display;
+impl<T: Display> Display for Interval<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Empty => write!(f, "∅"),
+            Self::Degenerate(arg) => write!(f, "[{}]", arg),
+            Self::Concrete { left, right } => write!(f, "[{}, {})", left, right),
+        }
+    }
+}
+
+use std::hash::Hash;
+impl<T: Hash> Hash for Interval<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            Interval::Empty => 0.hash(state),
+            Interval::Degenerate(x) => {
+                1.hash(state);
+                x.hash(state);
+            }
+            Interval::Concrete {
+                left: low,
+                right: high,
+            } => {
+                2.hash(state);
+                low.hash(state);
+                high.hash(state);
+            }
+        }
+    }
+}
+
+impl<T> AsRef<Self> for Interval<T> {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -429,5 +486,17 @@ mod tests {
         assert_eq!(interval3.width(), None);
         assert_eq!(interval4.width(), Some(10));
         assert_eq!(interval5.width(), Some(0));
+    }
+
+    #[test]
+    fn test_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<Interval<f64>>();
+    }
+
+    #[test]
+    fn test_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<Interval<f64>>();
     }
 }
