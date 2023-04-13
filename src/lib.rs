@@ -92,12 +92,16 @@
 //! # References
 //!
 
-pub mod error;
-mod interval;
+#![crate_type = "lib"]
+#![crate_name = "stats_ci"]
+#![forbid(unsafe_code)]
 
+pub mod error;
 pub mod mean;
 pub mod proportion;
 pub mod quantile;
+
+mod interval;
 
 pub use interval::Interval;
 
