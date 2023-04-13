@@ -390,6 +390,43 @@ impl<T> AsRef<Self> for Interval<T> {
     }
 }
 
+impl<T: PartialOrd> PartialOrd for Interval<T> {
+    ///
+    /// compare two intervals.
+    /// given two intervals `a` and `b`, `a < b` if and only if the upper bound of `a` is less than the lower bound of `b`.
+    /// recall that interval bounds are assumed inclusive.
+    ///
+    /// # Examples
+    /// ```
+    /// # use std::cmp::Ordering;
+    /// # use stats_ci::Interval;
+    /// let a = Interval::new(0, 10);
+    /// let b = Interval::new(10, 20);
+    /// let c = Interval::new(11, 20);
+    /// let d = Interval::new(0, 10);
+    /// assert_eq!(a.partial_cmp(&b), None);
+    /// assert_eq!(a.partial_cmp(&c), Some(Ordering::Less));
+    /// assert_eq!(c.partial_cmp(&a), Some(Ordering::Greater));
+    /// assert_eq!(a.partial_cmp(&d), Some(Ordering::Equal));
+    /// ```
+    ///
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        use std::cmp::Ordering::*;
+        match (self, other) {
+            (
+                Interval::Degenerate(y) | Interval::Concrete { right: y, .. },
+                Interval::Degenerate(a) | Interval::Concrete { left: a, .. },
+            ) if y < a => Some(Less),
+            (
+                Interval::Degenerate(x) | Interval::Concrete { left: x, .. },
+                Interval::Degenerate(b) | Interval::Concrete { right: b, .. },
+            ) if x > b => Some(Greater),
+            (xy, ab) if xy == ab => Some(Equal),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
