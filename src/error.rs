@@ -24,3 +24,12 @@ pub enum CIError {
     FloatConversionError(String),
     // wrapper errors
 }
+
+#[derive(thiserror::Error, Debug)]
+pub enum ConversionError {
+    #[error("Empty interval has no concrete bounds")]
+    NoConcreteBoundsError,
+
+    #[error("Degenerate interval has single bound")]
+    SingleBoundError,
+}
