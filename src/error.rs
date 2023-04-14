@@ -20,6 +20,12 @@ pub enum CIError {
     #[error("Invalid number of successes: {0} (population: {1})")]
     InvalidSuccesses(usize, usize),
 
+    #[error("Geometric mean requires strictly positive values: found {0}")]
+    NonPositiveValue(f64),
+
+    #[error("Invalid input data found")]
+    InvalidInputData,
+
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
     // wrapper errors

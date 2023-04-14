@@ -18,7 +18,7 @@
 //! ## C.I. for the Mean
 //!
 //! ```
-//! use stats_ci::mean;
+//! use stats_ci::mean::{MeanCI,Arithmetic};
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
 //!     15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
@@ -27,7 +27,7 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let ci = mean::ci(0.95, data).unwrap();
+//! let ci = Arithmetic::ci(0.95, data).unwrap();
 //! // mean: 53.67
 //! // stddev: 28.097613040716798
 //!
@@ -154,10 +154,6 @@ fn t_value(confidence: f64, degrees_of_freedom: usize, two_sided: bool) -> f64 {
     let student_t = StudentsT::new(0., 1., degrees_of_freedom as f64).unwrap();
     let alpha_prime = if two_sided { alpha / 2. } else { alpha };
     student_t.inverse_cdf(1. - alpha_prime)
-}
-
-fn t_value_two_sided(confidence: f64, degrees_of_freedom: usize) -> f64 {
-    t_value(confidence, degrees_of_freedom, true)
 }
 
 #[cfg(test)]
