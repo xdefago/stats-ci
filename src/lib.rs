@@ -132,7 +132,7 @@ pub fn z_value(confidence: Confidence) -> f64 {
 }
 
 ///
-/// return the t-value of the t-distribution for a given confidence level.
+/// return the t-value of the t-distribution for a given confidence level and degree of freedom.
 ///
 /// # Arguments
 ///
@@ -143,8 +143,9 @@ pub fn z_value(confidence: Confidence) -> f64 {
 /// # Panics
 ///
 /// * if `confidence` is not in the range (0, 1)
+/// * if `degrees_of_freedom` is less than 1
 ///
-fn t_value(confidence: Confidence, degrees_of_freedom: usize) -> f64 {
+pub fn t_value(confidence: Confidence, degrees_of_freedom: usize) -> f64 {
     let student_t = StudentsT::new(0., 1., degrees_of_freedom as f64).unwrap();
     student_t.inverse_cdf(confidence.quantile())
 }
