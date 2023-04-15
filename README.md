@@ -2,17 +2,29 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 
-NB: As probably obvious from the `0.0.x` version number, this crate is currently in a __very unstable__ state and any commit can possibly introduce breaking changes. At this stage, I am making no efforts of backward compatibility. Therefore, please use at your own risks at least until a version `0.x`. 
+NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
 
 ## Description
 
 Stats-ci provides some basic functions to compute confidence intervals of sample data.
-This includes confidence intervals around the mean for numerical data, confidence intervals around a quantile (e.g., median) for arbitrary ordered data, and confidence intervals for proprotions.
+This includes the following:
+* confidence intervals around the mean for numerical data,
+* confidence intervals around a quantile (e.g., median) for arbitrary ordered data,
+* confidence intervals for proportions.
+
+Not included yet but planned are:
+* confidence intervals for difference of sample data.
+* confidence intervals for regression parameters.
 
 ## Motivation
 
-I created this crate from the need in personal projects and also out of frustration from having to look up the formulas for computing various confidence intervals.
-I am far from being a statistician and I will gladly welcome any advice or correct mistakes.
+The motivation behind creating this crate comes both from the recurring need of confidence intervals in personal projects and also out of frustration from having to look up the formulas each time. I reckoned that I might not be alone in this situation and that such a crate could prove useful to some.
+
+## Disclaimer
+
+I am far from being a statistician and I will gladly welcome any advice or corrections.
+I made also no attempt at numerical statibility, although I do plan to improve this partly by implementing Kahan summation soon.
+
 
 ## Usage
 
@@ -101,7 +113,19 @@ I will gladly and carefully consider any constructive comments that you have to 
 In particular, I will be considering constructive feedback both on the interface and the calculations
 with the following priorities correctness, code readability, genericity, efficiency.
 
+Currently, the following are on my TODO list:
+
+* [feature] confidence intervals for difference of sample data.
+* [feature] confidence intervals for regression parameters.
+* [numeric] numerical stability with Kahan summation
+* [stats] review/fix statistical tests
+* [API] return results more consistently
+* [API] remove `unwrap()` and reduce panicking code
 
 ## References
 
-
+* Raj Jain. [The Art of Computer Systems Performance Analysis: Techniques for Experimental Design, Measurement, Simulation, and Modeling,](https://www.cse.wustl.edu/~jain/books/perfbook.htm) John Wiley & Sons, 1991.
+* [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
+* [Wikipedia - Binomial proportion confidence interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval)
+* [Wikipedia article on normal approximation interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Normal_approximation_interval)
+* Francis J. DiTraglia. [Blog post: The Normal Approximation Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-normal-approximation-confidence-interval-for-a-proportion/)
