@@ -261,7 +261,6 @@ mod tests {
         assert_approx_eq!(ci.low().unwrap(), 23.6141, 1e-3);
         assert_approx_eq!(ci.high().unwrap(), 41.2379, 1e-3);
 
-
         let ci = Geometric::ci(confidence, data).unwrap();
         // geometric mean: 43.7268032829256
         assert_approx_eq!(ci.low().unwrap(), 37.7311, 1e-3);
