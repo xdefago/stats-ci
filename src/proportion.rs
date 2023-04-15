@@ -5,7 +5,7 @@
 //! ```
 //! # fn test() -> Result<(), stats_ci::error::CIError> {
 //! use stats_ci::proportion;
-//! 
+//!
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
 //!     false, false, false, true, false, true, false, false, true, false
@@ -152,7 +152,7 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// ```
 ///
 pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
-    ci_wilson(confidence, population, successes)
+    ci_wilson(confidence, population, successes, true)
 }
 
 ///
@@ -184,7 +184,12 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
 /// * [Wikipedia article on Wilson score interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval)
 /// * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/)
 ///
-pub fn ci_wilson(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
+pub fn ci_wilson(
+    confidence: f64,
+    population: usize,
+    successes: usize,
+    two_sided: bool,
+) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
     }
@@ -209,7 +214,7 @@ pub fn ci_wilson(confidence: f64, population: usize, successes: usize) -> CIResu
         ));
     }
 
-    let z = z_value_two_sided(confidence);
+    let z = z_value(confidence, two_sided);
     let z_2 = z * z;
 
     let mean = (n_s + z_2 / 2.) / (n + z_2);
@@ -248,6 +253,7 @@ pub fn ci_z_normal(
     confidence: f64,
     population: usize,
     successes: usize,
+    two_sided: bool,
 ) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
@@ -275,7 +281,7 @@ pub fn ci_z_normal(
     }
 
     let std_dev = (p * q / n).sqrt();
-    let z = z_value_two_sided(confidence);
+    let z = z_value(confidence, two_sided);
     Ok(Interval::new(p - z * std_dev, p + z * std_dev))
 }
 

@@ -76,7 +76,7 @@ pub fn ci_sorted_unchecked<T: Clone>(
         return None;
     }
 
-    let z = z_value_two_sided(confidence);
+    let z = z_value(confidence, true);
     let q = quantile; /* 0.5 for median */
     let n = len as f64;
     let mid_span = z * f64::sqrt(n * q * (1. - q));
