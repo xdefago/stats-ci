@@ -255,6 +255,17 @@ mod tests {
         assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
         assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
         assert_approx_eq!(ci.low().unwrap() + ci.high().unwrap(), 2. * 53.67, 1e-3);
+
+        let ci = Harmonic::ci(confidence, data).unwrap();
+        // harmonic mean: 30.031313156339586
+        assert_approx_eq!(ci.low().unwrap(), 23.6141, 1e-3);
+        assert_approx_eq!(ci.high().unwrap(), 41.2379, 1e-3);
+
+
+        let ci = Geometric::ci(confidence, data).unwrap();
+        // geometric mean: 43.7268032829256
+        assert_approx_eq!(ci.low().unwrap(), 37.7311, 1e-3);
+        assert_approx_eq!(ci.high().unwrap(), 50.6753, 1e-3);
     }
 
     #[test]
