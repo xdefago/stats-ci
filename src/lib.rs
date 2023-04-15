@@ -101,8 +101,10 @@ pub mod mean;
 pub mod proportion;
 pub mod quantile;
 
+mod confidence;
 mod interval;
 
+pub use confidence::Confidence;
 pub use interval::Interval;
 
 use lazy_static::lazy_static;
@@ -129,10 +131,6 @@ pub fn z_value(confidence: f64, two_sided: bool) -> f64 {
     let alpha = 1. - confidence;
     let alpha_prime = if two_sided { alpha / 2. } else { alpha };
     NORMAL.inverse_cdf(1. - alpha_prime)
-}
-
-fn z_value_two_sided(confidence: f64) -> f64 {
-    z_value(confidence, true)
 }
 
 ///
