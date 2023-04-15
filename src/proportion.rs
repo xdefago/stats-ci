@@ -23,6 +23,7 @@
 //!
 //! * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
 //! * [Wikipedia - Binomial proportion confidence interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval)
+//! * https://influentialpoints.com/Training/confidence_intervals_of_proportions-principles-properties-assumptions.htm
 //!
 
 use super::*;
@@ -200,11 +201,13 @@ pub fn ci_wilson(
     let n_s = successes as f64;
     let n_f = n - n_s;
 
-    if successes < 2 {
+    // conditions for statistical significance:
+    // n p > 5 and n (1 - p) > 5
+    if successes <= 5 { 
         // too few successes for statistical significance
         return Err(CIError::TooFewSuccesses(successes, population, n_s));
     }
-    if population - successes < 2 {
+    if population - successes <= 5 {
         // too few failures for statistical significance
         return Err(CIError::TooFewFailures(
             population - successes,
@@ -223,7 +226,7 @@ pub fn ci_wilson(
 }
 
 ///
-/// computes the (two sided) confidence interval over the proportion of successes a given sample using the normal approximation interval.
+/// computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
 ///
 /// # Arguments
 ///
