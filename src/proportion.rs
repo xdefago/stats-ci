@@ -23,7 +23,7 @@
 //!
 //! * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
 //! * [Wikipedia - Binomial proportion confidence interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval)
-//! * https://influentialpoints.com/Training/confidence_intervals_of_proportions-principles-properties-assumptions.htm
+//! * <https://influentialpoints.com/Training/confidence_intervals_of_proportions-principles-properties-assumptions.htm>
 //!
 
 use super::*;
