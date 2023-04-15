@@ -4,6 +4,7 @@
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
 //! ```
+//! # fn test() -> Result<(), stats_ci::error::CIError> {
 //! use stats_ci::mean::{MeanCI,Arithmetic};
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -13,7 +14,7 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let ci = Arithmetic::ci(0.95, data).unwrap();
+//! let ci = Arithmetic::ci(0.95, data)?;
 //! // mean: 53.67
 //! // stddev: 28.097613040716798
 //!
@@ -21,10 +22,13 @@
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
 //! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! Confidence intervals on the geometric mean of a sample:
 //! ```
+//! # fn test() -> Result<(), stats_ci::error::CIError> {
 //! use stats_ci::mean::{MeanCI,Geometric};
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -34,18 +38,20 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let ci = Geometric::ci(0.95, data.clone()).unwrap();
-//! // mean: 53.67
-//! // stddev: 28.097613040716798
+//! let ci = Geometric::ci(0.95, data)?;
+//! // geometric mean: 43.7268032829256
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(ci.low().unwrap(), 37.731, 1e-3);
 //! assert_approx_eq!(ci.high().unwrap(), 50.675, 1e-3);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! Confidence intervals on the harmonic mean of a sample:
 //! ```
+//! # fn test() -> Result<(), stats_ci::error::CIError> {
 //! use stats_ci::mean::{MeanCI,Harmonic};
 //! let data = [
 //!     1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
@@ -53,13 +59,15 @@
 //!     0.17621009, 2.31810064, 0.15633061, 2.55137878, 1.11043948, 1.35923319, 1.58385561,
 //!     0.63431437, 0.49993148, 0.49168534, 0.11533354,
 //! ];
-//! let ci = Harmonic::ci(0.95, data.clone()).unwrap();
+//! let ci = Harmonic::ci(0.95, data.clone())?;
 //! // harmonic mean: 0.38041820166550844
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(ci.low().unwrap(), 0.245, 1e-3);
 //! assert_approx_eq!(ci.high().unwrap(), 0.852, 1e-3);
+//! # Ok(())
+//! # }
 //! ```
 //!
 use super::*;

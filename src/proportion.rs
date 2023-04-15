@@ -3,17 +3,20 @@
 //! # Examples
 //!
 //! ```
-//! # use stats_ci::proportion;
-//! use assert_approx_eq::assert_approx_eq;
-//!
+//! # fn test() -> Result<(), stats_ci::error::CIError> {
+//! use stats_ci::proportion;
+//! 
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
 //!     false, false, false, true, false, true, false, false, true, false
 //! ];
 //! let confidence = 0.95;
-//! let interval = proportion::ci_true(confidence, data).unwrap();
+//! let interval = proportion::ci_true(confidence, data)?;
+//! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 //! assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! # References
@@ -43,7 +46,8 @@ use error::*;
 /// # Examples
 ///
 /// ```
-/// # use stats_ci::proportion;
+/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// use stats_ci::proportion;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let data = [
@@ -51,9 +55,11 @@ use error::*;
 ///     false, false, false, true, false, true, false, false, true, false
 /// ];
 /// let confidence = 0.95;
-/// let interval = proportion::ci_true(confidence, data).unwrap();
+/// let interval = proportion::ci_true(confidence, data)?;
 /// assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+/// # Ok(())
+/// # }
 /// ```
 ///
 pub fn ci_true<T: IntoIterator<Item = bool>>(confidence: f64, data: T) -> CIResult<Interval<f64>> {
@@ -87,14 +93,17 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(confidence: f64, data: T) -> CIResu
 /// # Examples
 ///
 /// ```
-/// # use stats_ci::proportion;
+/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// use stats_ci::proportion;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 /// let confidence = 0.95;
-/// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
+/// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
 /// assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+/// # Ok(())
+/// # }
 /// ```
 ///
 pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
@@ -128,7 +137,8 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// # Examples
 ///
 /// ```
-/// # use stats_ci::proportion;
+/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// use stats_ci::proportion;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let population = 500;
@@ -137,6 +147,8 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// let interval = proportion::ci(confidence, population, successes).unwrap();
 /// assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
+/// # Ok(())
+/// # }
 /// ```
 ///
 pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
