@@ -27,6 +27,7 @@
 //!
 
 use super::*;
+use crate::stats::z_value;
 use error::*;
 
 ///
@@ -203,7 +204,7 @@ pub fn ci_wilson(
 
     // conditions for statistical significance:
     // n p > 5 and n (1 - p) > 5
-    if successes <= 5 { 
+    if successes <= 5 {
         // too few successes for statistical significance
         return Err(CIError::TooFewSuccesses(successes, population, n_s));
     }

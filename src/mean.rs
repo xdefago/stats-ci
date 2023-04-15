@@ -74,6 +74,7 @@
 //! ```
 //!
 use super::*;
+use crate::stats::t_value;
 
 use error::*;
 use num_traits::Float;

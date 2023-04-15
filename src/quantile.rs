@@ -24,6 +24,7 @@
 //! ```
 //!
 use super::*;
+use crate::stats::z_value;
 
 /// compute the confidence interval for a given quantile, assuming that the data as already.
 ///
