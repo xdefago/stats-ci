@@ -290,9 +290,9 @@ mod tests {
         let population = 500;
         let successes = 421;
         let confidence = Confidence::TwoSided(0.95);
-        let interval = ci(confidence, population, successes).unwrap();
-        assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
-        assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
+        let ci = ci(confidence, population, successes).unwrap();
+        assert_approx_eq!(ci.low().unwrap(), 0.81, 1e-2);
+        assert_approx_eq!(ci.high().unwrap(), 0.87, 1e-2);
     }
 
     #[test]
@@ -301,8 +301,8 @@ mod tests {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         ];
         let confidence = Confidence::TwoSided(0.95);
-        let interval = ci_if(confidence, &data, |&x| x <= 10).unwrap();
-        assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
-        assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+        let ci = ci_if(confidence, &data, |&x| x <= 10).unwrap();
+        assert_approx_eq!(ci.low().unwrap(), 0.299, 1e-2);
+        assert_approx_eq!(ci.high().unwrap(), 0.701, 1e-2);
     }
 }
