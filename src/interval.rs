@@ -358,7 +358,7 @@ impl<T: Display> Display for Interval<T> {
         match self {
             Self::Empty => write!(f, "∅"),
             Self::Degenerate(arg) => write!(f, "[{}]", arg),
-            Self::Concrete { left, right } => write!(f, "[{}, {})", left, right),
+            Self::Concrete { left, right } => write!(f, "[{}, {}]", left, right),
         }
     }
 }
