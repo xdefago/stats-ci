@@ -29,6 +29,15 @@ pub enum CIError {
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
     // wrapper errors
+
+    #[error("String error: {0}")]
+    Error(String),
+}
+
+impl From<&str> for CIError {
+    fn from(s: &str) -> Self {
+        CIError::Error(s.to_string())
+    }
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -38,4 +47,25 @@ pub enum ConversionError {
 
     #[error("Degenerate interval has single bound")]
     SingleBoundError,
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn string_to_error() -> CIResult<()> {
+        Err("This is a string error")?
+    }
+
+    #[test]
+    fn test_string_to_error() {
+        let err = string_to_error();
+        assert!(err.is_err());
+        match err {
+            Err(CIError::Error(s)) => assert_eq!(s, "This is a string error"),
+            Err(e) => panic!("Unexpected error type: {:?}", e),
+            Ok(_) => panic!("Unexpected success"),
+        }
+    }
 }
