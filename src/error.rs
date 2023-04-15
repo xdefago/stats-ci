@@ -29,7 +29,6 @@ pub enum CIError {
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
     // wrapper errors
-
     #[error("String error: {0}")]
     Error(String),
 }
@@ -48,7 +47,6 @@ pub enum ConversionError {
     #[error("Degenerate interval has single bound")]
     SingleBoundError,
 }
-
 
 #[cfg(test)]
 mod tests {
