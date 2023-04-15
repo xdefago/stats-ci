@@ -1,4 +1,4 @@
-//! Confidence intervals (two sided) over the mean of a given sample
+//! Confidence intervals over the mean (arithmetic, geometric, harmonic) of a given sample
 //!
 //! # Examples
 //!
