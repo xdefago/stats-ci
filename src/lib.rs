@@ -19,6 +19,7 @@
 //!
 //! ```
 //! use stats_ci::*;
+//!
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
 //!     15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
@@ -63,8 +64,8 @@
 //! ## C.I. for Proportions
 //!
 //! ```
+//! # use assert_approx_eq::assert_approx_eq;
 //! use stats_ci::*;
-//! use assert_approx_eq::assert_approx_eq;
 //!
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
