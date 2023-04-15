@@ -5,7 +5,7 @@
 //! Confidence intervals on the arithmetic mean of a sample:
 //! ```
 //! # fn test() -> Result<(), stats_ci::error::CIError> {
-//! use stats_ci::mean::{MeanCI,Arithmetic};
+//! use stats_ci::*;
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
 //!     15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
@@ -14,7 +14,8 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let ci = Arithmetic::ci(0.95, data)?;
+//! let confidence = Confidence::new_two_sided(0.95);
+//! let ci = mean::Arithmetic::ci(confidence, data)?;
 //! // mean: 53.67
 //! // stddev: 28.097613040716798
 //!
@@ -29,7 +30,7 @@
 //! Confidence intervals on the geometric mean of a sample:
 //! ```
 //! # fn test() -> Result<(), stats_ci::error::CIError> {
-//! use stats_ci::mean::{MeanCI,Geometric};
+//! use stats_ci::*;
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
 //!     15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
@@ -38,7 +39,8 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let ci = Geometric::ci(0.95, data)?;
+//! let confidence = Confidence::new_two_sided(0.95);
+//! let ci = mean::Geometric::ci(confidence, data)?;
 //! // geometric mean: 43.7268032829256
 //!
 //! use num_traits::Float;
@@ -52,14 +54,15 @@
 //! Confidence intervals on the harmonic mean of a sample:
 //! ```
 //! # fn test() -> Result<(), stats_ci::error::CIError> {
-//! use stats_ci::mean::{MeanCI,Harmonic};
+//! use stats_ci::*;
 //! let data = [
 //!     1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
 //!     0.9251231, 1.78173864, 0.4391542, 1.36948099, 1.5191194, 0.42286756, 1.48463176,
 //!     0.17621009, 2.31810064, 0.15633061, 2.55137878, 1.11043948, 1.35923319, 1.58385561,
 //!     0.63431437, 0.49993148, 0.49168534, 0.11533354,
 //! ];
-//! let ci = Harmonic::ci(0.95, data.clone())?;
+//! let confidence = Confidence::new_two_sided(0.95);
+//! let ci = mean::Harmonic::ci(confidence, data.clone())?;
 //! // harmonic mean: 0.38041820166550844
 //!
 //! use num_traits::Float;
@@ -75,23 +78,52 @@ use super::*;
 use error::*;
 use num_traits::Float;
 
+///
+/// Trait for computing confidence intervals on the mean of a sample.
+///
+/// # Examples
+///
+/// ```
+/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// use stats_ci::*;
+/// let data = [
+///    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
+///   15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
+///  71., 18., 51., 65., 87., 12., 44., 89., 67., 28., 86., 62., 22., 90., 18., 50., 25.,
+/// 98., 24., 61., 62., 86., 100., 96., 27., 36., 82., 90., 55., 26., 38., 97., 73., 16.,
+/// 49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
+/// 37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
+/// ];
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let ci = mean::Arithmetic::ci(confidence, data)?;
+/// // arithmetic mean: 52.5
+///
+/// use num_traits::Float;
+/// use assert_approx_eq::assert_approx_eq;
+/// assert_approx_eq!(ci.low().unwrap(), 47.5, 1e-3);
+/// assert_approx_eq!(ci.high().unwrap(), 57.5, 1e-3);
+/// # Ok(())
+/// # }
+/// ```
 pub trait MeanCI<T> {
-    fn ci<I>(confidence: f64, data: I) -> CIResult<Interval<T>>
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>;
 }
 
+///
+/// Computation for arithmetic mean.
+///
 pub struct Arithmetic;
 
 impl<T: Float> MeanCI<T> for Arithmetic {
-    fn ci<I>(confidence: f64, data: I) -> CIResult<Interval<T>>
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>,
     {
         ci_with_transforms(
             confidence,
             data,
-            true,
             |x: &T| !x.is_nan() && !x.is_infinite(),
             |x| x,
             |x, y| (x, y),
@@ -101,19 +133,17 @@ impl<T: Float> MeanCI<T> for Arithmetic {
 
 ///
 /// Computation for geometric mean.
-/// Problem: defined only if numbers are strictly positive; should result in an error otherwise.
 ///
 pub struct Geometric;
 
 impl<T: Float> MeanCI<T> for Geometric {
-    fn ci<I>(confidence: f64, data: I) -> CIResult<Interval<T>>
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>,
     {
         ci_with_transforms(
             confidence,
             data,
-            true,
             |x: &T| x.is_sign_positive() || !x.is_zero(),
             |x| x.ln(),
             |x, y| (x.exp(), y.exp()),
@@ -121,17 +151,19 @@ impl<T: Float> MeanCI<T> for Geometric {
     }
 }
 
+///
+/// Computation for harmonic mean.
+///
 pub struct Harmonic;
 
 impl<T: Float> MeanCI<T> for Harmonic {
-    fn ci<I>(confidence: f64, data: I) -> CIResult<Interval<T>>
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>,
     {
         ci_with_transforms(
             confidence,
             data,
-            true,
             |x: &T| x.is_sign_positive() || !x.is_zero(),
             |x| x.recip(),                 // 1/x
             |x, y| (y.recip(), x.recip()), // NB: bounds are mirrored
@@ -140,9 +172,8 @@ impl<T: Float> MeanCI<T> for Harmonic {
 }
 
 fn ci_with_transforms<T: PartialOrd, U: Float, I, F, Finv, Fvalid>(
-    confidence: f64,
+    confidence: Confidence,
     data: I,
-    two_sided: bool,
     f_valid: Fvalid,
     f_transform: F,
     f_inverse: Finv,
@@ -155,9 +186,6 @@ where
 {
     use itertools::Itertools;
 
-    if confidence <= 0. || confidence >= 1. {
-        return Err(CIError::InvalidConfidenceLevel(confidence));
-    }
     let mut sum = U::zero();
     let mut sum_sq = U::zero();
     let population = data
@@ -182,7 +210,7 @@ where
     }
 
     // use the t-distribution regardless of the population size
-    let t_value = U::from(t_value(confidence, population - 1, two_sided)).ok_or_else(|| {
+    let t_value = U::from(t_value(confidence, population - 1)).ok_or_else(|| {
         CIError::FloatConversionError(format!(
             "converting t-value into type {}",
             std::any::type_name::<T>()
@@ -212,6 +240,7 @@ mod tests {
 
     #[test]
     fn test_mean_ci() {
+        let confidence = Confidence::new_two_sided(0.95);
         let data = [
             82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
             15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
@@ -220,7 +249,7 @@ mod tests {
             49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
             37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
         ];
-        let ci = Arithmetic::ci(0.95, data).unwrap();
+        let ci = Arithmetic::ci(confidence, data).unwrap();
         // mean: 53.67
         // stddev: 28.097613040716798
         assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
@@ -230,13 +259,14 @@ mod tests {
 
     #[test]
     fn test_harmonic_ci() {
+        let confidence = Confidence::new_two_sided(0.95);
         let data = [
             1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
             0.9251231, 1.78173864, 0.4391542, 1.36948099, 1.5191194, 0.42286756, 1.48463176,
             0.17621009, 2.31810064, 0.15633061, 2.55137878, 1.11043948, 1.35923319, 1.58385561,
             0.63431437, 0.49993148, 0.49168534, 0.11533354,
         ];
-        let ci = Harmonic::ci(0.95, data).unwrap();
+        let ci = Harmonic::ci(confidence, data).unwrap();
         // harmonic mean: 0.38041820166550844
         assert_approx_eq!(ci.low().unwrap(), 0.245, 1e-3);
         assert_approx_eq!(ci.high().unwrap(), 0.852, 1e-3);
@@ -252,7 +282,7 @@ mod tests {
         const POPULATION_SIZE: usize = 10_000;
         let repetitions = 10_000;
         let sample_size = 10;
-        let confidence = 0.95;
+        let confidence = Confidence::new_two_sided(0.95);
         let tolerance = 0.02;
 
         // generate population (uniformly distributed between 0 and 1)
@@ -273,7 +303,7 @@ mod tests {
             }
         }
         let ci_contains_mean = count_in_ci as f64 / repetitions as f64;
-        assert_approx_eq!(ci_contains_mean, confidence, tolerance);
+        assert_approx_eq!(ci_contains_mean, confidence.level(), tolerance);
     }
 
     fn random_sample<T: Copy>(

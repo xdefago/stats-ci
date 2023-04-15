@@ -4,13 +4,13 @@
 //!
 //! ```
 //! # fn test() -> Result<(), stats_ci::error::CIError> {
-//! use stats_ci::proportion;
+//! use stats_ci::*;
 //!
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
 //!     false, false, false, true, false, true, false, false, true, false
 //! ];
-//! let confidence = 0.95;
+//! let confidence = Confidence::new_two_sided(0.95);
 //! let interval = proportion::ci_true(confidence, data)?;
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
@@ -47,14 +47,14 @@ use error::*;
 ///
 /// ```
 /// # fn test() -> Result<(), stats_ci::error::CIError> {
-/// use stats_ci::proportion;
+/// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let data = [
 ///     true, false, true, true, false, true, true, false, true, true,
 ///     false, false, false, true, false, true, false, false, true, false
 /// ];
-/// let confidence = 0.95;
+/// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_true(confidence, data)?;
 /// assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
@@ -62,7 +62,10 @@ use error::*;
 /// # }
 /// ```
 ///
-pub fn ci_true<T: IntoIterator<Item = bool>>(confidence: f64, data: T) -> CIResult<Interval<f64>> {
+pub fn ci_true<T: IntoIterator<Item = bool>>(
+    confidence: Confidence,
+    data: T,
+) -> CIResult<Interval<f64>> {
     let mut population = 0;
     let mut successes = 0;
     for x in data {
@@ -94,11 +97,11 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(confidence: f64, data: T) -> CIResu
 ///
 /// ```
 /// # fn test() -> Result<(), stats_ci::error::CIError> {
-/// use stats_ci::proportion;
+/// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-/// let confidence = 0.95;
+/// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
 /// assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
@@ -107,7 +110,7 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(confidence: f64, data: T) -> CIResu
 /// ```
 ///
 pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
-    confidence: f64,
+    confidence: Confidence,
     data: I,
     cond: F,
 ) -> CIResult<Interval<f64>> {
@@ -138,21 +141,21 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 ///
 /// ```
 /// # fn test() -> Result<(), stats_ci::error::CIError> {
-/// use stats_ci::proportion;
+/// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
 /// let population = 500;
 /// let successes = 421;
-/// let confidence = 0.95;
-/// let interval = proportion::ci(confidence, population, successes).unwrap();
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let interval = proportion::ci(confidence, population, successes)?;
 /// assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
 /// assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
 /// # Ok(())
 /// # }
 /// ```
 ///
-pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Interval<f64>> {
-    ci_wilson(confidence, population, successes, true)
+pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResult<Interval<f64>> {
+    ci_wilson(confidence, population, successes)
 }
 
 ///
@@ -185,16 +188,12 @@ pub fn ci(confidence: f64, population: usize, successes: usize) -> CIResult<Inte
 /// * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/)
 ///
 pub fn ci_wilson(
-    confidence: f64,
+    confidence: Confidence,
     population: usize,
     successes: usize,
-    two_sided: bool,
 ) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
-    }
-    if confidence <= 0. || confidence >= 1. {
-        return Err(CIError::InvalidConfidenceLevel(confidence));
     }
 
     let n = population as f64;
@@ -214,7 +213,7 @@ pub fn ci_wilson(
         ));
     }
 
-    let z = z_value(confidence, two_sided);
+    let z = z_value(confidence);
     let z_2 = z * z;
 
     let mean = (n_s + z_2 / 2.) / (n + z_2);
@@ -250,16 +249,12 @@ pub fn ci_wilson(
 /// * Francis J. DiTraglia. [Blog post: The Normal Approximation Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-normal-approximation-confidence-interval-for-a-proportion/)
 ///
 pub fn ci_z_normal(
-    confidence: f64,
+    confidence: Confidence,
     population: usize,
     successes: usize,
-    two_sided: bool,
 ) -> CIResult<Interval<f64>> {
     if successes > population {
         return Err(CIError::InvalidSuccesses(successes, population));
-    }
-    if confidence <= 0. || confidence >= 1. {
-        return Err(CIError::InvalidConfidenceLevel(confidence));
     }
 
     let n = population as f64;
@@ -281,7 +276,7 @@ pub fn ci_z_normal(
     }
 
     let std_dev = (p * q / n).sqrt();
-    let z = z_value(confidence, two_sided);
+    let z = z_value(confidence);
     Ok(Interval::new(p - z * std_dev, p + z * std_dev))
 }
 
@@ -294,7 +289,7 @@ mod tests {
     fn test_proportion_ci() {
         let population = 500;
         let successes = 421;
-        let confidence = 0.95;
+        let confidence = Confidence::TwoSided(0.95);
         let interval = ci(confidence, population, successes).unwrap();
         assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
         assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
@@ -305,7 +300,7 @@ mod tests {
         let data = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         ];
-        let confidence = 0.95;
+        let confidence = Confidence::TwoSided(0.95);
         let interval = ci_if(confidence, &data, |&x| x <= 10).unwrap();
         assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
         assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
