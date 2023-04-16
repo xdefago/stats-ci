@@ -172,6 +172,15 @@ impl<T: Float> MeanCI<T> for Harmonic {
     }
 }
 
+fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
+    let sum = *current_sum;
+    let c = *compensation;
+    let y = x - c;
+    let t = sum + y;
+    *compensation = (t - sum) - y;
+    *current_sum = t;
+}
+
 fn ci_with_transforms<T: PartialOrd, U: Float, I, F, Finv, Fvalid>(
     confidence: Confidence,
     data: I,
@@ -188,7 +197,9 @@ where
     use itertools::Itertools;
 
     let mut sum = U::zero();
+    let mut sum_c = U::zero(); // compensation for Kahan summation
     let mut sum_sq = U::zero();
+    let mut sum_sq_c = U::zero(); // compensation for Kahan summation
     let population = data
         .into_iter()
         // test validitity and return InvalidInputData
@@ -202,8 +213,10 @@ where
         // count population size and compute sum and sum of squares
         .fold_ok(0_usize, |acc, x| {
             let x_prime = f_transform(x);
-            sum = sum + x_prime;
-            sum_sq = sum_sq + x_prime * x_prime;
+            // sum = sum + x_prime;
+            kahan_add(&mut sum, x_prime, &mut sum_c);
+            // sum_sq = sum_sq + x_prime * x_prime;
+            kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
             acc + 1
         })?;
     if population < 2 {
@@ -329,5 +342,21 @@ mod tests {
             .map(|_| rng.gen_range(0..data.len()))
             .map(|i| data[i])
             .collect()
+    }
+
+    #[test]
+    fn test_kahan_add() {
+        let mut normal = 0_f32;
+        let mut kahan = 0_f32;
+        let mut kahan_c = 0_f32;
+        let x = 0.1;
+
+        for _ in 0..50_000_000_usize {
+            normal += x;
+            kahan_add(&mut kahan, x, &mut kahan_c);
+        }
+
+        assert_approx_eq!(5_000_000., kahan, 1e-10);
+        assert!((5_000_000. - normal).abs() > 500_000.); // normal is not accurate
     }
 }

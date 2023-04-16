@@ -23,8 +23,8 @@ The motivation behind creating this crate comes both from the recurring need of 
 ## Disclaimer
 
 I am far from being a statistician and I will gladly welcome any advice or corrections.
-I made also no attempt at numerical statibility, although I do plan to improve this partly by implementing Kahan summation soon.
-
+I only made a feeble attempt at numerical statibility (e.g., kahan sum, log-sum-exp).
+In any case, please be circumspect about the results obtained from this crate.
 
 ## Usage
 
@@ -117,7 +117,6 @@ Currently, the following are on my TODO list:
 
 * [feature] confidence intervals for difference of sample data.
 * [feature] confidence intervals for regression parameters.
-* [numeric] numerical stability with Kahan summation
 * [stats] review/fix statistical tests
 * [API] return results more consistently
 * [API] remove `unwrap()` and reduce panicking code
