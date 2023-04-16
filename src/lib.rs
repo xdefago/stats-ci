@@ -16,7 +16,15 @@
 //! # Examples
 //!
 //! ## C.I. for the Mean
-//!
+//! 
+//! The crate provides functions to compute confidence intervals for the mean of floating-point (`f32` or `f64`) data.
+//! The functions are generic and can be used with any type that implements the [`Float`] trait from the crate [`num_traits`].
+//! 
+//! The crate provides three functions to compute confidence intervals for the mean of floating-point data:
+//! * [`mean::Arithmetic::ci`] computes the confidence interval for the arithmetic mean.
+//! * [`mean::Geometric::ci`] computes the confidence interval for the geometric mean
+//! * [`mean::Harmonic::ci`] computes the confidence interval for the harmonic mean
+//! 
 //! ```
 //! use stats_ci::*;
 //!
@@ -41,6 +49,12 @@
 //!
 //! ## C.I. for Quantiles
 //!
+//! Depending on the type of data and measurements, it is sometimes inappropriate to compute the mean of the data because that value makes little sense.
+//! For instance, consider a communication system and suppose that we want to test if at least 95% of messages are delivered within 1 second with 90% confidence.
+//! Then, the value of interest is the one-sided confidence interval of the 95th percentile (quantile=.95, condidence level=0.9). 
+//! 
+//! In a different context, if the data is an ordered sequence of strings, it could make sense to compute an interval around the median of the data, but the mean cannot be computed.
+//! 
 //! ```
 //! use stats_ci::*;
 //!
@@ -63,6 +77,11 @@
 //!
 //! ## C.I. for Proportions
 //!
+//! Confidence intervals for proportions are often used in the context of A/B testing or when measuring the success/failure rate of a system.
+//! It is also useful when running Monte-Carlo simulations to estimate the winning chances of a player in a game.
+//! 
+//! This crate uses the Wilson score interval to compute the confidence interval for a proportion,
+//! which is more stable than the standard normal approximation but results in slightly more conservative intervals.
 //! ```
 //! # use assert_approx_eq::assert_approx_eq;
 //! use stats_ci::*;
