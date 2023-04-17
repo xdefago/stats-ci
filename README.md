@@ -1,8 +1,9 @@
-# stats-ci
-
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 
-NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
+# stats-ci
+
+
+NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no particular efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
 
 ## Description
 
@@ -18,7 +19,7 @@ Not included yet but planned are:
 
 ## Motivation
 
-The motivation behind creating this crate comes both from the recurring need of confidence intervals in personal projects and also out of frustration from having to look up the formulas each time. I reckoned that I might not be alone in this situation and that such a crate could prove useful to some.
+The motivation behind creating this crate came both from the recurring need of confidence intervals in personal projects and also out of frustration from having to look up the formulas each time. I reckoned that I might not be alone in this situation and that such a crate could prove useful to some.
 
 ## Disclaimer
 
@@ -38,6 +39,14 @@ stats-ci = "0.0.1"
 ## Examples
 
 ### C.I. for the Mean
+
+The crate provides functions to compute confidence intervals for the mean of floating-point (`f32` or `f64`) data.
+The functions are generic and can be used with any type that implements the `Float` trait from the crate [`num-traits`](https://crates.io/crates/num-traits).
+ 
+The crate provides three functions to compute confidence intervals for the mean of floating-point data:
+* `mean::Arithmetic::ci` computes the confidence interval for the arithmetic mean.
+* `mean::Geometric::ci` computes the confidence interval for the geometric mean
+* `mean::Harmonic::ci` computes the confidence interval for the harmonic mean
 
 ```rust
 use stats_ci::*;
@@ -68,6 +77,12 @@ println!("ci: {}", ci); // ci: [37.731050052007845, 50.67532768656474]
 
 ## C.I. for Quantiles
 
+Depending on the type of data and measurements, it is sometimes inappropriate to compute the mean of the data because that value makes little sense.
+For instance, consider a communication system and suppose that we want to test if at least 95% of messages are delivered within 1 second with 90% confidence.
+Then, the value of interest is the one-sided confidence interval of the 95th percentile (quantile=.95, condidence level=0.9). 
+
+In a different context, if the data is an ordered sequence of strings, it could make sense to compute an interval around the median of the data, but the mean cannot be computed.
+
 ```rust
 use stats_ci::*;
 
@@ -90,6 +105,12 @@ assert_eq!(interval3, Interval::new("D", "L"));
 ```
 
 ## C.I. for Proportions
+
+Confidence intervals for proportions are often used in the context of A/B testing or when measuring the success/failure rate of a system.
+It is also useful when running Monte-Carlo simulations to estimate the winning chances of a player in a game.
+ 
+This crate uses the Wilson score interval to compute the confidence interval for a proportion,
+which is more stable than the standard normal approximation but results in slightly more conservative intervals.
 
 ```rust
 use stats_ci::*;
