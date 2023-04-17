@@ -200,25 +200,17 @@ where
     let mut sum_c = U::zero(); // compensation for Kahan summation
     let mut sum_sq = U::zero();
     let mut sum_sq_c = U::zero(); // compensation for Kahan summation
-    let population = data
-        .into_iter()
-        // test validitity and return InvalidInputData
-        .map(|x| {
-            if f_valid(&x) {
-                Ok(x)
-            } else {
-                Err(CIError::InvalidInputData)
-            }
-        })
-        // count population size and compute sum and sum of squares
-        .fold_ok(0_usize, |acc, x| {
-            let x_prime = f_transform(x);
-            // sum = sum + x_prime;
-            kahan_add(&mut sum, x_prime, &mut sum_c);
-            // sum_sq = sum_sq + x_prime * x_prime;
-            kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
-            acc + 1
-        })?;
+    let mut population = 0_usize;
+    for x in data {
+        if ! f_valid(&x) {
+            return Err(CIError::InvalidInputData);
+        }
+        let x_prime = f_transform(x);
+        kahan_add(&mut sum, x_prime, &mut sum_c);
+        kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
+        population += 1;
+    }
+
     if population < 2 {
         return Err(CIError::TooFewSamples(population));
     }
