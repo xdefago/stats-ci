@@ -7,7 +7,7 @@ repository = "https://github.com/xdefago/stats-ci"
 authors = ["xdefago"]
 
 readme = "README.md"
-license-file = "LICENSE.md"
+license = "MIT OR Apache-2.0"
 
 description = "Provides functions to compute confidence intervals for various situations."
 keywords = ["math", "statistics", "stats", "sampling", "analysis"]
