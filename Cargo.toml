@@ -4,6 +4,8 @@ version = "0.0.1"
 edition = "2021"
 
 repository = "https://github.com/xdefago/stats-ci"
+documentation = "https://docs.rs/stats-ci/"
+
 authors = ["xdefago"]
 
 readme = "README.md"
