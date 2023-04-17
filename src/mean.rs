@@ -194,13 +194,12 @@ where
     F: Fn(T) -> U,
     Finv: Fn(U, U) -> (T, T),
 {
-    use itertools::Itertools;
-
     let mut sum = U::zero();
     let mut sum_c = U::zero(); // compensation for Kahan summation
     let mut sum_sq = U::zero();
     let mut sum_sq_c = U::zero(); // compensation for Kahan summation
     let mut population = 0_usize;
+    
     for x in data {
         if ! f_valid(&x) {
             return Err(CIError::InvalidInputData);
