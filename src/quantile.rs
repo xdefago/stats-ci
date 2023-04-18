@@ -70,34 +70,23 @@ use crate::stats::z_value;
 /// # }
 /// ```
 ///
-pub fn ci_sorted_unchecked<T: Clone>(
+pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
     confidence: Confidence,
     sorted: &[T],
     quantile: f64,
 ) -> Option<Interval<T>> {
     assert!(quantile > 0. && quantile < 1.);
 
-    let len = sorted.len();
-    if len < 3 {
-        // too few smaples to compute
-        return None;
-    }
-
-    let z = z_value(confidence);
-    let q = quantile; /* 0.5 for median */
-    let n = len as f64;
-    let mid_span = z * f64::sqrt(n * q * (1. - q));
-    let lo_index = f64::ceil(n * q - mid_span - 1.);
-    let hi_index = f64::ceil(n * q + mid_span - 1.);
-    if lo_index < 0. || hi_index > n {
-        // interval falls outside the range of the data
-        return None;
-    }
-    if let (Some(lo), Some(hi)) = (sorted.get(lo_index as usize), sorted.get(hi_index as usize)) {
-        Some(Interval::new_unordered_unchecked(lo.clone(), hi.clone()))
-    } else {
-        None
-    }
+    ci_indices(confidence, sorted.len(), quantile).and_then(|indices| {
+        if let (Some(lo), Some(hi)) = indices.into() {
+            Some(Interval::new_unordered_unchecked(
+                sorted[lo].clone(),
+                sorted[hi].clone(),
+            ))
+        } else {
+            None
+        }
+    })
 }
 
 /// compute the confidence interval for a given quantile
@@ -151,6 +140,84 @@ pub fn ci<T: PartialOrd + Clone>(
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
 
+/// compute the confidence interval for a given quantile, assuming that the data is already sorted.
+/// The function returns the indices of the lower and upper bounds of the interval.
+/// this is the function to call if the data is known to be sorted,
+/// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
+///
+/// # Arguments
+///
+/// * `confidence` - the confidence level (must be in (0, 1))
+/// * `sorted` - the sorted sample
+/// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
+///
+/// # Output
+///
+/// * `Interval` - the confidence interval for the quantile
+/// * `None` - if the number of samples is too small to compute a confidence interval, or if the interval falls outside the range of the data.
+///
+/// # Errors
+///
+/// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
+/// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
+/// * `InvalidQuantile` - if the quantile is not in (0, 1)
+///
+/// # Examples
+///
+/// ```
+/// # use stats_ci::*;
+/// # fn main() -> error::CIResult<()> {
+/// let data = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let quantile = 0.5; // median
+/// let interval = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+/// assert_eq!(interval, Interval::new(3, 11));
+///
+/// let confidence = Confidence::new_two_sided(0.8);
+/// let interval2 = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+/// assert_eq!(interval2, Interval::new(5, 9));
+///
+/// let confidence = Confidence::new_two_sided(0.5);
+/// let quantile = 0.2; // 20th percentile
+/// let interval3 = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+/// assert_eq!(interval3, Interval::new(1, 4));
+/// # Ok(())
+/// # }
+/// ```
+///
+pub fn ci_indices(
+    confidence: Confidence,
+    data_len: usize,
+    quantile: f64,
+) -> Option<Interval<usize>> {
+    assert!(quantile > 0. && quantile < 1.);
+
+    if data_len < 3 {
+        // too few smaples to compute
+        return None;
+    }
+
+    let z = z_value(confidence);
+    let q = quantile; /* 0.5 for median */
+    let n = data_len as f64;
+    let mid_span = z * f64::sqrt(n * q * (1. - q));
+    let lo_index = f64::ceil(n * q - mid_span) - 1.;
+    let hi_index = f64::ceil(n * q + mid_span) - 1.;
+    if lo_index < 0. {
+        // interval falls outside the range of the data
+        return None;
+    }
+
+    let lo_index = lo_index as usize;
+    let hi_index = hi_index as usize;
+    if hi_index >= data_len {
+        // interval falls outside the range of the data
+        return None;
+    }
+
+    Some(Interval::new(lo_index, hi_index))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -174,6 +241,39 @@ mod tests {
         let confidence = Confidence::new_two_sided(0.95);
         let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.25);
         assert_eq!(quantile_ci, Some(Interval::new(8., 20.)));
+
+        let data = [
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+        ];
+        let confidence = Confidence::new_two_sided(0.95);
+        let quantile = 0.5; // median
+        let interval = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+        assert_eq!(interval, Interval::new(3, 11));
+
+        let confidence = Confidence::new_two_sided(0.8);
+        let interval2 = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+        assert_eq!(interval2, Interval::new(5, 9));
+
+        let confidence = Confidence::new_two_sided(0.5);
+        let quantile = 0.2; // 20th percentile
+        let interval3 = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+        assert_eq!(interval3, Interval::new(1, 4));
+
+        let data = [
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+        ];
+        let confidence = Confidence::new_two_sided(0.95);
+        let quantile = 0.5; // median
+        let interval = quantile::ci_sorted_unchecked(confidence, &data, quantile).unwrap();
+        assert_eq!(interval, Interval::new("D", "L"));
+
+        let data = [
+            'J', 'E', 'M', 'G', 'K', 'H', 'N', 'A', 'C', 'L', 'F', 'O', 'D', 'B', 'I'
+        ];
+        let confidence = Confidence::new_two_sided(0.95);
+        let quantile = 0.5; // median
+        let interval = quantile::ci(confidence, &data, quantile).unwrap();
+        assert_eq!(interval, Interval::new('D', 'L'));
     }
 
     #[derive(Debug, Clone, Copy, PartialEq)]
@@ -203,10 +303,10 @@ mod tests {
             Fourteen, Fifteen,
         ];
         let confidence = Confidence::new_two_sided(0.95);
-        let median_ci = ci_sorted_unchecked(confidence, &data, 0.5).unwrap();
-        assert_eq!(median_ci, Interval::new_unordered_unchecked(Four, Twelve));
-        assert_eq!(median_ci.left(), Some(&Four));
-        assert_eq!(median_ci.right(), Some(&Twelve));
+        let median_ci = ci_indices(confidence, data.len(), 0.5).unwrap();
+        assert_eq!(median_ci, Interval::new(3, 11));
+        assert_eq!(median_ci.left(), Some(&3));
+        assert_eq!(median_ci.right(), Some(&11));
     }
 
     #[test]
