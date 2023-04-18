@@ -21,3 +21,8 @@ This is an unordered list of items that I want to fix eventually.
 * Function to check for statistical significance.
 * Function to estimate minimal sample size for target significance.
 * Function to estimate best confidence level for a given data set and interval constraints.
+* Export index calcutations for `quantile::ci`
+
+## Fixes
+
+* fix index calculations in `quantile::ci`
