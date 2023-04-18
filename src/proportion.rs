@@ -218,10 +218,10 @@ pub fn ci_wilson(
     }
 
     let z = z_value(confidence);
-    let z_2 = z * z;
+    let z_sq = z * z;
 
-    let mean = (n_s + z_2 / 2.) / (n + z_2);
-    let span = (z / (n + z_2)) * ((n_s * n_f / n) + (z_2 / 4.)).sqrt();
+    let mean = (n_s + z_sq / 2.) / (n + z_sq);
+    let span = (z / (n + z_sq)) * ((n_s * n_f / n) + (z_sq / 4.)).sqrt();
 
     Ok(Interval::new(mean - span, mean + span))
 }
