@@ -261,7 +261,7 @@ where
         CIError::FloatConversionError(format!(
             "converting population ({}) into type {}",
             population,
-            std::any::type_name::<T>()
+            std::any::type_name::<U>()
         ))
     })?;
 
