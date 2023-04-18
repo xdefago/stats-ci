@@ -26,8 +26,9 @@
 use super::*;
 use crate::stats::z_value;
 
-/// compute the confidence interval for a given quantile, assuming that the data as already.
-///
+/// compute the confidence interval for a given quantile, assuming that the data is already sorted.
+/// this is the function to call if the data is known to be sorted,
+/// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
 ///
 /// # Arguments
 ///
@@ -35,6 +36,11 @@ use crate::stats::z_value;
 /// * `sorted` - the sorted sample
 /// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
 ///
+/// # Output
+/// 
+/// * `Interval` - the confidence interval for the quantile
+/// * `None` - if the number of samples is too small to compute a confidence interval, or if the interval falls outside the range of the data.
+/// 
 /// # Errors
 ///
 /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
@@ -81,12 +87,13 @@ pub fn ci_sorted_unchecked<T: Clone>(
     let q = quantile; /* 0.5 for median */
     let n = len as f64;
     let mid_span = z * f64::sqrt(n * q * (1. - q));
-    let lo = 1.max(f64::ceil(n * q - mid_span) as usize) - 1;
-    let hi = (len - 1).min(f64::ceil(n * q + mid_span) as usize - 1);
-    Some(Interval::new_unordered_unchecked(
-        sorted[lo].clone(),
-        sorted[hi].clone(),
-    ))
+    let lo = f64::ceil(n * q - mid_span) as usize - 1;
+    let hi = f64::ceil(n * q + mid_span) as usize - 1;
+    if let (Some(lo), Some(hi)) = (sorted.get(lo), sorted.get(hi)) {
+        Some(Interval::new_unordered_unchecked(lo.clone(), hi.clone()))
+    } else {
+        None
+    }
 }
 
 /// compute the confidence interval for a given quantile
@@ -103,6 +110,10 @@ pub fn ci_sorted_unchecked<T: Clone>(
 /// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
 /// * `InvalidQuantile` - if the quantile is not in (0, 1)
 ///
+/// # Panics
+/// 
+/// * if the data contains elements that are not comparable (with their partial ordering).
+/// 
 /// # Examples
 ///
 /// ```
