@@ -227,6 +227,41 @@ pub fn ci_wilson(
 }
 
 ///
+/// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
+/// This is the method used by default when calling the function [`ci`] of this module.
+///
+/// # Arguments
+///
+/// * `confidence` - the confidence level (must be in (0, 1))
+/// * `population` - the size of the population
+/// * `success_rate` - the proportion of successes in the sample
+///
+/// # Errors
+///
+/// * `TooFewSuccesses` - if the number of successes is too small to compute a confidence interval
+/// * `TooFewFailures` - if the number of failures is too small to compute a confidence interval
+/// * `InvalidSuccesses` - if the number of successes is larger than the population size
+/// * `NonPositiveValue` - if the success rate is not in positive or null.
+/// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
+///
+/// # Notes
+///
+/// This method is simply a front for [`ci_wilson`], which takes the number of successes as an argument.
+///
+pub fn ci_wilson_ratio(
+    confidence: Confidence,
+    population: usize,
+    success_rate: f64,
+) -> CIResult<Interval<f64>> {
+    if success_rate <= 0. {
+        return Err(CIError::NonPositiveValue(success_rate));
+    }
+    let successes = (success_rate * population as f64) as usize;
+
+    ci_wilson(confidence, population, successes)
+}
+
+///
 /// computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
 ///
 /// # Arguments
