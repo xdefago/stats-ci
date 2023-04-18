@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.0.2 (2023-04-18)
 
+<csr-id-cbe5378cc3a1d90ccd0b94902088090ef208635b/>
+<csr-id-8e896dc892de9a663d6dbcca215537656b151455/>
+<csr-id-53ee3be8395defd3ef72cdace35a6c2f08c3c56f/>
+<csr-id-beaf51a1c53c260d097712189a76c6f630b6f6af/>
+<csr-id-b4108b440e56d09c3e67e4babb2fec881c121f0f/>
+
 ### Documentation
 
  - <csr-id-8e5d0797e912774b13bc43c0f5c2339add8dbfb8/> add items to todo list
@@ -44,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 22 commits contributed to the release over the course of 1 calendar day.
+ - 23 commits contributed to the release over the course of 1 calendar day.
  - 1 day passed between releases.
  - 15 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -56,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.2 ([`bfd80f6`](https://github.com/xdefago/stats-ci/commit/bfd80f61aed6518e5c10e4c80ef98c900e5cc92e))
     - Add trailing comma ([`beaf51a`](https://github.com/xdefago/stats-ci/commit/beaf51a1c53c260d097712189a76c6f630b6f6af))
     - Add function for wilson from success rate ([`c728c69`](https://github.com/xdefago/stats-ci/commit/c728c69d3213481a115076f72c9e3aaa92bf5161))
     - Rename local variable z_2 to z_sq ([`b4108b4`](https://github.com/xdefago/stats-ci/commit/b4108b440e56d09c3e67e4babb2fec881c121f0f))
