@@ -37,10 +37,10 @@ use crate::stats::z_value;
 /// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
 ///
 /// # Output
-/// 
+///
 /// * `Interval` - the confidence interval for the quantile
 /// * `None` - if the number of samples is too small to compute a confidence interval, or if the interval falls outside the range of the data.
-/// 
+///
 /// # Errors
 ///
 /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
@@ -87,9 +87,13 @@ pub fn ci_sorted_unchecked<T: Clone>(
     let q = quantile; /* 0.5 for median */
     let n = len as f64;
     let mid_span = z * f64::sqrt(n * q * (1. - q));
-    let lo = f64::ceil(n * q - mid_span) as usize - 1; // FIXME: check bounds; panics if the result is negative
-    let hi = f64::ceil(n * q + mid_span) as usize - 1;
-    if let (Some(lo), Some(hi)) = (sorted.get(lo), sorted.get(hi)) {
+    let lo_index = f64::ceil(n * q - mid_span - 1.);
+    let hi_index = f64::ceil(n * q + mid_span - 1.);
+    if lo_index < 0. || hi_index > n {
+        // interval falls outside the range of the data
+        return None;
+    }
+    if let (Some(lo), Some(hi)) = (sorted.get(lo_index as usize), sorted.get(hi_index as usize)) {
         Some(Interval::new_unordered_unchecked(lo.clone(), hi.clone()))
     } else {
         None
@@ -111,9 +115,9 @@ pub fn ci_sorted_unchecked<T: Clone>(
 /// * `InvalidQuantile` - if the quantile is not in (0, 1)
 ///
 /// # Panics
-/// 
+///
 /// * if the data contains elements that are not comparable (with their partial ordering).
-/// 
+///
 /// # Examples
 ///
 /// ```
