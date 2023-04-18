@@ -1,9 +1,9 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE-MIT)
 [![Apache 2.0 license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE-APACHE)
-[![Latest crates.io](https://img.shields.io/crates/v/stats-ci)](https://crates.io/crates/stats-ci)
 [![Docs](https://img.shields.io/docsrs/stats-ci)](https://docs.rs/stats-ci)
 [![Tests](https://github.com/xdefago/stats-ci/actions/workflows/tests.yml/badge.svg)](https://github.com/xdefago/stats-ci/actions/workflows/tests.yml)
 [![Downloads](https://img.shields.io/crates/d/stats-ci)](https://crates.io/crates/stats-ci)
+[![Latest crates.io](https://img.shields.io/crates/v/stats-ci)](https://crates.io/crates/stats-ci)
 
 # stats-ci
 
