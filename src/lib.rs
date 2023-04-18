@@ -18,7 +18,7 @@
 //! ## C.I. for the Mean
 //!
 //! The crate provides functions to compute confidence intervals for the mean of floating-point (`f32` or `f64`) data.
-//! The functions are generic and can be used with any type that implements the [`Float`] trait from the crate [`num_traits`].
+//! The functions are generic and can be used with any type that implements the [`num_traits::Float`] trait from the crate [`num_traits`].
 //!
 //! The crate provides three functions to compute confidence intervals for the mean of floating-point data:
 //! * [`mean::Arithmetic::ci`] computes the confidence interval for the arithmetic mean.
