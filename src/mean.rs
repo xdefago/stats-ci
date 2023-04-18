@@ -111,7 +111,7 @@ use num_traits::Float;
 /// # Ok(())
 /// # }
 /// ```
-pub trait MeanCI<T> {
+pub trait MeanCI<T: PartialOrd> {
     fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>;

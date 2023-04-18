@@ -20,7 +20,7 @@
 /// ```
 #[derive(Debug, Default, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum Interval<T> {
+pub enum Interval<T> where T: PartialOrd {
     #[default]
     Empty,
     Degenerate(T),
@@ -117,9 +117,7 @@ impl<T: PartialOrd> Interval<T> {
             ) => x <= a && b <= y,
         }
     }
-}
 
-impl<T> Interval<T> {
     ///
     /// Create a new interval from its left and right bounds for unordered types.
     /// The function is unchecked and always results in a concrete interval.
@@ -225,7 +223,7 @@ impl<T: PartialOrd> Interval<T> {
     }
 }
 
-impl<T: PartialEq> Interval<T> {
+impl<T: PartialOrd + PartialEq> Interval<T> {
     ///
     /// Create a new interval from its left and right bounds for unordered types with equality.
     ///
@@ -321,7 +319,7 @@ impl<T: PartialOrd> RangeBounds<T> for Interval<T> {
     }
 }
 
-impl<T: std::ops::Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
+impl<T: PartialOrd + std::ops::Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
     pub fn width(&self) -> Option<T> {
         match self {
             Interval::Empty => None,
@@ -334,7 +332,7 @@ impl<T: std::ops::Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
     }
 }
 
-impl<T: Clone> Clone for Interval<T> {
+impl<T: PartialOrd + Clone> Clone for Interval<T> {
     fn clone(&self) -> Self {
         match self {
             Interval::Empty => Interval::Empty,
@@ -350,10 +348,10 @@ impl<T: Clone> Clone for Interval<T> {
     }
 }
 
-impl<T: Copy> Copy for Interval<T> {}
+impl<T: PartialOrd + Copy> Copy for Interval<T> {}
 
 use std::fmt::Display;
-impl<T: Display> Display for Interval<T> {
+impl<T: PartialOrd + Display> Display for Interval<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Empty => write!(f, "∅"),
@@ -364,7 +362,7 @@ impl<T: Display> Display for Interval<T> {
 }
 
 use std::hash::Hash;
-impl<T: Hash> Hash for Interval<T> {
+impl<T: PartialOrd + Hash> Hash for Interval<T> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
             Interval::Empty => 0.hash(state),
@@ -384,7 +382,7 @@ impl<T: Hash> Hash for Interval<T> {
     }
 }
 
-impl<T> AsRef<Self> for Interval<T> {
+impl<T: PartialOrd> AsRef<Self> for Interval<T> {
     fn as_ref(&self) -> &Self {
         self
     }
