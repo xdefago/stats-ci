@@ -268,7 +268,7 @@ mod tests {
         assert_eq!(interval, Interval::new("D", "L"));
 
         let data = [
-            'J', 'E', 'M', 'G', 'K', 'H', 'N', 'A', 'C', 'L', 'F', 'O', 'D', 'B', 'I'
+            'J', 'E', 'M', 'G', 'K', 'H', 'N', 'A', 'C', 'L', 'F', 'O', 'D', 'B', 'I',
         ];
         let confidence = Confidence::new_two_sided(0.95);
         let quantile = 0.5; // median
