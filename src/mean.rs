@@ -1,10 +1,10 @@
 //! Confidence intervals over the mean (arithmetic, geometric, harmonic) of a given sample.
-//! 
+//!
 //! The calculations use Student's t distribution regardless of sample size.
 //! This provides more conservative (and accurate intervals) than the normal distribution
 //! when the number of samples is small, and asymptotically approaches the normal distribution
 //! as the number of samples increases.
-//! 
+//!
 //! # Examples
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
@@ -180,16 +180,16 @@ impl<T: Float> MeanCI<T> for Harmonic {
 ///
 /// compensated Kahan summation.
 /// See <https://en.wikipedia.org/wiki/Kahan_summation_algorithm>
-/// 
+///
 /// The function is meant to be called at each iteration of the summation,
 /// with relevant variables managed externally
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `current_sum` - the current sum
 /// * `x` - the next value to add to the sum
 /// * `compensation` - the compensation term
-/// 
+///
 fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
     let sum = *current_sum;
     let c = *compensation;
@@ -202,21 +202,21 @@ fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
 ///
 /// Compute the confidence interval for the mean of a sample,
 /// applying validity and transformation functions to the sample data.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `confidence` - the confidence level
 /// * `data` - the sample data
 /// * `f_valid` - a function to determine whether a value is valid
 /// * `f_transform` - a function to transform a value before computing the mean
 /// * `f_inverse` - the inverse function to transform the bounds of the confidence interval
-/// 
+///
 /// # Errors
-/// 
+///
 /// * `CIError::InvalidInputData` - if the sample data is empty or contains invalid values
 /// * `CIError::InvalidTooFewSamples` - if the sample size is not sufficient
 /// * `CIError::FloatConversionError` - if the conversion from `T` to `U` fails
-/// 
+///
 fn ci_with_transforms<T: PartialOrd, U: Float, I, F, Finv, Fvalid>(
     confidence: Confidence,
     data: I,
@@ -235,9 +235,9 @@ where
     let mut sum_sq = U::zero();
     let mut sum_sq_c = U::zero(); // compensation for Kahan summation
     let mut population = 0_usize;
-    
+
     for x in data {
-        if ! f_valid(&x) {
+        if !f_valid(&x) {
             return Err(CIError::InvalidInputData);
         }
         let x_prime = f_transform(x);

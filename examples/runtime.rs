@@ -1,5 +1,5 @@
+use rand::{thread_rng, Rng};
 use stats_ci::*;
-use rand::{Rng,thread_rng};
 use std::time::Instant;
 
 ///
@@ -8,7 +8,7 @@ use std::time::Instant;
 /// about 50ms for an array of 12.5M elements (when compiled in --release).
 /// Unfortunately, the runtime seems to hang (or get very slow) when the array size is increased to
 /// 15M elements. This could be due to cache issues? I'm not sure.
-/// 
+///
 fn main() {
     type Float = f64;
     const POPULATION_SIZE: usize = 12_500_000;
