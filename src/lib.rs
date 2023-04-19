@@ -65,18 +65,18 @@
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let quantile = 0.5; // median
-//! let interval = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval, Interval::new(4, 12).unwrap());
+//! let interval = quantile::ci(confidence, &data, quantile)?;
+//! assert_eq!(interval, Interval::new(5, 12)?);
 //!
 //! let confidence = Confidence::new_two_sided(0.8);
-//! let interval2 = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval2, Interval::new(6, 10).unwrap());
+//! let interval2 = quantile::ci(confidence, &data, quantile)?;
+//! assert_eq!(interval2, Interval::new(6, 11)?);
 //!
 //! let data = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let quantile = 0.5; // median
-//! let interval3 = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval3, Interval::new("D", "L").unwrap());
+//! let interval3 = quantile::ci(confidence, &data, quantile)?;
+//! assert_eq!(interval3, Interval::new("E", "L")?);
 //! # Ok(())
 //! # }
 //! ```
