@@ -132,7 +132,8 @@ impl<T: Float> MeanCI<T> for Arithmetic {
             data,
             |x: &T| !x.is_nan() && !x.is_infinite(),
             |x| x,
-            |x, y| (x, y),
+            |x| x,
+            false,
         )
     }
 }
@@ -152,7 +153,8 @@ impl<T: Float> MeanCI<T> for Geometric {
             data,
             |x: &T| x.is_sign_positive() || !x.is_zero(),
             |x| x.ln(),
-            |x, y| (x.exp(), y.exp()),
+            |x| x.exp(),
+            false,
         )
     }
 }
@@ -171,8 +173,9 @@ impl<T: Float> MeanCI<T> for Harmonic {
             confidence,
             data,
             |x: &T| x.is_sign_positive() || !x.is_zero(),
-            |x| x.recip(),                 // 1/x
-            |x, y| (y.recip(), x.recip()), // NB: bounds are mirrored
+            |x| x.recip(), // 1/x
+            |x| x.recip(),
+            true,
         )
     }
 }
@@ -210,6 +213,7 @@ fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
 /// * `f_valid` - a function to determine whether a value is valid
 /// * `f_transform` - a function to transform a value before computing the mean
 /// * `f_inverse` - the inverse function to transform the bounds of the confidence interval
+/// * `flipped` - whether the confidence interval is flipped by the transformation (i.e. the lower bound is the upper bound)
 ///
 /// # Errors
 ///
@@ -223,12 +227,13 @@ fn ci_with_transforms<T: PartialOrd, U: Float, I, F, Finv, Fvalid>(
     f_valid: Fvalid,
     f_transform: F,
     f_inverse: Finv,
+    flipped: bool,
 ) -> CIResult<Interval<T>>
 where
     I: IntoIterator<Item = T>,
     Fvalid: Fn(&T) -> bool,
     F: Fn(T) -> U,
-    Finv: Fn(U, U) -> (T, T),
+    Finv: Fn(U) -> T,
 {
     let mut sum = U::zero();
     let mut sum_c = U::zero(); // compensation for Kahan summation
@@ -268,11 +273,38 @@ where
     let mean = sum / n;
     let variance = (sum_sq - sum * sum / n) / (n - U::one());
     let std_dev = variance.sqrt();
-    Interval::try_from(f_inverse(
-        mean - t_value * std_dev / n.sqrt(),
-        mean + t_value * std_dev / n.sqrt(),
-    ))
-    .map_err(|e| e.into())
+    let span = t_value * std_dev / n.sqrt();
+    match confidence {
+        Confidence::TwoSided(_) => {
+            let low = if !flipped {
+                f_inverse(mean - span)
+            } else {
+                f_inverse(mean + span)
+            };
+            let high = if !flipped {
+                f_inverse(mean + span)
+            } else {
+                f_inverse(mean - span)
+            };
+            Interval::new(low, high).map_err(|e| e.into())
+        }
+        Confidence::UpperOneSided(_) => {
+            let low = if !flipped {
+                f_inverse(mean - span)
+            } else {
+                f_inverse(mean + span)
+            };
+            Ok(Interval::new_upper(low))
+        }
+        Confidence::LowerOneSided(_) => {
+            let high = if !flipped {
+                f_inverse(mean + span)
+            } else {
+                f_inverse(mean - span)
+            };
+            Ok(Interval::new_lower(high))
+        }
+    }
 }
 
 #[cfg(test)]
@@ -281,7 +313,7 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn test_mean_ci() {
+    fn test_mean_ci() -> CIResult<()> {
         let confidence = Confidence::new_two_sided(0.95);
         let data = [
             82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -291,22 +323,45 @@ mod tests {
             49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
             37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
         ];
-        let ci = Arithmetic::ci(confidence, data).unwrap();
+        let ci = Arithmetic::ci(confidence, data)?;
         // mean: 53.67
         // stddev: 28.097613040716798
-        assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
-        assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
-        assert_approx_eq!(ci.low().unwrap() + ci.high().unwrap(), 2. * 53.67, 1e-3);
+        assert_approx_eq!(ci.low_f(), 48.0948, 1e-3);
+        assert_approx_eq!(ci.high_f(), 59.2452, 1e-3);
+        assert_approx_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, 1e-3);
 
-        let ci = Harmonic::ci(confidence, data).unwrap();
+        let ci2 = Arithmetic::ci(Confidence::UpperOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-3);
+        assert_eq!(ci2.high_f(), f64::INFINITY);
+        let ci2 = Arithmetic::ci(Confidence::LowerOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-3);
+        assert_eq!(ci2.low_f(), f64::NEG_INFINITY);
+
+        let ci = Harmonic::ci(confidence, data)?;
         // harmonic mean: 30.031313156339586
-        assert_approx_eq!(ci.low().unwrap(), 23.6141, 1e-3);
-        assert_approx_eq!(ci.high().unwrap(), 41.2379, 1e-3);
+        assert_approx_eq!(ci.low_f(), 23.6141, 1e-3);
+        assert_approx_eq!(ci.high_f(), 41.2379, 1e-3);
 
-        let ci = Geometric::ci(confidence, data).unwrap();
+        let ci2 = Harmonic::ci(Confidence::UpperOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-3);
+        assert_eq!(ci2.high_f(), f64::INFINITY);
+        let ci2 = Harmonic::ci(Confidence::LowerOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-3);
+        assert_eq!(ci2.low_f(), f64::NEG_INFINITY);
+
+        let ci = Geometric::ci(confidence, data)?;
         // geometric mean: 43.7268032829256
-        assert_approx_eq!(ci.low().unwrap(), 37.7311, 1e-3);
-        assert_approx_eq!(ci.high().unwrap(), 50.6753, 1e-3);
+        assert_approx_eq!(ci.low_f(), 37.7311, 1e-3);
+        assert_approx_eq!(ci.high_f(), 50.6753, 1e-3);
+
+        let ci2 = Geometric::ci(Confidence::UpperOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-3);
+        assert_eq!(ci2.high_f(), f64::INFINITY);
+        let ci2 = Geometric::ci(Confidence::LowerOneSided(0.975), data)?;
+        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-3);
+        assert_eq!(ci2.low_f(), f64::NEG_INFINITY);
+
+        Ok(())
     }
 
     #[test]
@@ -320,8 +375,8 @@ mod tests {
         ];
         let ci = Harmonic::ci(confidence, data).unwrap();
         // harmonic mean: 0.38041820166550844
-        assert_approx_eq!(ci.low().unwrap(), 0.245, 1e-3);
-        assert_approx_eq!(ci.high().unwrap(), 0.852, 1e-3);
+        assert_approx_eq!(ci.low_f(), 0.245, 1e-3);
+        assert_approx_eq!(ci.high_f(), 0.852, 1e-3);
     }
 
     #[test]
@@ -374,9 +429,10 @@ mod tests {
 
     #[test]
     fn test_kahan_add() {
-        let mut normal = 0_f32;
-        let mut kahan = 0_f32;
-        let mut kahan_c = 0_f32;
+        type Float = f32;
+        let mut normal: Float = 0.;
+        let mut kahan: Float = 0.;
+        let mut kahan_c: Float = 0.;
         let x = 0.1;
 
         for _ in 0..50_000_000_usize {
@@ -385,6 +441,6 @@ mod tests {
         }
 
         assert_approx_eq!(5_000_000., kahan, 1e-10);
-        assert!((5_000_000. - normal).abs() > 500_000.); // normal is not accurate
+        assert!((5_000_000. - normal).abs() > 500_000.); // normal summation is not accurate for f32
     }
 }

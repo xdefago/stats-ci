@@ -24,11 +24,8 @@ This is an unordered list of items that I want to fix eventually.
 * Function to estimate minimal sample size for target significance.
 * Function to estimate best confidence level for a given data set and interval constraints.
 
-## Issues
-
-* one-sided intervals are not created properly.
-
 ## Pondering
 
 * Integrate intervals with either crate [intervallum](https://crates.io/crates/intervallum) or crate [intervals-general](https://crates.io/crates/intervals-general)
 * Use propotion intervals to compute quantile intervals
+* Define a newtype for Ratio, contrained in [0., 1.]

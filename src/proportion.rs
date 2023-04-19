@@ -223,7 +223,11 @@ pub fn ci_wilson(
     let mean = (n_s + z_sq / 2.) / (n + z_sq);
     let span = (z / (n + z_sq)) * ((n_s * n_f / n) + (z_sq / 4.)).sqrt();
 
-    Interval::new(mean - span, mean + span).map_err(|e| e.into())
+    match confidence {
+        Confidence::TwoSided(_) => Interval::new(mean - span, mean + span).map_err(|e| e.into()),
+        Confidence::UpperOneSided(_) => Interval::new(mean - span, 1.).map_err(|e| e.into()),
+        Confidence::LowerOneSided(_) => Interval::new(0., mean + span).map_err(|e| e.into()),
+    }
 }
 
 ///
@@ -316,7 +320,13 @@ pub fn ci_z_normal(
 
     let std_dev = (p * q / n).sqrt();
     let z = z_value(confidence);
-    Interval::new(p - z * std_dev, p + z * std_dev).map_err(|e| e.into())
+    let mean = p;
+    let span = z * std_dev;
+    match confidence {
+        Confidence::TwoSided(_) => Interval::new(mean - span, mean + span).map_err(|e| e.into()),
+        Confidence::UpperOneSided(_) => Interval::new(mean - span, 1.).map_err(|e| e.into()),
+        Confidence::LowerOneSided(_) => Interval::new(0., mean + span).map_err(|e| e.into()),
+    }
 }
 
 #[cfg(test)]
@@ -325,13 +335,23 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn test_proportion_ci() {
+    fn test_proportion_ci() -> CIResult<()> {
         let population = 500;
         let successes = 421;
         let confidence = Confidence::TwoSided(0.95);
-        let ci = ci(confidence, population, successes).unwrap();
-        assert_approx_eq!(ci.low().unwrap(), 0.81, 1e-2);
-        assert_approx_eq!(ci.high().unwrap(), 0.87, 1e-2);
+        let ci = proportion::ci(confidence, population, successes)?;
+        assert_approx_eq!(ci.low_f(), 0.81, 1e-2);
+        assert_approx_eq!(ci.high_f(), 0.87, 1e-2);
+
+        let ci2 = proportion::ci(Confidence::UpperOneSided(0.975), population, successes)?;
+        assert_eq!(ci2.high_f(), 1.);
+        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-2);
+
+        let ci2 = proportion::ci(Confidence::LowerOneSided(0.975), population, successes)?;
+        assert_eq!(ci2.low_f(), 0.);
+        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-2);
+
+        Ok(())
     }
 
     #[test]
@@ -340,8 +360,8 @@ mod tests {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         ];
         let confidence = Confidence::TwoSided(0.95);
-        let ci = ci_if(confidence, &data, |&x| x <= 10).unwrap();
-        assert_approx_eq!(ci.low().unwrap(), 0.299, 1e-2);
-        assert_approx_eq!(ci.high().unwrap(), 0.701, 1e-2);
+        let ci = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
+        assert_approx_eq!(ci.low_f(), 0.299, 1e-2);
+        assert_approx_eq!(ci.high_f(), 0.701, 1e-2);
     }
 }

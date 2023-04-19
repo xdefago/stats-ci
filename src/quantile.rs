@@ -77,12 +77,11 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
 ) -> Option<Interval<T>> {
     assert!(quantile > 0. && quantile < 1.);
 
-    ci_indices(confidence, sorted.len(), quantile).and_then(|indices| {
-        if let (Some(lo), Some(hi)) = indices.into() {
-            Interval::new(sorted[lo].clone(), sorted[hi].clone()).ok()
-        } else {
-            None
-        }
+    ci_indices(confidence, sorted.len(), quantile).and_then(|indices| match indices.into() {
+        (Some(lo), Some(hi)) => Interval::new(sorted[lo].clone(), sorted[hi].clone()).ok(),
+        (Some(lo), None) => Some(Interval::new_upper(sorted[lo].clone())),
+        (None, Some(hi)) => Some(Interval::new_lower(sorted[hi].clone())),
+        _ => None,
     })
 }
 
@@ -215,7 +214,11 @@ pub fn ci_indices(
         return None;
     }
 
-    Interval::new(lo_index, hi_index).ok()
+    match confidence {
+        Confidence::TwoSided(_) => Interval::new(lo_index, hi_index).ok(),
+        Confidence::UpperOneSided(_) => Some(Interval::new_upper(lo_index)),
+        Confidence::LowerOneSided(_) => Some(Interval::new_lower(hi_index)),
+    }
 }
 
 #[cfg(test)]
