@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.3 (2023-04-19)
+
+### Documentation
+
+ - <csr-id-11bd018a4b0b4e7bf50622c7713661ef3eaa1a29/> fix problems with square brackets
+ - <csr-id-150636547478aa7be2a0050d9e83f61b9e62be3a/> adjust version number for upcoming release
+
+### Bug Fixes
+
+ - <csr-id-a9173b2ecb48e2b3ddec8e5b2ca829ac8c75acfd/> broken link in docs
+
+### Other
+
+ - <csr-id-f501192169773911e839ec554665e989b2014ad8/> move done items into DONE category
+ - <csr-id-08fa68a43b5b8eb55403dff039baf884315802bb/> change version number for next release
+
+### Style
+
+ - <csr-id-968a35ab8f3792e84aaee9cb3194ea8d115db8b7/> remove unused lifetime
+
+### Bug Fixes (BREAKING)
+
+ - <csr-id-f4d5e9cbd1e1d7b38b8cde4e10b60177d14358f7/> use wilson score for quantile::ci
+ - <csr-id-8eec0019c032d8057d0a881b10ef12fddc0e211d/> compute one-sided intervals
+ - <csr-id-6175f920b6d485dac0dee0cfe0592ea00abcd53e/> require PartialOrd on Interval
+
+### Refactor (BREAKING)
+
+ - <csr-id-019c4cc4175189b5d489efaa6b9cbc22413d53de/> unify functions to return Result
+ - <csr-id-83a1c4f1ad2b21fb8b6e801c6418b86c301a6282/> Interval now supports one-sided
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 11 commits contributed to the release.
+ - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Move done items into DONE category ([`f501192`](https://github.com/xdefago/stats-ci/commit/f501192169773911e839ec554665e989b2014ad8))
+    - Use wilson score for quantile::ci ([`f4d5e9c`](https://github.com/xdefago/stats-ci/commit/f4d5e9cbd1e1d7b38b8cde4e10b60177d14358f7))
+    - Fix problems with square brackets ([`11bd018`](https://github.com/xdefago/stats-ci/commit/11bd018a4b0b4e7bf50622c7713661ef3eaa1a29))
+    - Unify functions to return Result ([`019c4cc`](https://github.com/xdefago/stats-ci/commit/019c4cc4175189b5d489efaa6b9cbc22413d53de))
+    - Compute one-sided intervals ([`8eec001`](https://github.com/xdefago/stats-ci/commit/8eec0019c032d8057d0a881b10ef12fddc0e211d))
+    - Remove unused lifetime ([`968a35a`](https://github.com/xdefago/stats-ci/commit/968a35ab8f3792e84aaee9cb3194ea8d115db8b7))
+    - Interval now supports one-sided ([`83a1c4f`](https://github.com/xdefago/stats-ci/commit/83a1c4f1ad2b21fb8b6e801c6418b86c301a6282))
+    - Adjust version number for upcoming release ([`1506365`](https://github.com/xdefago/stats-ci/commit/150636547478aa7be2a0050d9e83f61b9e62be3a))
+    - Change version number for next release ([`08fa68a`](https://github.com/xdefago/stats-ci/commit/08fa68a43b5b8eb55403dff039baf884315802bb))
+    - Require PartialOrd on Interval ([`6175f92`](https://github.com/xdefago/stats-ci/commit/6175f920b6d485dac0dee0cfe0592ea00abcd53e))
+    - Broken link in docs ([`a9173b2`](https://github.com/xdefago/stats-ci/commit/a9173b2ecb48e2b3ddec8e5b2ca829ac8c75acfd))
+</details>
+
 ## v0.0.2 (2023-04-18)
 
 <csr-id-cbe5378cc3a1d90ccd0b94902088090ef208635b/>
@@ -50,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 23 commits contributed to the release over the course of 1 calendar day.
+ - 24 commits contributed to the release over the course of 1 calendar day.
  - 1 day passed between releases.
  - 15 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -62,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.2 ([`4e7d40c`](https://github.com/xdefago/stats-ci/commit/4e7d40cacce63c3dc547272bdc2cc1132d789701))
     - Release stats-ci v0.0.2 ([`bfd80f6`](https://github.com/xdefago/stats-ci/commit/bfd80f61aed6518e5c10e4c80ef98c900e5cc92e))
     - Add trailing comma ([`beaf51a`](https://github.com/xdefago/stats-ci/commit/beaf51a1c53c260d097712189a76c6f630b6f6af))
     - Add function for wilson from success rate ([`c728c69`](https://github.com/xdefago/stats-ci/commit/c728c69d3213481a115076f72c9e3aaa92bf5161))
