@@ -31,6 +31,9 @@ pub enum CIError {
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
 
+    #[error("Index error: {0} should be in [0, {1})")]
+    IndexError(f64, usize),
+
     // wrapper errors
     #[error("String error: {0}")]
     Error(String),

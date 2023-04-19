@@ -4,7 +4,6 @@ This is an unordered list of items that I want to fix eventually.
 
 ## Breaking Changes
 
-* Return `CIResult` more consistently. E.g., `quantile::ci` returns an `Option` whereas the other return a `CIResult`.
 * Make `Interval` creation faillible and ensure that data is always consistent.
 * Refactor `Interval` removing `Empty` and `Degenerate`, adding `LeftBounded` and `RightBounded` variants.
 * Remove empty intervals and make bounds mandatory.
