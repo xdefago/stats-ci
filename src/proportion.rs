@@ -3,7 +3,7 @@
 //! # Examples
 //!
 //! ```
-//! # fn test() -> Result<(), stats_ci::error::CIError> {
+//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //!
 //! let data = [
@@ -48,7 +48,7 @@ use error::*;
 /// # Examples
 ///
 /// ```
-/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
@@ -98,7 +98,7 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 /// # Examples
 ///
 /// ```
-/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
@@ -142,7 +142,7 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// # Examples
 ///
 /// ```
-/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// use assert_approx_eq::assert_approx_eq;
 ///
@@ -223,7 +223,7 @@ pub fn ci_wilson(
     let mean = (n_s + z_sq / 2.) / (n + z_sq);
     let span = (z / (n + z_sq)) * ((n_s * n_f / n) + (z_sq / 4.)).sqrt();
 
-    Ok(Interval::new(mean - span, mean + span))
+    Interval::new(mean - span, mean + span).map_err(|e| e.into())
 }
 
 ///
@@ -316,7 +316,7 @@ pub fn ci_z_normal(
 
     let std_dev = (p * q / n).sqrt();
     let z = z_value(confidence);
-    Ok(Interval::new(p - z * std_dev, p + z * std_dev))
+    Interval::new(p - z * std_dev, p + z * std_dev).map_err(|e| e.into())
 }
 
 #[cfg(test)]

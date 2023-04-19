@@ -26,6 +26,7 @@
 //! * [`mean::Harmonic::ci`] computes the confidence interval for the harmonic mean
 //!
 //! ```
+//! # fn main() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //!
 //! let data = [
@@ -37,7 +38,7 @@
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let ci = mean::Arithmetic::ci(confidence, data).unwrap();
+//! let ci = mean::Arithmetic::ci(confidence, data)?;
 //! // mean: 53.67
 //! // stddev: 28.097613040716798
 //!
@@ -45,6 +46,8 @@
 //! use assert_approx_eq::assert_approx_eq;
 //! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
 //! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! ## C.I. for Quantiles
@@ -56,23 +59,26 @@
 //! In a different context, if the data is an ordered sequence of strings, it could make sense to compute an interval around the median of the data, but the mean cannot be computed.
 //!
 //! ```
+//! # fn main() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //!
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let quantile = 0.5; // median
 //! let interval = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval, Interval::new(4, 12));
+//! assert_eq!(interval, Interval::new(4, 12).unwrap());
 //!
 //! let confidence = Confidence::new_two_sided(0.8);
 //! let interval2 = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval2, Interval::new(6, 10));
+//! assert_eq!(interval2, Interval::new(6, 10).unwrap());
 //!
 //! let data = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let quantile = 0.5; // median
 //! let interval3 = quantile::ci(confidence, &data, quantile).unwrap();
-//! assert_eq!(interval3, Interval::new("D", "L"));
+//! assert_eq!(interval3, Interval::new("D", "L").unwrap());
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! ## C.I. for Proportions
@@ -83,6 +89,7 @@
 //! This crate uses the Wilson score interval to compute the confidence interval for a proportion,
 //! which is more stable than the standard normal approximation but results in slightly more conservative intervals.
 //! ```
+//! # fn main() -> stats_ci::CIResult<()> {
 //! # use assert_approx_eq::assert_approx_eq;
 //! use stats_ci::*;
 //!
@@ -91,22 +98,24 @@
 //!     false, false, false, true, false, true, false, false, true, false
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let interval = proportion::ci_true(confidence, data).unwrap();
+//! let interval = proportion::ci_true(confidence, data)?;
 //! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 //! assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
 //!
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let interval = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
+//! let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
 //! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
 //! assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
 //!
 //! let population = 500;
 //! let successes = 421;
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let interval = proportion::ci(confidence, population, successes).unwrap();
+//! let interval = proportion::ci(confidence, population, successes)?;
 //! assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
 //! assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! # References
@@ -131,5 +140,6 @@ mod interval;
 mod stats;
 
 pub use confidence::Confidence;
+pub use error::CIResult;
 pub use interval::Interval;
 pub use mean::MeanCI;

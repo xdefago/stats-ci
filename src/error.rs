@@ -1,5 +1,7 @@
 pub type CIResult<T> = Result<T, CIError>;
 
+pub use crate::interval::IntervalError;
+
 #[derive(thiserror::Error, Debug)]
 pub enum CIError {
     #[error("Too few samples to compute: {0}")]
@@ -28,9 +30,13 @@ pub enum CIError {
 
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
+
     // wrapper errors
     #[error("String error: {0}")]
     Error(String),
+
+    #[error("Interval error: {0}")]
+    IntervalError(#[from] IntervalError),
 }
 
 impl From<&str> for CIError {

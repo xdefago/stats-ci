@@ -9,7 +9,7 @@
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
 //! ```
-//! # fn test() -> Result<(), stats_ci::error::CIError> {
+//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -34,7 +34,7 @@
 //!
 //! Confidence intervals on the geometric mean of a sample:
 //! ```
-//! # fn test() -> Result<(), stats_ci::error::CIError> {
+//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -58,7 +58,7 @@
 //!
 //! Confidence intervals on the harmonic mean of a sample:
 //! ```
-//! # fn test() -> Result<(), stats_ci::error::CIError> {
+//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //! let data = [
 //!     1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
@@ -90,7 +90,7 @@ use num_traits::Float;
 /// # Examples
 ///
 /// ```
-/// # fn test() -> Result<(), stats_ci::error::CIError> {
+/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// let data = [
 ///    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -268,10 +268,11 @@ where
     let mean = sum / n;
     let variance = (sum_sq - sum * sum / n) / (n - U::one());
     let std_dev = variance.sqrt();
-    Ok(Interval::from(f_inverse(
+    Interval::try_from(f_inverse(
         mean - t_value * std_dev / n.sqrt(),
         mean + t_value * std_dev / n.sqrt(),
-    )))
+    ))
+    .map_err(|e| e.into())
 }
 
 #[cfg(test)]
