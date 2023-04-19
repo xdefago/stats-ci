@@ -522,7 +522,7 @@ impl<T: PartialOrd> RangeBounds<T> for Interval<T> {
     }
 }
 
-impl<'a, T: PartialOrd + Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
+impl<T: PartialOrd + Sub<Output = T> + num_traits::Zero + Clone> Interval<T> {
     ///
     /// Compute the width of the interval.
     /// If the interval is one-sided, the function returns `None`.
