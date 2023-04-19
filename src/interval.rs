@@ -281,7 +281,7 @@ impl<T: PartialOrd + Clone> Interval<T> {
 impl<T: num_traits::Float> Interval<T> {
     ///
     /// Get the lower bound of the interval (if any) for floating point types.
-    /// This function returns [`T::NEG_INFINITY`] for lower one-sided intervals.
+    /// This function returns the negative infinite value for `T` for lower one-sided intervals.
     ///
     pub fn low_f(&self) -> T {
         match self {
@@ -292,7 +292,7 @@ impl<T: num_traits::Float> Interval<T> {
     }
     ///
     /// Get the upper bound of the interval (if any) for floating point types.
-    /// This function returns [`T::INFINITY`] for upper one-sided intervals.
+    /// This function returns the infinite value for `T` for upper one-sided intervals.
     ///
     pub fn high_f(&self) -> T {
         match self {
@@ -306,7 +306,7 @@ impl<T: num_traits::Float> Interval<T> {
 impl<T: num_traits::PrimInt + num_traits::Signed> Interval<T> {
     ///
     /// Get the lower bound of the interval (if any) for signed integer types.
-    /// This function returns [`T::MIN`] for lower one-sided intervals.
+    /// This function returns the minimal value for `T` for lower one-sided intervals.
     ///
     pub fn low_i(&self) -> T {
         match self {
@@ -317,7 +317,7 @@ impl<T: num_traits::PrimInt + num_traits::Signed> Interval<T> {
     }
     ///
     /// Get the upper bound of the interval (if any) for signed integer types.
-    /// This function returns [`T::MAX`] for upper one-sided intervals.
+    /// This function returns the maximal value for `T` for upper one-sided intervals.
     ///
     pub fn high_i(&self) -> T {
         match self {
@@ -341,7 +341,7 @@ impl<T: num_traits::PrimInt + num_traits::Unsigned> Interval<T> {
     }
     ///
     /// Get the upper bound of the interval (if any) for unsigned integer types.
-    /// This function returns [`T::MAX`] for upper one-sided intervals.
+    /// This function returns the maximum value for `T` for upper one-sided intervals.
     ///
     pub fn high_u(&self) -> T {
         match self {
@@ -590,7 +590,7 @@ impl<T: PartialOrd> PartialOrd for Interval<T> {
     /// Compare two intervals.
     /// Given two intervals `a` and `b`, `a < b` if and only if the upper bound of `a` is less than the lower bound of `b`.
     /// Although interval bounds are inclusive, two intervals that overlap only at a single bound are considered ordered.
-    /// E.g., intervals [x,y] is considered less than [a,b] if y==a and x<b.
+    /// E.g., intervals `[x,y]` is considered less than `[a,b]` if `y==a` and `x<b`.
     ///
     /// # Examples
     /// ```
