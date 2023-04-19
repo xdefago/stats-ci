@@ -38,13 +38,13 @@ Add the most recent release to your `Cargo.toml`
 
 ```rust
 [dependencies]
-stats-ci = "0.0.1"
+stats-ci = "0.0.3"
 ```
 
 The crate has an optional feature `serde` which, if enabled, adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html).
 
 ```rust
-stats-ci = { version = "0.0.1", features = ["serde"] }
+stats-ci = { version = "0.0.3", features = ["serde"] }
 ```
 
 
