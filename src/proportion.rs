@@ -161,6 +161,42 @@ pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResu
 }
 
 ///
+/// Check if the conditions for the validity of the Wilson score interval are met.
+/// The condetions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
+/// https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm
+/// 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
+/// 2. The number of successes and failures are large enough to ensure that the sampling distribution of the sample proportion is approximately normal (x > 5 and n - x > 5)
+///
+/// # Arguments
+///
+/// * `population` - the size of the population
+/// * `successes` - the number of successes in the sample
+///
+/// # Returns
+///
+/// `true` if the conditions are met, `false` otherwise.
+///
+/// # Examples
+///
+/// ```
+/// use stats_ci::*;
+/// assert!(proportion::is_significant(500, 10));
+/// assert!(! proportion::is_significant(10, 5));
+/// assert!(! proportion::is_significant(1000, 1));
+/// ```
+pub fn is_significant(population: usize, successes: usize) -> bool {
+    // significance criteria for Wilson score intervals.
+    // see https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval
+    // The condetions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
+    // https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm
+    // 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
+    (population > 30)
+    // 2. The number of successes and failures are large enough to ensure that the sampling distribution of the sample proportion is approximately normal (x > 5 and n - x > 5)
+    && (successes > 5)
+    && (population - successes > 5)
+}
+
+///
 /// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
 /// This is the method used by default when calling the function [`ci`] of this module.
 ///
@@ -184,6 +220,10 @@ pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResu
 /// In particular, it is more conservative when the sample size is small.
 /// It is also more conservative when the sample size is large and the proportion is close to 0 or 1.
 ///
+/// The conditions for the validity of the Wilson score interval can be checked with the function [`is_significant`].
+/// However, the significance check for this function is much more permissive. It is the caller's responsibility to check for the stricter conditions for statistical significance if necessary.
+/// One advantage of using the Wilson score interval is that it is still reasonably accurate for small sample sizes and when the proportion of successes is close to 0 or 1.
+///
 /// # References
 ///
 /// * [Wikipedia article on Wilson score interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval)
@@ -204,11 +244,12 @@ pub fn ci_wilson(
 
     // conditions for statistical significance:
     // n p > 5 and n (1 - p) > 5
-    if successes <= 5 {
+    // however, we are more permissive here and rely on the user to check for the stricter conditions for statistical significance.
+    if successes < 2 {
         // too few successes for statistical significance
         return Err(CIError::TooFewSuccesses(successes, population, n_s));
     }
-    if population - successes <= 5 {
+    if population - successes < 2 {
         // too few failures for statistical significance
         return Err(CIError::TooFewFailures(
             population - successes,
