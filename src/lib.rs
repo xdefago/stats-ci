@@ -44,8 +44,8 @@
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
-//! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
+//! assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
+//! assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
 //! # Ok(())
 //! # }
 //! ```

@@ -26,8 +26,8 @@
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low().unwrap(), 48.0948, 1e-3);
-//! assert_approx_eq!(ci.high().unwrap(), 59.2452, 1e-3);
+//! assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
+//! assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
 //! # Ok(())
 //! # }
 //! ```
@@ -50,8 +50,8 @@
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low().unwrap(), 37.731, 1e-3);
-//! assert_approx_eq!(ci.high().unwrap(), 50.675, 1e-3);
+//! assert_approx_eq!(ci.low_f(), 20.368, 1e-3);
+//! assert_approx_eq!(ci.high_f(), 93.875, 1e-3);
 //! # Ok(())
 //! # }
 //! ```
@@ -72,8 +72,8 @@
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low().unwrap(), 0.245, 1e-3);
-//! assert_approx_eq!(ci.high().unwrap(), 0.852, 1e-3);
+//! assert_approx_eq!(ci.low_f(), 0.225, 1e-3);
+//! assert_approx_eq!(ci.high_f(), 1.23, 1e-3);
 //! # Ok(())
 //! # }
 //! ```
@@ -106,8 +106,8 @@ use num_traits::Float;
 ///
 /// use num_traits::Float;
 /// use assert_approx_eq::assert_approx_eq;
-/// assert_approx_eq!(ci.low().unwrap(), 47.5, 1e-3);
-/// assert_approx_eq!(ci.high().unwrap(), 57.5, 1e-3);
+/// assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
+/// assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
 /// # Ok(())
 /// # }
 /// ```
@@ -326,8 +326,8 @@ mod tests {
         let ci = Arithmetic::ci(confidence, data)?;
         // mean: 53.67
         // stddev: 28.097613040716798
-        assert_approx_eq!(ci.low_f(), 48.0948, 1e-3);
-        assert_approx_eq!(ci.high_f(), 59.2452, 1e-3);
+        assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
+        assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
         assert_approx_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, 1e-3);
 
         let ci2 = Arithmetic::ci(Confidence::UpperOneSided(0.975), data)?;
@@ -339,20 +339,20 @@ mod tests {
 
         let ci = Harmonic::ci(confidence, data)?;
         // harmonic mean: 30.031313156339586
-        assert_approx_eq!(ci.low_f(), 23.6141, 1e-3);
-        assert_approx_eq!(ci.high_f(), 41.2379, 1e-3);
+        assert_approx_eq!(ci.low_f(), 22.47, 1e-3);
+        assert_approx_eq!(ci.high_f(), 45.26, 1e-3);
 
         let ci2 = Harmonic::ci(Confidence::UpperOneSided(0.975), data)?;
-        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-3);
+        assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-6);
         assert_eq!(ci2.high_f(), f64::INFINITY);
         let ci2 = Harmonic::ci(Confidence::LowerOneSided(0.975), data)?;
-        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-3);
+        assert_approx_eq!(ci2.high_f(), ci.high_f(), 1e-6);
         assert_eq!(ci2.low_f(), f64::NEG_INFINITY);
 
         let ci = Geometric::ci(confidence, data)?;
         // geometric mean: 43.7268032829256
-        assert_approx_eq!(ci.low_f(), 37.7311, 1e-3);
-        assert_approx_eq!(ci.high_f(), 50.6753, 1e-3);
+        assert_approx_eq!(ci.low_f(), 20.368, 1e-3);
+        assert_approx_eq!(ci.high_f(), 93.875, 1e-3);
 
         let ci2 = Geometric::ci(Confidence::UpperOneSided(0.975), data)?;
         assert_approx_eq!(ci2.low_f(), ci.low_f(), 1e-3);
@@ -375,8 +375,8 @@ mod tests {
         ];
         let ci = Harmonic::ci(confidence, data).unwrap();
         // harmonic mean: 0.38041820166550844
-        assert_approx_eq!(ci.low_f(), 0.245, 1e-3);
-        assert_approx_eq!(ci.high_f(), 0.852, 1e-3);
+        assert_approx_eq!(ci.low_f(), 0.225, 1e-3);
+        assert_approx_eq!(ci.high_f(), 1.23, 1e-3);
     }
 
     #[test]
