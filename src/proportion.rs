@@ -163,7 +163,7 @@ pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResu
 ///
 /// Check if the conditions for the validity of the Wilson score interval are met.
 /// The condetions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
-/// https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm
+/// <https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm>
 /// 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
 /// 2. The number of successes and failures are large enough to ensure that the sampling distribution of the sample proportion is approximately normal (x > 5 and n - x > 5)
 ///
