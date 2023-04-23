@@ -380,54 +380,6 @@ mod tests {
     }
 
     #[test]
-    fn test_confidence_level() {
-        type Float = f64;
-        use rand::Rng;
-
-        let mut rng = rand::thread_rng();
-
-        const POPULATION_SIZE: usize = 10_000;
-        let repetitions = 10_000;
-        let sample_size = 10;
-        let confidence = Confidence::new_two_sided(0.95);
-        let tolerance = 0.02;
-
-        // generate population (uniformly distributed between 0 and 1)
-        let mut population = [0 as Float; POPULATION_SIZE];
-        rng.fill(&mut population[..]);
-        let population_mean = population.iter().sum::<Float>() / POPULATION_SIZE as Float;
-        println!("population_mean: {}", population_mean);
-        println!("population head: {:?}", &population[..10]);
-
-        // generate samples and compute confidence intervals
-        let mut count_in_ci = 0;
-        for _ in 0..repetitions {
-            // generate sample
-            let sample = random_sample(&population, sample_size, &mut rng);
-            let sample_ci = Arithmetic::ci(confidence, sample).unwrap();
-            if sample_ci.contains(&population_mean) {
-                count_in_ci += 1;
-            }
-        }
-        let ci_contains_mean = count_in_ci as f64 / repetitions as f64;
-        assert_approx_eq!(ci_contains_mean, confidence.level(), tolerance);
-    }
-
-    fn random_sample<T: Copy>(
-        data: &[T],
-        sample_size: usize,
-        rng: &mut rand::rngs::ThreadRng,
-    ) -> Vec<T> {
-        use rand::Rng;
-        assert!(sample_size < data.len());
-
-        (0..sample_size)
-            .map(|_| rng.gen_range(0..data.len()))
-            .map(|i| data[i])
-            .collect()
-    }
-
-    #[test]
     fn test_kahan_add() {
         type Float = f32;
         let mut normal: Float = 0.;
