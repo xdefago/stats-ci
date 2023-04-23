@@ -271,7 +271,7 @@ where
     })?;
 
     let mean = sum / n;
-    let variance = (sum_sq - sum * sum / n) / (n - U::one());
+    let variance = (sum_sq - mean * mean) / (n - U::one());
     let std_dev = variance.sqrt();
     let span = t_value * std_dev / n.sqrt();
     match confidence {
