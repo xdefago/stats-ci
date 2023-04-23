@@ -5,7 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.4 (2023-04-23)
+
+### Documentation
+
+ - <csr-id-7af0e54ca1c40f9e7d806e71eddaa932fce6a948/> fix auto link
+ - <csr-id-6a3cbd36c53ed6a438b2489831c626a2d2b12dc4/> fix code in README; add it as example
+
+### New Features
+
+ - <csr-id-624dc815e90f8055e0758d22e9a2e6461f57d4b3/> add is_significant(); relax cond. on wilson
+
+### Bug Fixes
+
+ - <csr-id-c5cc9b212ac66e07f29dc6b68540009ffffcd96b/> fix error in variance calculation
+
+### Other
+
+ - <csr-id-ed772b671961e797b1ceb3585818d8d5e6e73642/> bump version for next release
+
+### Test
+
+ - <csr-id-f1c4c4344fd944263d1380fa857b686c642c4e61/> delete accuracy unit test (redundant)
+ - <csr-id-3feba2a81ef4b9d15b14750d0ceba0d775e774f4/> fix test assertions
+ - <csr-id-910d8ff50c78213c7e0e489b7fcaf8d26c76b04e/> fix accuracy tests to display term colors
+ - <csr-id-75efcaa99e91a1df1f9ac8ea0a3ed755716f277b/> add accuracy tests w/seeded RNG
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 9 commits contributed to the release over the course of 1 calendar day.
+ - 3 days passed between releases.
+ - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Fix auto link ([`7af0e54`](https://github.com/xdefago/stats-ci/commit/7af0e54ca1c40f9e7d806e71eddaa932fce6a948))
+    - Fix code in README; add it as example ([`6a3cbd3`](https://github.com/xdefago/stats-ci/commit/6a3cbd36c53ed6a438b2489831c626a2d2b12dc4))
+    - Delete accuracy unit test (redundant) ([`f1c4c43`](https://github.com/xdefago/stats-ci/commit/f1c4c4344fd944263d1380fa857b686c642c4e61))
+    - Fix test assertions ([`3feba2a`](https://github.com/xdefago/stats-ci/commit/3feba2a81ef4b9d15b14750d0ceba0d775e774f4))
+    - Fix accuracy tests to display term colors ([`910d8ff`](https://github.com/xdefago/stats-ci/commit/910d8ff50c78213c7e0e489b7fcaf8d26c76b04e))
+    - Fix error in variance calculation ([`c5cc9b2`](https://github.com/xdefago/stats-ci/commit/c5cc9b212ac66e07f29dc6b68540009ffffcd96b))
+    - Add accuracy tests w/seeded RNG ([`75efcaa`](https://github.com/xdefago/stats-ci/commit/75efcaa99e91a1df1f9ac8ea0a3ed755716f277b))
+    - Add is_significant(); relax cond. on wilson ([`624dc81`](https://github.com/xdefago/stats-ci/commit/624dc815e90f8055e0758d22e9a2e6461f57d4b3))
+    - Bump version for next release ([`ed772b6`](https://github.com/xdefago/stats-ci/commit/ed772b671961e797b1ceb3585818d8d5e6e73642))
+</details>
+
 ## v0.0.3 (2023-04-19)
+
+<csr-id-f501192169773911e839ec554665e989b2014ad8/>
+<csr-id-08fa68a43b5b8eb55403dff039baf884315802bb/>
+<csr-id-968a35ab8f3792e84aaee9cb3194ea8d115db8b7/>
+<csr-id-019c4cc4175189b5d489efaa6b9cbc22413d53de/>
+<csr-id-83a1c4f1ad2b21fb8b6e801c6418b86c301a6282/>
 
 ### Documentation
 
@@ -40,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 11 commits contributed to the release.
+ - 12 commits contributed to the release.
  - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -51,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.3 ([`020b8eb`](https://github.com/xdefago/stats-ci/commit/020b8eb60a17300f770adcbe26368d6cfcac9f4b))
     - Move done items into DONE category ([`f501192`](https://github.com/xdefago/stats-ci/commit/f501192169773911e839ec554665e989b2014ad8))
     - Use wilson score for quantile::ci ([`f4d5e9c`](https://github.com/xdefago/stats-ci/commit/f4d5e9cbd1e1d7b38b8cde4e10b60177d14358f7))
     - Fix problems with square brackets ([`11bd018`](https://github.com/xdefago/stats-ci/commit/11bd018a4b0b4e7bf50622c7713661ef3eaa1a29))
