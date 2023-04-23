@@ -1,23 +1,34 @@
-use assert_approx_eq::assert_approx_eq;
 use stats_ci::*;
-
 
 use rand_chacha::ChaCha8Rng;
 use rand_seeder::Seeder;
+
+mod common;
 
 const SEED_STRING: &str =
     "Seed to the number generator so that the test is deterministically reproducible!";
 
 #[test]
 fn test_accuracy_proportion() {
-    let tolerance = 0.03;
-    let sample_size = 500;
-    let repetitions = 1000;
+    let tolerance = 0.0075;
+    let sample_size = 400;
+    let repetitions = 300;
     let confidences = vec![
+        // two-sided
         Confidence::new_two_sided(0.8),
         Confidence::new_two_sided(0.9),
         Confidence::new_two_sided(0.95),
         Confidence::new_two_sided(0.99),
+        // upper one-sided
+        Confidence::new_upper(0.8),
+        Confidence::new_upper(0.9),
+        Confidence::new_upper(0.95),
+        Confidence::new_upper(0.99),
+        // lower one-sided
+        Confidence::new_lower(0.8),
+        Confidence::new_lower(0.9),
+        Confidence::new_lower(0.95),
+        Confidence::new_lower(0.99),
     ];
     let targets = vec![0.15, 0.2, 0.4, 0.5, 0.9];
 
@@ -27,13 +38,18 @@ fn test_accuracy_proportion() {
         for confidence in &confidences {
             let hit_rate =
                 hit_rate(&distrib, target, sample_size, repetitions, *confidence).unwrap();
+            let color = common::highlight_color(hit_rate, confidence.level(), tolerance);
             println!(
-                "hit rate: {:.1}% (Δ: {:.1}%)  [trial target: {}, confidence: {:?}]",
-                hit_rate * 100.,
-                (confidence.level() - hit_rate).abs() * 100.,
-                target, confidence
+                "{}  [trial target: {}, confidence: {:?}]",
+                color.paint(format!(
+                    "hit rate: {:.1}% (Δ: {:.1}%)",
+                    hit_rate * 100.,
+                    (confidence.level() - hit_rate).abs() * 100.
+                )),
+                target,
+                confidence
             );
-            assert_approx_eq!(hit_rate, confidence.level(), tolerance);
+            assert!(hit_rate >= confidence.level() - 2. * tolerance);
         }
     }
 }

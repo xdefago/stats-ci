@@ -1,4 +1,3 @@
-use assert_approx_eq::assert_approx_eq;
 use num_traits::Float;
 use statrs::distribution::*;
 use stats_ci::*;
@@ -6,31 +5,48 @@ use stats_ci::*;
 use rand_chacha::ChaCha8Rng;
 use rand_seeder::Seeder;
 
+mod common;
+
 const SEED_STRING: &str =
     "Seed to the number generator so that the test is deterministically reproducible!";
 
 #[test]
 fn test_arithmetic_mean() {
-    let sample_size = 100;
-    let repetitions = 1000;
+    let tolerance = 0.005;
+    let sample_size = 250;
+    let repetitions = 500;
     let confidences = vec![
+        // two-sided
         Confidence::new_two_sided(0.8),
         Confidence::new_two_sided(0.9),
         Confidence::new_two_sided(0.95),
+        Confidence::new_two_sided(0.975),
         Confidence::new_two_sided(0.99),
+        // upper one-sided
+        Confidence::new_upper(0.8),
+        Confidence::new_upper(0.9),
+        Confidence::new_upper(0.95),
+        Confidence::new_upper(0.975),
+        Confidence::new_upper(0.99),
+        // lower one-sided
+        Confidence::new_lower(0.8),
+        Confidence::new_lower(0.9),
+        Confidence::new_lower(0.95),
+        Confidence::new_lower(0.975),
+        Confidence::new_lower(0.99),
     ];
 
     let distrib = Normal::new(0., 1.).unwrap();
-    test_arithmetic(&distrib, sample_size, repetitions, &confidences, 0.01).unwrap();
+    test_arithmetic(&distrib, sample_size, repetitions, &confidences, tolerance).unwrap();
 
     let distrib = Uniform::new(0., 1.).unwrap();
-    test_arithmetic(&distrib, sample_size, repetitions, &confidences, 0.015).unwrap();
+    test_arithmetic(&distrib, sample_size, repetitions, &confidences, tolerance).unwrap();
 
     let distrib = Exp::new(1.).unwrap();
-    test_arithmetic(&distrib, sample_size, repetitions, &confidences, 0.015).unwrap();
+    test_arithmetic(&distrib, sample_size, repetitions, &confidences, tolerance).unwrap();
 
     let distrib = LogNormal::new(0., 1.).unwrap();
-    test_arithmetic(&distrib, sample_size, repetitions, &confidences, 0.04).unwrap();
+    test_arithmetic(&distrib, sample_size, repetitions, &confidences, tolerance).unwrap();
 }
 
 fn test_arithmetic<T: Float, D>(
@@ -69,15 +85,20 @@ where
 {
     for &confidence in confidences {
         let hit_rate = hit_rate::<C, _, _>(distrib, mean, sample_size, repetitions, confidence)?;
+        let color = common::highlight_color(hit_rate, confidence.level(), tolerance);
         println!(
-            "hit rate: {:.1}% (Δ: {:.1}%)  [{}, {:?}]",
-            hit_rate * 100.,
-            (confidence.level() - hit_rate).abs() * 100.,
+            "{}  [{}, {:?}]",
+            color.paint(format!(
+                "hit rate: {:.1}% (Δ: {:.1}%)",
+                hit_rate * 100.,
+                (confidence.level() - hit_rate).abs() * 100.,
+            )),
             std::any::type_name::<D>(),
             confidence
         );
-        assert_approx_eq!(hit_rate, confidence.level(), tolerance);
+        assert!(hit_rate >= confidence.level() - 2. * tolerance);
     }
+    println!();
     Ok(())
 }
 
