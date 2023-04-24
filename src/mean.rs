@@ -80,6 +80,7 @@
 //!
 use super::*;
 use crate::stats::t_value;
+use crate::utils;
 
 use error::*;
 use num_traits::Float;
@@ -181,28 +182,6 @@ impl<T: Float> MeanCI<T> for Harmonic {
 }
 
 ///
-/// compensated Kahan summation.
-/// See <https://en.wikipedia.org/wiki/Kahan_summation_algorithm>
-///
-/// The function is meant to be called at each iteration of the summation,
-/// with relevant variables managed externally
-///
-/// # Arguments
-///
-/// * `current_sum` - the current sum
-/// * `x` - the next value to add to the sum
-/// * `compensation` - the compensation term
-///
-fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
-    let sum = *current_sum;
-    let c = *compensation;
-    let y = x - c;
-    let t = sum + y;
-    *compensation = (t - sum) - y;
-    *current_sum = t;
-}
-
-///
 /// Compute the confidence interval for the mean of a sample,
 /// applying validity and transformation functions to the sample data.
 ///
@@ -246,8 +225,8 @@ where
             return Err(CIError::InvalidInputData);
         }
         let x_prime = f_transform(x);
-        kahan_add(&mut sum, x_prime, &mut sum_c);
-        kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
+        utils::kahan_add(&mut sum, x_prime, &mut sum_c);
+        utils::kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
         population += 1;
     }
 
@@ -389,7 +368,7 @@ mod tests {
 
         for _ in 0..50_000_000_usize {
             normal += x;
-            kahan_add(&mut kahan, x, &mut kahan_c);
+            utils::kahan_add(&mut kahan, x, &mut kahan_c);
         }
 
         assert_approx_eq!(5_000_000., kahan, 1e-10);

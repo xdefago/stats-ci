@@ -135,6 +135,8 @@ pub mod mean;
 pub mod proportion;
 pub mod quantile;
 
+pub(crate) mod utils;
+
 mod confidence;
 mod interval;
 mod stats;
