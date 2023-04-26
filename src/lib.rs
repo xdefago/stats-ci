@@ -41,11 +41,13 @@
 //! let ci = mean::Arithmetic::ci(confidence, data)?;
 //! // mean: 53.67
 //! // stddev: 28.097613040716798
+//! // reference values computed in python/numpy
+//! // [48.094823990767836, 59.24517600923217]
 //!
 //! use num_traits::Float;
 //! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
-//! assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
+//! assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-3);
+//! assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-3);
 //! # Ok(())
 //! # }
 //! ```
