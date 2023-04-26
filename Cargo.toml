@@ -38,3 +38,7 @@ rand = "0.8.5"
 rand_seeder = "0.2.3"
 rand_chacha = "0.3.1"
 nu-ansi-term = "0.47"
+# serde/toml used to load test data
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.7.3"
+lazy-regex = "2.5.0"
