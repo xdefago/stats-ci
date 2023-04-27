@@ -10,11 +10,6 @@ use statrs::distribution::{Normal, StudentsT};
 /// # Arguments
 ///
 /// * `confidence` - the confidence level, e.g. 0.95 for 95% confidence
-/// * `two_sided` - if true, return the z-value for a two-sided test, otherwise return the z-value for a one-sided test
-///
-/// # Panics
-///
-/// * if `confidence` is not in the range (0, 1)
 ///
 pub fn z_value(confidence: Confidence) -> f64 {
     lazy_static! {
@@ -30,16 +25,25 @@ pub fn z_value(confidence: Confidence) -> f64 {
 ///
 /// * `confidence` - the confidence level, e.g. 0.95 for 95% confidence
 /// * `degrees_of_freedom` - the degrees of freedom of the t-distribution
-/// * `two_sided` - if true, return the t-value for a two-sided test, otherwise return the t-value for a one-sided test
 ///
 /// # Panics
 ///
-/// * if `confidence` is not in the range (0, 1)
-/// * if `degrees_of_freedom` is less than 1
+/// * if `degrees_of_freedom` is negative or zero
 ///
-pub fn t_value(confidence: Confidence, degrees_of_freedom: usize) -> f64 {
-    let student_t = StudentsT::new(0., 1., degrees_of_freedom as f64).unwrap();
+pub fn t_value(confidence: Confidence, degrees_of_freedom: f64) -> f64 {
+    let student_t = StudentsT::new(0., 1., degrees_of_freedom).unwrap();
     student_t.inverse_cdf(confidence.quantile())
+}
+
+pub(crate) fn interval_bounds(
+    confidence: Confidence,
+    mean: f64,
+    std_err_mean: f64,
+    degrees_of_freedom: f64,
+) -> (f64, f64) {
+    let t = t_value(confidence, degrees_of_freedom);
+    let span = t * std_err_mean;
+    (mean - span, mean + span)
 }
 
 #[cfg(test)]
@@ -56,7 +60,7 @@ mod tests {
                 Confidence::new_lower,
             ] {
                 let confidence = new_confidence(confidence_level);
-                let t_value = t_value(confidence, 1000);
+                let t_value = t_value(confidence, 1000.);
                 let z_value = z_value(confidence);
                 assert_approx_eq!(t_value, z_value, 1e-2);
             }

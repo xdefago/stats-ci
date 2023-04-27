@@ -82,7 +82,6 @@
 //! ```
 //!
 use super::*;
-use crate::stats::t_value;
 use crate::utils;
 
 use error::*;
@@ -222,44 +221,19 @@ where
     let stats = utils::sample_len_mean_stddev_with_transform(data, f_valid, f_transform)?;
 
     // use the t-distribution regardless of the population size
-    let t = U::from(t_value(confidence, stats.len - 1)).ok_or_else(|| {
-        CIError::FloatConversionError(format!(
-            "converting t-value into type {}",
-            std::any::type_name::<T>()
-        ))
-    })?;
 
-    let span = t * stats.std_dev / stats.n.sqrt();
+    let mean = stats.mean.try_f64("stats.mean")?;
+    let std_err_mean = (stats.std_dev / stats.n.sqrt()).try_f64("std_err_mean")?;
+    let degrees_of_freedom = (stats.len - 1) as f64;
+    let (lo, hi) = stats::interval_bounds(confidence, mean, std_err_mean, degrees_of_freedom);
+    let (lo, hi) = if flipped { (hi, lo) } else { (lo, hi) };
+    let lo = U::from(lo).convert("lo")?;
+    let hi = U::from(hi).convert("hi")?;
+    let (lo, hi) = (f_inverse(lo), f_inverse(hi));
     match confidence {
-        Confidence::TwoSided(_) => {
-            let low = if !flipped {
-                f_inverse(stats.mean - span)
-            } else {
-                f_inverse(stats.mean + span)
-            };
-            let high = if !flipped {
-                f_inverse(stats.mean + span)
-            } else {
-                f_inverse(stats.mean - span)
-            };
-            Interval::new(low, high).map_err(|e| e.into())
-        }
-        Confidence::UpperOneSided(_) => {
-            let low = if !flipped {
-                f_inverse(stats.mean - span)
-            } else {
-                f_inverse(stats.mean + span)
-            };
-            Ok(Interval::new_upper(low))
-        }
-        Confidence::LowerOneSided(_) => {
-            let high = if !flipped {
-                f_inverse(stats.mean + span)
-            } else {
-                f_inverse(stats.mean - span)
-            };
-            Ok(Interval::new_lower(high))
-        }
+        Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
+        Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
+        Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
     }
 }
 
@@ -338,7 +312,7 @@ mod tests {
     }
 
     #[test]
-    fn test_harmonic_ci() -> CIResult<()>  {
+    fn test_harmonic_ci() -> CIResult<()> {
         let data = [
             82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
             15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
