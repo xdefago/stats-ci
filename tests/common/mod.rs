@@ -2,15 +2,7 @@ use nu_ansi_term::Color;
 
 #[allow(unused)]
 pub fn highlight_color(observed: f64, expected: f64, tolerance: f64) -> Color {
-    if observed < expected - tolerance {
-        Color::LightRed
-    } else if observed < expected {
-        Color::LightYellow
-    } else if observed <= expected + tolerance {
-        Color::LightGreen
-    } else {
-        Color::Default
-    }
+    color_larger_is_better(observed, expected, tolerance)
 }
 
 #[allow(unused)]
@@ -42,6 +34,7 @@ pub fn color_closer_is_better(observed: f64, expected: f64, tolerance: f64) -> C
     }
 }
 
+#[allow(unused)]
 pub fn color_smaller_is_better(observed: f64, expected: f64, tolerance: f64) -> Color {
     if observed < expected - tolerance {
         Color::Default
