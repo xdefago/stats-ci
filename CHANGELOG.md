@@ -5,7 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.5 (2023-04-27)
+
+### Documentation
+
+ - <csr-id-fa6946c67aa88590e9614b1d8aa246978df8cedf/> recommend to check vers. num. on crates.io
+
+### New Features
+
+ - <csr-id-7caf88a0c70dda1f9bb8c23f2fcd7d05dcd621ac/> untested! add comparison (paired, unpaired)
+
+### Bug Fixes
+
+ - <csr-id-bc26d61a41eafd6c080d2a8493f6ca0e31e3addd/> fix variance formula; ref. values from numpy
+   The computation of the variance (and hence standard error) was wrong.
+   This commit fixes it and all tests now use reference values computed
+   using numpy/scipy.stats
+   The commit also moves the interval computation to the `utils` module.
+
+### Other
+
+ - <csr-id-b45c6162f2d1c3f61ec4c0d413b6aa1b172f5e95/> bump version number (0.0.5)
+
+### Refactor
+
+ - <csr-id-305f22e1eaccded22181ff8790a0db7581ef80bd/> add comments and simplify error code
+ - <csr-id-a084b7384d087bfffb0b9eb7e21e8d521eacb9ff/> factor bound calculation into stats
+   Define a function `interval_bounds` in module `stats` to factor the
+   computation of the interval bounds for other modules.
+ - <csr-id-73f113562e31556985cafcf1ca0bba300bc5b43a/> add decorators to simplify error code
+ - <csr-id-ace944748113f30ab219bf62d141747ff3f2f340/> move kahan_sum into utils module
+
+### Test
+
+ - <csr-id-ee3a9848e055d2af6f1f4a0a8a9326534a74d050/> simplify highlighting code in tests
+ - <csr-id-8d9b751e45e1a34a8f4f4418e6f5c0f006d98b2e/> add tests to compare to numpy/scipy
+   The commit adds a test case generation program in python
+   than creates test case files in toml in the `/tests/cases` directory
+   The test case files are read by `/tests/compare_numpy` and the results are
+   compared with those recorded with numpy/scipy
+ - <csr-id-2162ab189ac01630185ed7efbd8a0923ade54827/> change accuracy parameters
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 11 commits contributed to the release over the course of 4 calendar days.
+ - 4 days passed between releases.
+ - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Bump version number (0.0.5) ([`b45c616`](https://github.com/xdefago/stats-ci/commit/b45c6162f2d1c3f61ec4c0d413b6aa1b172f5e95))
+    - Simplify highlighting code in tests ([`ee3a984`](https://github.com/xdefago/stats-ci/commit/ee3a9848e055d2af6f1f4a0a8a9326534a74d050))
+    - Untested! add comparison (paired, unpaired) ([`7caf88a`](https://github.com/xdefago/stats-ci/commit/7caf88a0c70dda1f9bb8c23f2fcd7d05dcd621ac))
+    - Add comments and simplify error code ([`305f22e`](https://github.com/xdefago/stats-ci/commit/305f22e1eaccded22181ff8790a0db7581ef80bd))
+    - Factor bound calculation into stats ([`a084b73`](https://github.com/xdefago/stats-ci/commit/a084b7384d087bfffb0b9eb7e21e8d521eacb9ff))
+    - Add decorators to simplify error code ([`73f1135`](https://github.com/xdefago/stats-ci/commit/73f113562e31556985cafcf1ca0bba300bc5b43a))
+    - Add tests to compare to numpy/scipy ([`8d9b751`](https://github.com/xdefago/stats-ci/commit/8d9b751e45e1a34a8f4f4418e6f5c0f006d98b2e))
+    - Change accuracy parameters ([`2162ab1`](https://github.com/xdefago/stats-ci/commit/2162ab189ac01630185ed7efbd8a0923ade54827))
+    - Fix variance formula; ref. values from numpy ([`bc26d61`](https://github.com/xdefago/stats-ci/commit/bc26d61a41eafd6c080d2a8493f6ca0e31e3addd))
+    - Move kahan_sum into utils module ([`ace9447`](https://github.com/xdefago/stats-ci/commit/ace944748113f30ab219bf62d141747ff3f2f340))
+    - Recommend to check vers. num. on crates.io ([`fa6946c`](https://github.com/xdefago/stats-ci/commit/fa6946c67aa88590e9614b1d8aa246978df8cedf))
+</details>
+
 ## v0.0.4 (2023-04-23)
+
+<csr-id-ed772b671961e797b1ceb3585818d8d5e6e73642/>
+<csr-id-f1c4c4344fd944263d1380fa857b686c642c4e61/>
+<csr-id-3feba2a81ef4b9d15b14750d0ceba0d775e774f4/>
+<csr-id-910d8ff50c78213c7e0e489b7fcaf8d26c76b04e/>
+<csr-id-75efcaa99e91a1df1f9ac8ea0a3ed755716f277b/>
 
 ### Documentation
 
@@ -35,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 9 commits contributed to the release over the course of 1 calendar day.
+ - 10 commits contributed to the release over the course of 1 calendar day.
  - 3 days passed between releases.
  - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -47,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.4 ([`14a9e80`](https://github.com/xdefago/stats-ci/commit/14a9e8079b0283ab57deba7fa0b733118a720e7d))
     - Fix auto link ([`7af0e54`](https://github.com/xdefago/stats-ci/commit/7af0e54ca1c40f9e7d806e71eddaa932fce6a948))
     - Fix code in README; add it as example ([`6a3cbd3`](https://github.com/xdefago/stats-ci/commit/6a3cbd36c53ed6a438b2489831c626a2d2b12dc4))
     - Delete accuracy unit test (redundant) ([`f1c4c43`](https://github.com/xdefago/stats-ci/commit/f1c4c4344fd944263d1380fa857b686c642c4e61))
