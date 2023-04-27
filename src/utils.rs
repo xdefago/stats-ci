@@ -1,4 +1,5 @@
 use crate::*;
+use error::*;
 use num_traits::Float;
 
 ///
@@ -23,6 +24,16 @@ pub(crate) fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut 
     *current_sum = t;
 }
 
+///
+/// Holds the statistics of a sample.
+///
+/// # Fields
+///
+/// * `len` - the length of the sample
+/// * `n` - the length of the sample as the type used for the computation
+/// * `mean` - the mean of the sample as the type used for the computation
+/// * `std_dev` - the standard deviation of the sample as the type used for the computation
+///
 #[derive(Debug, Clone)]
 pub(crate) struct Statistics<T: Float> {
     pub len: usize,
@@ -86,13 +97,8 @@ where
         kahan_add(&mut sum_sq, x_prime * x_prime, &mut sum_sq_c);
         len += 1;
     }
-    let n = U::from(len).ok_or_else(|| {
-        error::CIError::FloatConversionError(format!(
-            "converting data.len ({}) into type {}",
-            len,
-            std::any::type_name::<T>()
-        ))
-    })?;
+    let n = U::from(len).convert("len")?;
+
     let mean = sum / n;
     let variance = (sum_sq - sum * mean) / (n - U::one());
     let std_dev = variance.sqrt();
