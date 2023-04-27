@@ -2,6 +2,8 @@ pub type CIResult<T> = Result<T, CIError>;
 
 pub use crate::interval::IntervalError;
 
+use num_traits::Float;
+
 #[derive(thiserror::Error, Debug)]
 pub enum CIError {
     #[error("Too few samples to compute: {0}")]
@@ -55,6 +57,46 @@ pub enum ConversionError {
 
     #[error("Degenerate interval has single bound")]
     SingleBoundError,
+}
+
+///
+/// Decorator trait used to convert from a generic [`Float`] type to a [`CIResult<f64>`]
+///
+pub(crate) trait FloatConversion<F: Float> {
+    fn try_f64(&self, var_name: &str) -> CIResult<f64>;
+}
+
+impl<F: Float> FloatConversion<F> for F {
+    #[inline]
+    fn try_f64(&self, var_name: &str) -> CIResult<f64> {
+        Ok(self.to_f64().ok_or_else(|| {
+            CIError::FloatConversionError(format!(
+                "Error converting {} ({}) to f64",
+                var_name,
+                std::any::type_name::<F>()
+            ))
+        })?)
+    }
+}
+
+///
+/// Decorator trait used to convert from an [`Option<F>`] to a [`CIResult<F>`]
+///
+pub(crate) trait FloatReverseConversion<F: num_traits::Float> {
+    fn convert(&self, var_name: &str) -> CIResult<F>;
+}
+
+impl<F: Float> FloatReverseConversion<F> for Option<F> {
+    #[inline]
+    fn convert(&self, var_name: &str) -> CIResult<F> {
+        self.ok_or_else(|| {
+            CIError::FloatConversionError(format!(
+                "Error converting {} to {}",
+                var_name,
+                std::any::type_name::<F>()
+            ))
+        })
+    }
 }
 
 #[cfg(test)]
