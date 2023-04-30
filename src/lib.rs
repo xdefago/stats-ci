@@ -132,7 +132,7 @@
 #![crate_name = "stats_ci"]
 #![forbid(unsafe_code)]
 
-pub(crate) mod comparison;
+pub mod comparison;
 pub mod error;
 pub mod mean;
 pub mod proportion;
