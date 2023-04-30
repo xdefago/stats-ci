@@ -1,3 +1,8 @@
+///
+/// This is the code used as examples in the README.md file.
+/// It is used to ensure that the code snippets compile, are up-to-date, and work as intended.
+///
+
 fn block_1() -> stats_ci::CIResult<()> {
     use stats_ci::*;
     let data = [
@@ -12,24 +17,24 @@ fn block_1() -> stats_ci::CIResult<()> {
     let ci = mean::Arithmetic::ci(confidence, data)?;
     // mean: 53.67
     // stddev: 28.097613040716798
-    println!("ci: {}", ci); // ci: [41.64960001858482, 65.69039998141518]
-    println!("low: {:?}", ci.low_f()); // low: 41.64960001858482
-    println!("high: {:?}", ci.high_f()); // high: 65.69039998141518
+    println!("ci: {}", ci); // ci: [48.09482399055084, 59.24517600944916]
+    println!("low: {}", ci.low_f()); // low: 48.09482399055084
+    println!("high: {}", ci.high_f()); // high: 59.24517600944916
 
     let ci = mean::Harmonic::ci(confidence, data)?;
     // harmonic mean: 30.031313156339586
-    println!("ci: {}", ci); // ci: [22.470391261623906, 45.26085671573706]
+    println!("ci: {}", ci); // ci: [23.614092539460778, 41.23786064976718]
 
     let ci = mean::Geometric::ci(confidence, data)?;
     // geometric mean: 43.7268032829256
-    println!("ci: {}", ci); // ci: [20.367948541739317, 93.87461488452854]
+    println!("ci: {}", ci); // ci: [37.731050052007795, 50.675327686564806]
 
     let confidence = Confidence::new_upper(0.975);
     let ci = mean::Arithmetic::ci(confidence, data)?;
-    println!("ci: {}", ci); // ci: [41.64960001858482,->)
-    println!("low: {:?}", ci.low_f()); // low: 41.64960001858482
-    println!("high: {:?}", ci.high_f()); // high: inf
-    println!("low: {:?}", ci.low()); // high: Some(41.64960001858482)
+    println!("ci: {}", ci); // ci: [48.09482399055084,->)
+    println!("low: {}", ci.low_f()); // low: 48.09482399055084
+    println!("high: {}", ci.high_f()); // high: inf
+    println!("low: {:?}", ci.low()); // high: Some(48.09482399055084)
     println!("high: {:?}", ci.high()); // high: None
 
     Ok(())
