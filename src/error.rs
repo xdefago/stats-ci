@@ -24,7 +24,7 @@ pub enum CIError {
     #[error("Invalid number of successes: {0} (population: {1})")]
     InvalidSuccesses(usize, usize),
 
-    #[error("Geometric mean requires strictly positive values: found {0}")]
+    #[error("Geometric/harmonic mean require strictly positive values: found {0}")]
     NonPositiveValue(f64),
 
     #[error("Invalid input data found")]
@@ -69,13 +69,13 @@ pub(crate) trait FloatConversion<F: Float> {
 impl<F: Float> FloatConversion<F> for F {
     #[inline]
     fn try_f64(&self, var_name: &str) -> CIResult<f64> {
-        Ok(self.to_f64().ok_or_else(|| {
+        self.to_f64().ok_or_else(|| {
             CIError::FloatConversionError(format!(
                 "Error converting {} ({}) to f64",
                 var_name,
                 std::any::type_name::<F>()
             ))
-        })?)
+        })
     }
 }
 
