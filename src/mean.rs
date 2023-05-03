@@ -88,6 +88,301 @@ use error::*;
 use num_traits::Float;
 
 ///
+/// Trait for incremental statistics.
+/// This trait is implemented for the following statistics:
+/// - [`mean::Arithmetic`] for arithmetic calculations
+/// - [`mean::Geometric`] for geometric calculations (logarithmic space)
+/// - [`mean::Harmonic`] for harmonic calculations (reciprocal space)
+///
+/// # Example
+/// ```
+/// # fn test() -> stats_ci::CIResult<()> {
+/// use stats_ci::*;
+/// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
+/// let stats = mean::Arithmetic::from_iter(data)?;
+/// assert_eq!(stats.sample_count(), 10);
+/// assert_eq!(stats.sample_mean(), 5.5);
+/// assert_eq!(stats.sample_sem(), 0.5);
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let ci = stats.ci_mean(confidence)?;
+/// assert_eq!(ci.low_f(), 3.5420208206306123);
+/// assert_eq!(ci.high_f(), 7.457979179369388);
+/// # Ok(())
+/// # }
+/// ```
+pub trait StatisticsOps<F: Float>
+where
+    Self: Default,
+{
+    ///
+    /// Create a new empty state
+    ///
+    fn new() -> Self {
+        Default::default()
+    }
+    fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
+        let mut state = Self::new();
+        state.extend(data)?;
+        Ok(state)
+    }
+    ///
+    /// Mean of the sample
+    ///
+    fn sample_mean(&self) -> F;
+    ///
+    /// Standard error of the sample mean
+    ///
+    fn sample_sem(&self) -> F;
+    ///
+    /// Number of samples
+    ///
+    fn sample_count(&self) -> usize;
+    ///
+    /// Confidence interval of the sample mean
+    ///
+    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>>;
+    ///
+    /// Append a new sample to the data
+    ///
+    fn append(&mut self, x: F) -> CIResult<()>;
+    ///
+    /// Extend the data with additional sample data.
+    /// This is equivalent to calling `append` for each element in the iterator.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The data to append
+    ///
+    /// # Output
+    ///
+    /// * `Ok(())` - If the data was successfully appended
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::NonPositiveValue`] - If the input data is invalid (for harmonic/geometric means).
+    ///
+    fn extend<I: IntoIterator<Item = F>>(&mut self, data: I) -> CIResult<()> {
+        for x_i in data {
+            self.append(x_i)?;
+        }
+        Ok(())
+    }
+}
+
+///
+/// Represents the state of the computation of the arithmetic mean.
+/// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
+///
+#[derive(Debug, Clone, Copy)]
+pub struct Arithmetic<F: Float> {
+    sum: F,
+    sum_c: F,
+    sum_sq: F,
+    sum_sq_c: F,
+    count: usize,
+}
+
+impl<F: Float> Default for Arithmetic<F> {
+    fn default() -> Self {
+        Self {
+            sum: F::zero(),
+            sum_c: F::zero(),
+            sum_sq: F::zero(),
+            sum_sq_c: F::zero(),
+            count: 0,
+        }
+    }
+}
+
+impl<F: Float> Arithmetic<F> {
+    ///
+    /// Variance of the sample
+    ///
+    pub fn sample_variance(&self) -> F {
+        let mean = self.sample_mean();
+        (self.sum_sq - mean * self.sum) / F::from(self.count - 1).unwrap()
+    }
+    ///
+    /// Standard deviation of the sample
+    ///
+    pub fn sample_std_dev(&self) -> F {
+        self.sample_variance().sqrt()
+    }
+}
+impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
+    fn append(&mut self, x: F) -> CIResult<()> {
+        utils::kahan_add(&mut self.sum, x, &mut self.sum_c);
+        utils::kahan_add(&mut self.sum_sq, x * x, &mut self.sum_sq_c);
+        self.count += 1;
+        Ok(())
+    }
+    ///
+    /// Arithmetic mean of the sample
+    ///
+    fn sample_mean(&self) -> F {
+        self.sum / F::from(self.count).unwrap()
+    }
+    ///
+    /// Standard error of the mean of the sample
+    ///
+    fn sample_sem(&self) -> F {
+        self.sample_std_dev() / F::from(self.count - 1).unwrap().sqrt()
+    }
+    ///
+    /// Confidence interval on the mean of the sample
+    ///
+    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+        let n = self.count as f64;
+        let mean = self.sample_mean().try_f64("stats.mean")?;
+        let std_dev = self.sample_std_dev().try_f64("stats.std_dev")?;
+        let std_err_mean = std_dev / n.sqrt();
+        let degrees_of_freedom = n - 1.;
+        let (lo, hi) = stats::interval_bounds(confidence, mean, std_err_mean, degrees_of_freedom);
+        let (lo, hi) = (F::from(lo).convert("lo")?, F::from(hi).convert("hi")?);
+        match confidence {
+            Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
+            Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
+            Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
+        }
+    }
+    ///
+    /// Number of samples in the sample
+    ///
+    fn sample_count(&self) -> usize {
+        self.count
+    }
+}
+
+///
+/// Represents the state of the computation of the harmonic mean.
+/// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
+/// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the reciprocals of the samples.
+///
+#[derive(Debug, Clone, Copy)]
+pub struct Harmonic<F: Float> {
+    recip_space: Arithmetic<F>,
+}
+impl<F: Float> Default for Harmonic<F> {
+    fn default() -> Self {
+        Self {
+            recip_space: Arithmetic::default(),
+        }
+    }
+}
+impl<F: Float> StatisticsOps<F> for Harmonic<F> {
+    fn append(&mut self, x: F) -> CIResult<()> {
+        if x <= F::zero() {
+            return Err(error::CIError::NonPositiveValue(
+                x.to_f64().unwrap_or(f64::NAN),
+            ));
+        }
+        self.recip_space.append(F::one() / x)?;
+        Ok(())
+    }
+    ///
+    /// Harmonic mean of the sample
+    ///
+    fn sample_mean(&self) -> F {
+        F::one() / self.recip_space.sample_mean()
+    }
+    ///
+    /// Standard error of the harmonic mean
+    ///
+    /// # Reference
+    ///
+    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." The Annals of Mathematical Statistics, 11(4):445-448, (Dec., 1940). [JSTOR](https://www.jstor.org/stable/2235727)
+    ///
+    fn sample_sem(&self) -> F {
+        let harm_mean = self.sample_mean();
+        let recip_std_dev = self.recip_space.sample_std_dev();
+        harm_mean * harm_mean * recip_std_dev
+            / F::from(self.recip_space.sample_count() - 1).unwrap().sqrt()
+    }
+    ///
+    /// Number of samples
+    ///
+    fn sample_count(&self) -> usize {
+        self.recip_space.sample_count()
+    }
+    ///
+    /// Confidence interval for the harmonic mean
+    ///
+    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+        let arith_ci = self.recip_space.ci_mean(confidence.flipped())?;
+        let (lo, hi) = (F::one() / arith_ci.high_f(), F::one() / arith_ci.low_f());
+        match confidence {
+            Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
+            Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
+            Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
+        }
+    }
+}
+
+///
+/// Represents the state of the computation of the geometric mean.
+/// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
+/// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the logarithms of the samples.
+///
+#[derive(Debug, Clone, Copy)]
+pub struct Geometric<F: Float> {
+    log_space: Arithmetic<F>,
+}
+impl<F: Float> Default for Geometric<F> {
+    fn default() -> Self {
+        Self {
+            log_space: Arithmetic::default(),
+        }
+    }
+}
+impl<F: Float> StatisticsOps<F> for Geometric<F> {
+    fn append(&mut self, x: F) -> CIResult<()> {
+        if x <= F::zero() {
+            return Err(error::CIError::NonPositiveValue(
+                x.to_f64().unwrap_or(f64::NAN),
+            ));
+        }
+        self.log_space.append(x.ln())?;
+        Ok(())
+    }
+    ///
+    /// Geometric mean of the sample
+    ///
+    fn sample_mean(&self) -> F {
+        self.log_space.sample_mean().exp()
+    }
+    ///
+    /// Standard error of the geometric mean
+    ///
+    ///  # Reference
+    ///
+    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." The Annals of Mathematical Statistics, 11(4):445-448, (Dec., 1940). [JSTOR](https://www.jstor.org/stable/2235727)
+    ///
+    fn sample_sem(&self) -> F {
+        let geom_mean = self.sample_mean();
+        let log_std_dev = self.log_space.sample_std_dev();
+        geom_mean * log_std_dev / F::from(self.log_space.sample_count() - 1).unwrap().sqrt()
+    }
+    ///
+    /// Number of samples
+    ///
+    fn sample_count(&self) -> usize {
+        self.log_space.sample_count()
+    }
+    ///
+    /// Confidence interval for the geometric mean
+    ///
+    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+        let arith_ci = self.log_space.ci_mean(confidence)?;
+        let (lo, hi) = (arith_ci.low_f().exp(), arith_ci.high_f().exp());
+        match confidence {
+            Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
+            Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
+            Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
+        }
+    }
+}
+
+///
 /// Trait for computing confidence intervals on the mean of a sample.
 ///
 /// # Examples
@@ -120,120 +415,12 @@ pub trait MeanCI<T: PartialOrd> {
         I: IntoIterator<Item = T>;
 }
 
-///
-/// Computation for arithmetic mean.
-///
-pub struct Arithmetic;
-
-impl<T: Float> MeanCI<T> for Arithmetic {
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
+impl<F: Float, T: StatisticsOps<F>> MeanCI<F> for T {
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
     where
-        I: IntoIterator<Item = T>,
+        I: IntoIterator<Item = F>,
     {
-        ci_with_transforms(
-            confidence,
-            data,
-            |x: &T| !x.is_nan() && !x.is_infinite(),
-            |x| x,
-            |x| x,
-            false,
-        )
-    }
-}
-
-///
-/// Computation for geometric mean.
-///
-pub struct Geometric;
-
-impl<T: Float> MeanCI<T> for Geometric {
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
-    where
-        I: IntoIterator<Item = T>,
-    {
-        ci_with_transforms(
-            confidence,
-            data,
-            |x: &T| x.is_sign_positive() || !x.is_zero(),
-            |x| x.ln(),
-            |x| x.exp(),
-            false,
-        )
-    }
-}
-
-///
-/// Computation for harmonic mean.
-///
-pub struct Harmonic;
-
-impl<T: Float> MeanCI<T> for Harmonic {
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
-    where
-        I: IntoIterator<Item = T>,
-    {
-        ci_with_transforms(
-            confidence,
-            data,
-            |x: &T| x.is_sign_positive() || !x.is_zero(),
-            |x| x.recip(), // 1/x
-            |x| x.recip(),
-            true,
-        )
-    }
-}
-
-///
-/// Compute the confidence interval for the mean of a sample,
-/// applying validity and transformation functions to the sample data.
-///
-/// # Arguments
-///
-/// * `confidence` - the confidence level
-/// * `data` - the sample data
-/// * `f_valid` - a function to determine whether a value is valid
-/// * `f_transform` - a function to transform a value before computing the mean
-/// * `f_inverse` - the inverse function to transform the bounds of the confidence interval
-/// * `flipped` - whether the confidence interval is flipped by the transformation (i.e. the lower bound is the upper bound)
-///
-/// # Errors
-///
-/// * `CIError::InvalidInputData` - if the sample data is empty or contains invalid values
-/// * `CIError::InvalidTooFewSamples` - if the sample size is not sufficient
-/// * `CIError::FloatConversionError` - if the conversion from `T` to `U` fails
-///
-fn ci_with_transforms<T: PartialOrd, U: Float, I, F, Finv, Fvalid>(
-    confidence: Confidence,
-    data: I,
-    f_valid: Fvalid,
-    f_transform: F,
-    f_inverse: Finv,
-    flipped: bool,
-) -> CIResult<Interval<T>>
-where
-    I: IntoIterator<Item = T>,
-    Fvalid: Fn(&T) -> bool,
-    F: Fn(T) -> U,
-    Finv: Fn(U) -> T,
-{
-    // iterate through the data and compute the sample size, mean, and standard deviation.
-    // applies the validity and transformation functions to the data.
-    let stats = utils::sample_len_mean_stddev_with_transform(data, f_valid, f_transform)?;
-
-    // use the t-distribution regardless of the population size
-
-    let mean = stats.mean.try_f64("stats.mean")?;
-    let std_err_mean = (stats.std_dev / stats.n.sqrt()).try_f64("std_err_mean")?;
-    let degrees_of_freedom = (stats.len - 1) as f64;
-    let (lo, hi) = stats::interval_bounds(confidence, mean, std_err_mean, degrees_of_freedom);
-    let (lo, hi) = if flipped { (hi, lo) } else { (lo, hi) };
-    let lo = U::from(lo).convert("lo")?;
-    let hi = U::from(hi).convert("hi")?;
-    let (lo, hi) = (f_inverse(lo), f_inverse(hi));
-    match confidence {
-        Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
-        Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
-        Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
+        Self::from_iter(data)?.ci_mean(confidence)
     }
 }
 
@@ -276,6 +463,22 @@ mod tests {
         assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
+        let mut state = Arithmetic::default();
+        state.extend(data.iter().copied())?;
+        let ci = state.ci_mean(confidence)?;
+
+        assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-8);
+        assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-8);
+        assert_approx_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, 1e-8);
+
+        let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
+        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
+
+        let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
+        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
+
         Ok(())
     }
 
@@ -305,6 +508,21 @@ mod tests {
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Geometric::ci(Confidence::LowerOneSided(0.975), data)?;
+        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
+
+        let mut state = Geometric::default();
+        state.extend(data.iter().copied())?;
+        let ci = state.ci_mean(confidence)?;
+        assert_approx_eq!(state.sample_mean(), 43.7268032829256, 1e-8);
+        assert_approx_eq!(ci.low_f(), 37.731050052224354, 1e-8);
+        assert_approx_eq!(ci.high_f(), 50.67532768627392, 1e-8);
+
+        let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
+        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
+
+        let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
         assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -353,6 +571,13 @@ mod tests {
         // reference values computed in python:
         // in reciprocal space: (1.1735238063066096, 4.083848080632111)
         // [0.8521343961033607, 0.2448670911003175]
+        assert_approx_eq!(ci.low_f(), 0.2448670911003175, 1e-6);
+        assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
+
+        let mut state = Harmonic::default();
+        state.extend(data.iter().copied())?;
+        let ci = state.ci_mean(confidence)?;
+        assert_approx_eq!(state.sample_mean(), 0.38041820166550844, 1e-8);
         assert_approx_eq!(ci.low_f(), 0.2448670911003175, 1e-6);
         assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
 

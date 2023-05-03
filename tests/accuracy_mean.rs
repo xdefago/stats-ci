@@ -60,7 +60,7 @@ where
     D: rand::distributions::Distribution<T> + statrs::statistics::Distribution<T>,
 {
     let mean = distrib.mean().ok_or("Can't compute mean")?;
-    test_accuracy::<mean::Arithmetic, _, _>(
+    test_accuracy::<mean::Arithmetic<T>, _, _>(
         distrib,
         mean,
         sample_size,

@@ -21,9 +21,9 @@
 //! The functions are generic and can be used with any type that implements the [`num_traits::Float`] trait from the crate [`num_traits`].
 //!
 //! The crate provides three functions to compute confidence intervals for the mean of floating-point data:
-//! * [`mean::Arithmetic::ci`] computes the confidence interval for the arithmetic mean.
-//! * [`mean::Geometric::ci`] computes the confidence interval for the geometric mean
-//! * [`mean::Harmonic::ci`] computes the confidence interval for the harmonic mean
+//! * [`mean::Arithmetic`] computes the confidence interval for the arithmetic mean.
+//! * [`mean::Geometric`] computes the confidence interval for the geometric mean
+//! * [`mean::Harmonic`] computes the confidence interval for the harmonic mean
 //!
 //! ```
 //! # fn main() -> stats_ci::CIResult<()> {
@@ -148,3 +148,4 @@ pub use confidence::Confidence;
 pub use error::CIResult;
 pub use interval::Interval;
 pub use mean::MeanCI;
+pub use mean::StatisticsOps;

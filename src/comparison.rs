@@ -28,6 +28,7 @@
 //!
 use crate::*;
 use error::*;
+use mean::StatisticsOps;
 use num_traits::Float;
 
 ///
@@ -107,22 +108,30 @@ pub fn unpaired_ci<T: Float>(
     data_a: &[T],
     data_b: &[T],
 ) -> CIResult<Interval<T>> {
-    let stats_a = utils::sample_len_mean_stddev_with_transform(data_a, |_| true, |&x| x)?;
-    let stats_b = utils::sample_len_mean_stddev_with_transform(data_b, |_| true, |&y| y)?;
+    let stats_a = mean::Arithmetic::from_iter(data_a.iter().copied())?;
+    let stats_b = mean::Arithmetic::from_iter(data_b.iter().copied())?;
 
-    let mean_difference = stats_a.mean - stats_b.mean;
+    let n_a = T::from(stats_a.sample_count()).convert("stats_a.sample_count")?;
+    let n_b = T::from(stats_b.sample_count()).convert("stats_b.sample_count")?;
+    let mean_a = stats_a.sample_mean();
+    let mean_b = stats_b.sample_mean();
+    let std_dev_a = stats_a.sample_std_dev();
+    let std_dev_b = stats_b.sample_std_dev();
+
+    let mean_difference = mean_a - mean_b;
     let sa2_na = // $s_a^2 / n_a$
-        stats_a.std_dev * stats_a.std_dev / stats_a.n;
+        std_dev_a * std_dev_a / n_a;
     let sb2_nb = // $s_b^2 / n_b$
-        stats_b.std_dev * stats_b.std_dev / stats_b.n;
+        std_dev_b * std_dev_b / n_b;
     let sum_s2_n = // $s_a^2 / n_a + s_b^2 / n_b$
         sa2_na + sb2_nb;
     let std_err_mean = // $\sqrt{s_a^2 / n_a + s_b^2 / n_b}$
-        (sum_s2_n).sqrt();
+        sum_s2_n.sqrt();
     let effective_dof = // $ \frac{ (s_a^a / n_a + s_b^2 / n_b)^2 }{ \frac{1}{n_a+1} \left(\frac{s_a^2}{n_a}\right)^2 + \frac{1}{n_b+1} \left(\frac{s_b^2}{n_b}\right)^2 } - 2$
         sum_s2_n * sum_s2_n
-            / (sa2_na * sa2_na / (stats_a.n + T::one())
-                + sb2_nb * sb2_nb / (stats_b.n + T::one())) - T::one() - T::one();
+            / (sa2_na * sa2_na / (n_a + T::one())
+                + sb2_nb * sb2_nb / (n_b + T::one())) - T::one() - T::one();
+
     let (lo, hi) = stats::interval_bounds(
         confidence,
         mean_difference.try_f64("mean_difference")?,
