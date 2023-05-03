@@ -20,5 +20,5 @@ fn main() {
     let ci = mean::Arithmetic::ci(Confidence::new_two_sided(0.95), population).unwrap();
     let elapsed = start.elapsed();
     println!("Elapsed: {:?}", elapsed);
-    println!("CI: {:?}", ci);
+    println!("CI: {}", ci);
 }
