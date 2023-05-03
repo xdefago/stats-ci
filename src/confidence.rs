@@ -115,6 +115,19 @@ impl Confidence {
         matches!(self, Confidence::LowerOneSided(_))
     }
 
+    /// Return the confidence interval with the same confidence level but flipped.
+    /// For a two-sided interval, this is the same interval.
+    /// For a one-sided interval, this is the interval with the opposite direction.
+    /// For example, a lower one-sided interval with confidence 0.95 flipped is an upper one-sided interval with confidence 0.95.
+    /// 
+    pub fn flipped(&self) -> Self {
+        match self {
+            Confidence::TwoSided(_) => *self,
+            Confidence::UpperOneSided(confidence) => Confidence::LowerOneSided(*confidence),
+            Confidence::LowerOneSided(confidence) => Confidence::UpperOneSided(*confidence),
+        }
+    }
+
     /// Return the quantile of the confidence interval.
     ///
     /// For a two-sided interval, this is (1-\alpha/2) where \alpha is 1-confidence.
