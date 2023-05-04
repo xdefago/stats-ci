@@ -119,7 +119,7 @@ impl Confidence {
     /// For a two-sided interval, this is the same interval.
     /// For a one-sided interval, this is the interval with the opposite direction.
     /// For example, a lower one-sided interval with confidence 0.95 flipped is an upper one-sided interval with confidence 0.95.
-    /// 
+    ///
     pub fn flipped(&self) -> Self {
         match self {
             Confidence::TwoSided(_) => *self,
