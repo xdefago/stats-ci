@@ -37,6 +37,19 @@ fn block_1() -> stats_ci::CIResult<()> {
     println!("low: {:?}", ci.low()); // high: Some(48.09482399055084)
     println!("high: {:?}", ci.high()); // high: None
 
+    // incremental statistics also work
+    let mut stats = mean::Arithmetic::new();
+    stats.extend(data)?;
+    let ci = stats.ci_mean(confidence)?;
+    println!("incr ci: {}", ci); // incr ci: [48.09482399055084,->)
+    for _ in 0..10 {
+        stats.append(1_000.)?;
+    }
+    let ci = stats.ci_mean(confidence)?;
+    println!("incr ci (97.5%): {}", ci); // incr ci (97.5%): [87.80710255546494,->)
+    let ci = stats.ci_mean(Confidence::new_two_sided(0.8))?;
+    println!("incr ci (80%): {}", ci);   // incr ci (80%): [105.9411358250259, 173.45886417497408]
+    
     Ok(())
 }
 
