@@ -96,13 +96,14 @@ where
     println!("A   :   {} µs", a_ci);
     println!("B   :   {} µs", b_ci);
     println!("diff:   {} µs", paired);
-    let rel_lo = (b_ci.low_f() - a_ci.high_f()) / a_ci.high_f();
-    let rel_hi = (b_ci.high_f() - a_ci.low_f()) / a_ci.low_f();
+    let relative_ci = b_ci.relative_to(&a_ci) * 100.;
+    println!("relative: {} %", relative_ci);
     println!(
         "relative to A: {:.1} % ~ {:.1} %",
-        rel_lo * 100.,
-        rel_hi * 100.
+        relative_ci.low_f(),
+        relative_ci.high_f()
     );
+    println!();
 }
 
 fn main() {
