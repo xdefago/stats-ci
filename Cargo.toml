@@ -11,7 +11,7 @@ authors = ["xdefago"]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 
-description = "Provides functions to compute confidence intervals for various situations."
+description = "Computing confidence intervals on various data for Rust."
 keywords = ["math", "statistics", "stats", "sampling", "analysis"]
 categories = ["mathematics", "science", ]
 
