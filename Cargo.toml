@@ -20,6 +20,8 @@ categories = ["mathematics", "science", ]
 default = []
 serde = ["dep:serde"]
 
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "./src/docs-header.html" ]
 
 [dependencies]
 statrs = "0.16.0"
