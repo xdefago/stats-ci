@@ -5,7 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.6 (2023-05-04)
+
+### Documentation
+
+ - <csr-id-61cf5a5b001a148147e1356d5c228d8d726acfe9/> update TODO list
+ - <csr-id-428981d78a10f53269a5af494a55582d1dc84afd/> add complexity information in rustdoc
+ - <csr-id-37d8af03d34157a4bdcdb2957d376f622806955d/> clarify overall description in rustdoc
+ - <csr-id-c7293219be0dde935368073b1a3efe4dbf4580d9/> update documentation and examples
+ - <csr-id-141f073e0f3cd5f441e8af56f51c5a3d9e843ea9/> add incremental; update todo; fix version
+ - <csr-id-06a5e6695abe4068f6e18e4b0fa81a8f65f2240d/> change crate description
+
+### New Features
+
+ - <csr-id-25f3517bfe9dc570cff72675e93b97ef3d3fc03a/> add serde support for incremental states
+ - <csr-id-45111f71fd85127726e3b944fab7bb75170d228b/> add operators/relative to intervals
+ - <csr-id-1a2459bbd1762ae44f00857e231a6ca47bdd7ebf/> add incremental statistics
+ - <csr-id-69056d8857f0b8791296092de36d8331b0514211/> add flipped to reverse confidence direction
+ - <csr-id-e25f3864fbac955e801f05e059b6d5030ab75d4c/> add comparison of two samples (tested)
+
+### Bug Fixes
+
+ - <csr-id-e0d71b114330a61f271e50f066a0a801eb05d2b6/> print ci as Display not Debug
+
+### Other
+
+ - <csr-id-e7a340fc2bed9bc0264ce3a9ac159eed361158a8/> remove unused dependency on itertools
+ - <csr-id-4e425772db4716557cfc83feef12c3918ec9239e/> use relative/mul on intervals
+ - <csr-id-52cdb2f9cd128ab38bdc418b41da155f23bb78aa/> add comparison between mean ci
+ - <csr-id-be45a591c7da238e30b9dd5d2319645205e03ca1/> fix errors in examples
+
+### Refactor
+
+ - <csr-id-7829b906191b48276e0b15b0e0ed19fd7cb747e6/> remove dead code
+
+### Style
+
+ - <csr-id-c6cd7a252426967322c1c4193dcd1a0135d2fa2b/> reformat code
+ - <csr-id-85d317f1756026acdd9ac27b4de105292f6ab8ce/> reformat comment
+
+### Test
+
+ - <csr-id-4ea5e6534d55997f96823acb64d00620a9e0584d/> add code for incremental ci for readme
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 21 commits contributed to the release over the course of 3 calendar days.
+ - 6 days passed between releases.
+ - 20 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update TODO list ([`61cf5a5`](https://github.com/xdefago/stats-ci/commit/61cf5a5b001a148147e1356d5c228d8d726acfe9))
+    - Add serde support for incremental states ([`25f3517`](https://github.com/xdefago/stats-ci/commit/25f3517bfe9dc570cff72675e93b97ef3d3fc03a))
+    - Add complexity information in rustdoc ([`428981d`](https://github.com/xdefago/stats-ci/commit/428981d78a10f53269a5af494a55582d1dc84afd))
+    - Clarify overall description in rustdoc ([`37d8af0`](https://github.com/xdefago/stats-ci/commit/37d8af03d34157a4bdcdb2957d376f622806955d))
+    - Update documentation and examples ([`c729321`](https://github.com/xdefago/stats-ci/commit/c7293219be0dde935368073b1a3efe4dbf4580d9))
+    - Remove unused dependency on itertools ([`e7a340f`](https://github.com/xdefago/stats-ci/commit/e7a340fc2bed9bc0264ce3a9ac159eed361158a8))
+    - Reformat code ([`c6cd7a2`](https://github.com/xdefago/stats-ci/commit/c6cd7a252426967322c1c4193dcd1a0135d2fa2b))
+    - Add incremental; update todo; fix version ([`141f073`](https://github.com/xdefago/stats-ci/commit/141f073e0f3cd5f441e8af56f51c5a3d9e843ea9))
+    - Add code for incremental ci for readme ([`4ea5e65`](https://github.com/xdefago/stats-ci/commit/4ea5e6534d55997f96823acb64d00620a9e0584d))
+    - Change crate description ([`06a5e66`](https://github.com/xdefago/stats-ci/commit/06a5e6695abe4068f6e18e4b0fa81a8f65f2240d))
+    - Reformat comment ([`85d317f`](https://github.com/xdefago/stats-ci/commit/85d317f1756026acdd9ac27b4de105292f6ab8ce))
+    - Use relative/mul on intervals ([`4e42577`](https://github.com/xdefago/stats-ci/commit/4e425772db4716557cfc83feef12c3918ec9239e))
+    - Add operators/relative to intervals ([`45111f7`](https://github.com/xdefago/stats-ci/commit/45111f71fd85127726e3b944fab7bb75170d228b))
+    - Add comparison between mean ci ([`52cdb2f`](https://github.com/xdefago/stats-ci/commit/52cdb2f9cd128ab38bdc418b41da155f23bb78aa))
+    - Remove dead code ([`7829b90`](https://github.com/xdefago/stats-ci/commit/7829b906191b48276e0b15b0e0ed19fd7cb747e6))
+    - Add incremental statistics ([`1a2459b`](https://github.com/xdefago/stats-ci/commit/1a2459bbd1762ae44f00857e231a6ca47bdd7ebf))
+    - Add flipped to reverse confidence direction ([`69056d8`](https://github.com/xdefago/stats-ci/commit/69056d8857f0b8791296092de36d8331b0514211))
+    - Print ci as Display not Debug ([`e0d71b1`](https://github.com/xdefago/stats-ci/commit/e0d71b114330a61f271e50f066a0a801eb05d2b6))
+    - Refactor: fix error message; fix result handling change error message for NonPositiveValue remove useless unwrapping of Result in try_f64() ([`b462d76`](https://github.com/xdefago/stats-ci/commit/b462d7676a6ab152ad3f1704b18badecf4e753cb))
+    - Add comparison of two samples (tested) ([`e25f386`](https://github.com/xdefago/stats-ci/commit/e25f3864fbac955e801f05e059b6d5030ab75d4c))
+    - Fix errors in examples ([`be45a59`](https://github.com/xdefago/stats-ci/commit/be45a591c7da238e30b9dd5d2319645205e03ca1))
+</details>
+
 ## v0.0.5 (2023-04-27)
+
+<csr-id-b45c6162f2d1c3f61ec4c0d413b6aa1b172f5e95/>
+<csr-id-305f22e1eaccded22181ff8790a0db7581ef80bd/>
+<csr-id-a084b7384d087bfffb0b9eb7e21e8d521eacb9ff/>
+<csr-id-73f113562e31556985cafcf1ca0bba300bc5b43a/>
+<csr-id-ace944748113f30ab219bf62d141747ff3f2f340/>
+<csr-id-ee3a9848e055d2af6f1f4a0a8a9326534a74d050/>
+<csr-id-8d9b751e45e1a34a8f4f4418e6f5c0f006d98b2e/>
+<csr-id-2162ab189ac01630185ed7efbd8a0923ade54827/>
 
 ### Documentation
 
@@ -50,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 11 commits contributed to the release over the course of 4 calendar days.
+ - 12 commits contributed to the release over the course of 4 calendar days.
  - 4 days passed between releases.
  - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -62,6 +153,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.5 ([`6846397`](https://github.com/xdefago/stats-ci/commit/68463979d1f7922dd6237c5991d837984b365c5d))
     - Bump version number (0.0.5) ([`b45c616`](https://github.com/xdefago/stats-ci/commit/b45c6162f2d1c3f61ec4c0d413b6aa1b172f5e95))
     - Simplify highlighting code in tests ([`ee3a984`](https://github.com/xdefago/stats-ci/commit/ee3a9848e055d2af6f1f4a0a8a9326534a74d050))
     - Untested! add comparison (paired, unpaired) ([`7caf88a`](https://github.com/xdefago/stats-ci/commit/7caf88a0c70dda1f9bb8c23f2fcd7d05dcd621ac))
