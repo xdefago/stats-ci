@@ -19,12 +19,15 @@
 //! ## C.I. for the Mean
 //!
 //! The crate provides functions to compute confidence intervals for the mean of floating-point (`f32` or `f64`) data.
-//! The functions are generic and can be used with any type that implements the [`num_traits::Float`] trait from the crate [`num_traits`].
+//! The functions are generic and can be used with any type implementing the [`num_traits::Float`] trait from the crate [`num_traits`].
+//! When dealing with integer data it is necessary to convert it to floating-point values.
 //!
 //! The crate provides three functions to compute confidence intervals for the mean of floating-point data:
 //! * [`mean::Arithmetic`] computes the confidence interval for the arithmetic mean.
 //! * [`mean::Geometric`] computes the confidence interval for the geometric mean
 //! * [`mean::Harmonic`] computes the confidence interval for the harmonic mean
+//!
+//! The functionality is mainly provided by the trait [`StatisticsOps`] (preferred) or the trait [`MeanCI`] (legacy) on the above structs.
 //!
 //! ```
 //! # fn main() -> stats_ci::CIResult<()> {
@@ -62,7 +65,7 @@
 //! For instance, consider a communication system and suppose that we want to test if at least 95% of messages are delivered within 1 second with 90% confidence.
 //! Then, the value of interest is the one-sided confidence interval of the 95th percentile (quantile=.95, condidence level=0.9).
 //!
-//! In a different context, if the data is an ordered sequence of strings, it could make sense to compute an interval around the median of the data, but the mean cannot be computed.
+//! In a different context, if the data is an ordered sequence of strings, it could (in some context) make sense to compute an interval around the median of the data, but the mean cannot be computed.
 //!
 //! ```
 //! # fn main() -> stats_ci::CIResult<()> {
