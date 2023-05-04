@@ -81,6 +81,20 @@
 //! # }
 //! ```
 //!
+//! The confidence interval and relevant statistics can also be computed incrementally:
+//! ```
+//! # fn test() -> stats_ci::CIResult<()> {
+//! # use stats_ci::*;
+//! # let data = [
+//! #    55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23., 37., 72., 62., 77.,
+//! #    63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
+//! # ];
+//! let stats = mean::Arithmetic::from_iter(data)?;
+//! let confidence = Confidence::new_two_sided(0.95);
+//! let ci = stats.ci_mean(confidence)?;
+//! # Ok(())
+//! # }
+//! ```
 use super::*;
 use crate::utils;
 
@@ -117,9 +131,54 @@ where
     ///
     /// Create a new empty state
     ///
+    /// # Example
+    /// ```
+    /// use stats_ci::*;
+    /// let mut stats = mean::Arithmetic::new();
+    /// stats.append(10.);
+    /// assert_eq!(stats.sample_count(), 1);
+    /// assert_eq!(stats.sample_mean(), 10.);
+    /// ```
+    ///
     fn new() -> Self {
         Default::default()
     }
+    ///
+    /// Create a new state and "populates" it with data from an iterator
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The data to populate the state with
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
+    ///
+    /// # Example
+    /// ```
+    /// # fn test() -> stats_ci::CIResult<()> {
+    /// use stats_ci::*;
+    /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
+    /// let stats = mean::Arithmetic::from_iter(data)?;
+    /// assert_eq!(stats.sample_count(), 10);
+    /// assert_eq!(stats.sample_mean(), 5.5);
+    /// assert_eq!(stats.sample_sem(), 0.5);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// This is simply a shortcut for [`Self::new`] and [`Self::extend`]:
+    /// ```
+    /// # fn test() -> stats_ci::CIResult<()> {
+    /// # use stats_ci::*;
+    /// # let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
+    /// let stats = mean::Arithmetic::new().extend(data)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
         let mut state = Self::new();
         state.extend(data)?;
@@ -147,11 +206,12 @@ where
     fn append(&mut self, x: F) -> CIResult<()>;
     ///
     /// Extend the data with additional sample data.
-    /// This is equivalent to calling `append` for each element in the iterator.
+    ///
+    /// This is equivalent to calling [`Self::append`] for each value in `data`.
     ///
     /// # Arguments
     ///
-    /// * `data` - The data to append
+    /// * `data` - The data to append as an array or an iterator
     ///
     /// # Output
     ///
@@ -173,6 +233,8 @@ where
 /// Represents the state of the computation of the arithmetic mean.
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
 ///
+/// It is best used through the [`StatisticsOps`] trait.
+/// 
 #[derive(Debug, Clone, Copy)]
 pub struct Arithmetic<F: Float> {
     sum: F,
@@ -258,6 +320,8 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
 /// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the reciprocals of the samples.
 ///
+/// It is best used through the [`StatisticsOps`] trait.
+/// 
 #[derive(Debug, Clone, Copy)]
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
@@ -323,6 +387,8 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
 /// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the logarithms of the samples.
 ///
+/// It is best used through the [`StatisticsOps`] trait.
+/// 
 #[derive(Debug, Clone, Copy)]
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
@@ -385,6 +451,10 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
 ///
 /// Trait for computing confidence intervals on the mean of a sample.
 ///
+/// It is superceded by the [`StatisticsOps`] trait which allows incremental statistics.
+/// It is retained for backwards compatibility and will be deprecated in the future, as
+/// it brings no advantage over [`StatisticsOps`] and is less flexible.
+/// 
 /// # Examples
 ///
 /// ```
@@ -409,6 +479,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
 /// # Ok(())
 /// # }
 /// ```
+/// 
 pub trait MeanCI<T: PartialOrd> {
     fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where

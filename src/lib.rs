@@ -4,9 +4,10 @@
 //! One exception is the crate `criterion` which computes confidence intervals for its
 //! measurements but does not export such functionality.
 //!
-//! This crate exports a type [`Interval`] to express the confidence intervals. Intervals
-//! are generic and can be instantiated for various types, beyond the usual float or integer
-//! types.
+//! This crate exports a type [`Confidence`] to express a confidence level and
+//! a type [`Interval`] to represent a confidence interval.
+//! Intervals are generic and can be instantiated for various types, beyond the usual
+//! float or integer types.
 //!
 //! The crate provides functions to compute various kinds of confidence intervals:
 //! * intervals over the mean of floating-point data
@@ -51,6 +52,9 @@
 //! # Ok(())
 //! # }
 //! ```
+//!
+//! It is also possible to compute the confidence intervals incrementally by using
+//! the [`mean::Arithmetic::new`] constructor or the [`mean::Arithmetic::from_iter`].
 //!
 //! ## C.I. for Quantiles
 //!
