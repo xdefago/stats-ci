@@ -301,6 +301,33 @@ impl<T: num_traits::Float> Interval<T> {
             Interval::LowerOneSided(high) => *high,
         }
     }
+    pub fn relative_to(&self, reference: &Interval<T>) -> Interval<T> {
+        match (reference, self) {
+            (Interval::TwoSided(a, b), _) if a.is_zero() || b.is_zero() => {
+                panic!("Cannot compute relative interval to a zero interval");
+            }
+            (Interval::LowerOneSided(a) | Interval::UpperOneSided(a), _) if a.is_zero() => {
+                panic!("Cannot compute relative interval to a zero interval");
+            }
+            (&Interval::TwoSided(a, b), &Interval::TwoSided(x, y)) => {
+                Interval::TwoSided((x - b) / b, (y - a) / a)
+            }
+            (
+                &Interval::UpperOneSided(a) | &Interval::TwoSided(a, _),
+                &Interval::LowerOneSided(y) | &Interval::TwoSided(_, y),
+            ) => Interval::LowerOneSided((y - a) / a),
+            (
+                &Interval::LowerOneSided(b) | &Interval::TwoSided(_, b),
+                &Interval::UpperOneSided(x) | &Interval::TwoSided(x, _),
+            ) => Interval::UpperOneSided((x - b) / b),
+            (&Interval::UpperOneSided(_), &Interval::UpperOneSided(_))
+            | (&Interval::LowerOneSided(_), &Interval::LowerOneSided(_)) => {
+                panic!(
+                    "Cannot compute relative interval to one-sided interval with same direction"
+                );
+            }
+        }
+    }
 }
 
 impl<T: num_traits::PrimInt + num_traits::Signed> Interval<T> {
@@ -368,6 +395,53 @@ impl<T: PartialOrd> Interval<T> {
     ///
     pub fn high_as_ref(&self) -> Option<&T> {
         self.right()
+    }
+}
+impl<T: PartialOrd + Copy> Interval<T> {
+    fn applied<F>(&self, f_low: F, f_high: F) -> Self
+    where
+        F: FnOnce(T) -> T,
+    {
+        match self {
+            Interval::TwoSided(low, high) => Interval::TwoSided(f_low(*low), f_high(*high)),
+            Interval::LowerOneSided(low) => Interval::UpperOneSided(f_low(*low)),
+            Interval::UpperOneSided(high) => Interval::LowerOneSided(f_high(*high)),
+        }
+    }
+    fn applied_both<F>(&self, f: F) -> Self
+    where
+        F: Fn(T) -> T,
+    {
+        self.applied(&f, &f)
+    }
+}
+
+impl<F: std::ops::Mul<F, Output = F> + PartialOrd + Copy> std::ops::Mul<F> for Interval<F> {
+    type Output = Self;
+
+    fn mul(self, rhs: F) -> Self::Output {
+        self.applied_both(|x| x * rhs)
+    }
+}
+impl<F: std::ops::Div<F, Output = F> + PartialOrd + Copy> std::ops::Div<F> for Interval<F> {
+    type Output = Self;
+
+    fn div(self, rhs: F) -> Self::Output {
+        self.applied_both(|x| x / rhs)
+    }
+}
+impl<F: std::ops::Add<F, Output = F> + PartialOrd + Copy> std::ops::Add<F> for Interval<F> {
+    type Output = Self;
+
+    fn add(self, rhs: F) -> Self::Output {
+        self.applied_both(|x| x + rhs)
+    }
+}
+impl<F: std::ops::Sub<F, Output = F> + PartialOrd + Copy> std::ops::Sub<F> for Interval<F> {
+    type Output = Self;
+
+    fn sub(self, rhs: F) -> Self::Output {
+        self.applied_both(|x| x - rhs)
     }
 }
 
