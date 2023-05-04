@@ -146,6 +146,8 @@ where
     ///
     /// Create a new state and "populates" it with data from an iterator
     ///
+    /// Complexity: O(n), where n is the number of elements in `data`
+    ///
     /// # Arguments
     ///
     /// * `data` - The data to populate the state with
@@ -187,27 +189,39 @@ where
     ///
     /// Mean of the sample
     ///
+    /// Complexity: O(1)
+    ///
     fn sample_mean(&self) -> F;
     ///
     /// Standard error of the sample mean
+    ///
+    /// Complexity: O(1)
     ///
     fn sample_sem(&self) -> F;
     ///
     /// Number of samples
     ///
+    /// Complexity: O(1)
+    ///
     fn sample_count(&self) -> usize;
     ///
     /// Confidence interval of the sample mean
     ///
+    /// Complexity: O(1)
+    ///
     fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>>;
     ///
     /// Append a new sample to the data
+    ///
+    /// Complexity: O(1)
     ///
     fn append(&mut self, x: F) -> CIResult<()>;
     ///
     /// Extend the data with additional sample data.
     ///
     /// This is equivalent to calling [`Self::append`] for each value in `data`.
+    ///
+    /// Complexity: O(n), where n is the number of elements in `data`
     ///
     /// # Arguments
     ///
@@ -234,7 +248,7 @@ where
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
 ///
 /// It is best used through the [`StatisticsOps`] trait.
-/// 
+///
 #[derive(Debug, Clone, Copy)]
 pub struct Arithmetic<F: Float> {
     sum: F,
@@ -260,12 +274,16 @@ impl<F: Float> Arithmetic<F> {
     ///
     /// Variance of the sample
     ///
+    /// Complexity: O(1)
+    ///
     pub fn sample_variance(&self) -> F {
         let mean = self.sample_mean();
         (self.sum_sq - mean * self.sum) / F::from(self.count - 1).unwrap()
     }
     ///
     /// Standard deviation of the sample
+    ///
+    /// Complexity: O(1)
     ///
     pub fn sample_std_dev(&self) -> F {
         self.sample_variance().sqrt()
@@ -278,21 +296,15 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
         self.count += 1;
         Ok(())
     }
-    ///
-    /// Arithmetic mean of the sample
-    ///
+
     fn sample_mean(&self) -> F {
         self.sum / F::from(self.count).unwrap()
     }
-    ///
-    /// Standard error of the mean of the sample
-    ///
+
     fn sample_sem(&self) -> F {
         self.sample_std_dev() / F::from(self.count - 1).unwrap().sqrt()
     }
-    ///
-    /// Confidence interval on the mean of the sample
-    ///
+
     fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
         let n = self.count as f64;
         let mean = self.sample_mean().try_f64("stats.mean")?;
@@ -307,9 +319,7 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
             Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
         }
     }
-    ///
-    /// Number of samples in the sample
-    ///
+
     fn sample_count(&self) -> usize {
         self.count
     }
@@ -321,7 +331,7 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
 /// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the reciprocals of the samples.
 ///
 /// It is best used through the [`StatisticsOps`] trait.
-/// 
+///
 #[derive(Debug, Clone, Copy)]
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
@@ -362,9 +372,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
         harm_mean * harm_mean * recip_std_dev
             / F::from(self.recip_space.sample_count() - 1).unwrap().sqrt()
     }
-    ///
-    /// Number of samples
-    ///
+
     fn sample_count(&self) -> usize {
         self.recip_space.sample_count()
     }
@@ -388,7 +396,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
 /// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the logarithms of the samples.
 ///
 /// It is best used through the [`StatisticsOps`] trait.
-/// 
+///
 #[derive(Debug, Clone, Copy)]
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
@@ -428,9 +436,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
         let log_std_dev = self.log_space.sample_std_dev();
         geom_mean * log_std_dev / F::from(self.log_space.sample_count() - 1).unwrap().sqrt()
     }
-    ///
-    /// Number of samples
-    ///
+
     fn sample_count(&self) -> usize {
         self.log_space.sample_count()
     }
@@ -454,7 +460,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
 /// It is superceded by the [`StatisticsOps`] trait which allows incremental statistics.
 /// It is retained for backwards compatibility and will be deprecated in the future, as
 /// it brings no advantage over [`StatisticsOps`] and is less flexible.
-/// 
+///
 /// # Examples
 ///
 /// ```
@@ -479,7 +485,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
 /// # Ok(())
 /// # }
 /// ```
-/// 
+///
 pub trait MeanCI<T: PartialOrd> {
     fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
