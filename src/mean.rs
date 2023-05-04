@@ -250,6 +250,7 @@ where
 /// It is best used through the [`StatisticsOps`] trait.
 ///
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Arithmetic<F: Float> {
     sum: F,
     sum_c: F,
@@ -333,6 +334,7 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
 /// It is best used through the [`StatisticsOps`] trait.
 ///
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
 }
@@ -398,6 +400,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
 /// It is best used through the [`StatisticsOps`] trait.
 ///
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
 }

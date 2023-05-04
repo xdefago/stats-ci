@@ -39,7 +39,7 @@ Add the most recent release to your `Cargo.toml` _(check the latest version numb
 stats-ci = "{ latest varsion }"
 ```
 
-The crate has an optional feature `serde` which, if enabled, adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html).
+The crate has an optional feature `serde` which, if enabled, adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html), as well as the incremental states for intervals on the mean.
 
 ```rust
 stats-ci = { version = "{ latest varsion }", features = ["serde"] }
