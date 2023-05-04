@@ -7,9 +7,6 @@
 
 # stats-ci
 
-
-NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no particular efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
-
 ## Description
 
 Stats-ci provides some basic functions to compute confidence intervals of sample data.
@@ -19,7 +16,6 @@ This includes the following:
 * confidence intervals for proportions.
 
 Not included yet but planned are:
-* confidence intervals for difference of sample data.
 * confidence intervals for regression parameters.
 
 ## Motivation
@@ -27,6 +23,8 @@ Not included yet but planned are:
 The motivation behind creating this crate came both from the recurring need of confidence intervals in personal projects and also out of frustration from having to look up the formulas each time. I reckoned that I might not be alone in this situation and that such a crate could prove useful to some.
 
 ## Disclaimer
+
+NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no particular efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
 
 I am far from being a statistician and I will gladly welcome any advice or corrections.
 I only made a feeble attempt at numerical statibility (e.g., kahan sum, log-sum-exp).
@@ -38,13 +36,13 @@ Add the most recent release to your `Cargo.toml` _(check the latest version numb
 
 ```rust
 [dependencies]
-stats-ci = "0.0.5"
+stats-ci = "{ latest varsion }"
 ```
 
 The crate has an optional feature `serde` which, if enabled, adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html).
 
 ```rust
-stats-ci = { version = "0.0.5", features = ["serde"] }
+stats-ci = { version = "{ latest varsion }", features = ["serde"] }
 ```
 
 
@@ -93,7 +91,27 @@ The crate provides three functions to compute confidence intervals for the mean 
     println!("high: {}", ci.high_f()); // high: inf
     println!("low: {:?}", ci.low()); // high: Some(48.09482399055084)
     println!("high: {:?}", ci.high()); // high: None
+
+    // incremental statistics also work
+    let mut stats = mean::Arithmetic::new();
+    stats.extend(data)?;
+    let ci = stats.ci_mean(confidence)?;
+    println!("incr ci: {}", ci); // incr ci: [48.09482399055084,->)
+    for _ in 0..10 {
+        stats.append(1_000.)?;
+    }
+    let ci = stats.ci_mean(confidence)?;
+    println!("incr ci (97.5%): {}", ci); // incr ci (97.5%): [87.80710255546494,->)
+    let ci = stats.ci_mean(Confidence::new_two_sided(0.8))?;
+    println!("incr ci (80%): {}", ci);   // incr ci (80%): [105.9411358250259, 173.45886417497408]
 ```
+
+Incremental statistics is useful in at least three common scenarios:
+
+* when you have a stream of data and don't want to keep all values.
+* when you want to continue collecting data until you have sufficient statistical significance (e.g., interval shorter than some width relative to the mean).
+* when you want to compute the confidence intervals of several confidence levels in a single pass through the data.
+
 
 ## C.I. for Quantiles
 
@@ -160,10 +178,8 @@ with the following priorities correctness, code readability, genericity, efficie
 
 Currently, the following are on my TODO list:
 
-* [feature] confidence intervals for difference of sample data.
 * [feature] confidence intervals for regression parameters.
 * [stats] review/fix statistical tests
-* [API] return results more consistently
 * [API] remove `unwrap()` and reduce panicking code
 
 ## References
