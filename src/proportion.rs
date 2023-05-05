@@ -220,6 +220,16 @@ pub fn is_significant(population: usize, successes: usize) -> bool {
 /// In particular, it is more conservative when the sample size is small.
 /// It is also more conservative when the sample size is large and the proportion is close to 0 or 1.
 ///
+/// Using the Wilson score interval, the probability of success \\( p \\) is estimated by:
+/// \\[
+/// p \approx  \frac{n_S+\frac{1}{2}z^2}{n+z^2} \pm \frac{z}{n+z^2} \sqrt{\frac{n_S ~ n_F}{n}+\frac{z^2}{4}}
+/// \\]
+/// where
+/// * \\( n_S \\) is the number of successes,
+/// * \\( n_F \\) is the number of failures,
+/// * \\( n = n_S + n_F \\) is the sample size, and
+/// * \\( z \\) is the z-value corresponding to the confidence level.
+/// 
 /// The conditions for the validity of the Wilson score interval can be checked with the function [`is_significant`].
 /// However, the significance check for this function is much more permissive. It is the caller's responsibility to check for the stricter conditions for statistical significance if necessary.
 /// One advantage of using the Wilson score interval is that it is still reasonably accurate for small sample sizes and when the proportion of successes is close to 0 or 1.
