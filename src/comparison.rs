@@ -74,8 +74,8 @@ pub fn paired_ci<T: Float>(
         ));
     }
 
-    let data = data1.iter().zip(data2).map(|(&x, &y)| x - y);
-    mean::Arithmetic::ci(confidence, data)
+    let stats = mean::Arithmetic::from_iter(data1.iter().zip(data2).map(|(&x, &y)| x - y))?;
+    stats.ci_mean(confidence)
 }
 
 ///
