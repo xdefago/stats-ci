@@ -146,7 +146,7 @@ where
     ///
     /// Create a new state and "populates" it with data from an iterator
     ///
-    /// Complexity: O(n), where n is the number of elements in `data`
+    /// Complexity: \\( O(n) \\), where \\( n \\) is the number of elements in `data`
     ///
     /// # Arguments
     ///
@@ -189,31 +189,31 @@ where
     ///
     /// Mean of the sample
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     fn sample_mean(&self) -> F;
     ///
     /// Standard error of the sample mean
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     fn sample_sem(&self) -> F;
     ///
     /// Number of samples
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     fn sample_count(&self) -> usize;
     ///
     /// Confidence interval of the sample mean
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>>;
     ///
     /// Append a new sample to the data
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     fn append(&mut self, x: F) -> CIResult<()>;
     ///
@@ -221,7 +221,7 @@ where
     ///
     /// This is equivalent to calling [`Self::append`] for each value in `data`.
     ///
-    /// Complexity: O(n), where n is the number of elements in `data`
+    /// Complexity: \\( O(n) \\), where \\( n \\) is the number of elements in `data`
     ///
     /// # Arguments
     ///
@@ -274,8 +274,9 @@ impl<F: Float> Default for Arithmetic<F> {
 impl<F: Float> Arithmetic<F> {
     ///
     /// Variance of the sample
-    ///
-    /// Complexity: O(1)
+    /// \\( \frac{1}{n-1}\left(\sum_{i=1}^n x_i^2 - \frac{1}{n} \left(\sum_{i=1}^n x_i\right)^2 \right) \\)
+    /// 
+    /// Complexity: \\( O(1) \\)
     ///
     pub fn sample_variance(&self) -> F {
         let mean = self.sample_mean();
@@ -284,7 +285,7 @@ impl<F: Float> Arithmetic<F> {
     ///
     /// Standard deviation of the sample
     ///
-    /// Complexity: O(1)
+    /// Complexity: \\( O(1) \\)
     ///
     pub fn sample_std_dev(&self) -> F {
         self.sample_variance().sqrt()
@@ -327,7 +328,7 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
 }
 
 ///
-/// Represents the state of the computation of the harmonic mean.
+/// Represents the state of the computation related to the harmonic mean.
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
 /// It is implemented as a wrapper around [`Arithmetic`] to compute the arithmetic mean of the reciprocals of the samples.
 ///
@@ -357,16 +358,25 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     }
     ///
     /// Harmonic mean of the sample
-    ///
+    /// \\( H = \left( \frac{1}{n} \sum_i \frac{1}{x_i} \right)^{-1} \\)
+    /// 
+    /// Complexity: \\( O(1) \\)
+    /// 
     fn sample_mean(&self) -> F {
         F::one() / self.recip_space.sample_mean()
     }
     ///
     /// Standard error of the harmonic mean
+    /// \\( s_H = \frac{1}{\alpha^2} \frac{s_{1/x_i}}{\sqrt{n-1}} \\)
+    /// 
+    /// where 
+    /// * the estimate of \\( \alpha \\) is given by \\( \alpha = \frac{1}{n} \sum_i 1/x_i \\);
+    /// * \\( s_{1/x_i} \\) is the estimate of the standard deviation of the reciprocals of the samples;
+    /// * and \\( n-1 \\) is the degree of freedom of the sample data.
     ///
     /// # Reference
     ///
-    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." The Annals of Mathematical Statistics, 11(4):445-448, (Dec., 1940). [JSTOR](https://www.jstor.org/stable/2235727)
+    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
     ///
     fn sample_sem(&self) -> F {
         let harm_mean = self.sample_mean();
@@ -430,9 +440,14 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
     ///
     /// Standard error of the geometric mean
     ///
+    /// Computed as: \\( G \frac{s_{\log x_i}}{\sqrt{n-1}} \\)
+    /// where \\( G \\) is the geometric mean of the sample;
+    /// \\( s_{\log x_i} \\) is the estimate of the standard deviation of the logarithms of the samples;
+    /// and \\( n-1 \\) is the degree of freedom of the sample data.
+    ///
     ///  # Reference
     ///
-    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." The Annals of Mathematical Statistics, 11(4):445-448, (Dec., 1940). [JSTOR](https://www.jstor.org/stable/2235727)
+    /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
     ///
     fn sample_sem(&self) -> F {
         let geom_mean = self.sample_mean();
