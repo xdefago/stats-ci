@@ -13,6 +13,7 @@
 //! * intervals over the mean of floating-point data
 //! * intervals over quantiles (incl. median) of sample data of any ordered types
 //! * intervals on proportions on Boolean data (arrays or iterators).
+//! * comparison of two means (paired or unpaired observations).
 //!
 //! # Examples
 //!
