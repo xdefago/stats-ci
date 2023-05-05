@@ -229,7 +229,7 @@ pub fn is_significant(population: usize, successes: usize) -> bool {
 /// * \\( n_F \\) is the number of failures,
 /// * \\( n = n_S + n_F \\) is the sample size, and
 /// * \\( z \\) is the z-value corresponding to the confidence level.
-/// 
+///
 /// The conditions for the validity of the Wilson score interval can be checked with the function [`is_significant`].
 /// However, the significance check for this function is much more permissive. It is the caller's responsibility to check for the stricter conditions for statistical significance if necessary.
 /// One advantage of using the Wilson score interval is that it is still reasonably accurate for small sample sizes and when the proportion of successes is close to 0 or 1.

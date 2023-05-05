@@ -275,7 +275,7 @@ impl<F: Float> Arithmetic<F> {
     ///
     /// Variance of the sample
     /// \\( \frac{1}{n-1}\left(\sum_{i=1}^n x_i^2 - \frac{1}{n} \left(\sum_{i=1}^n x_i\right)^2 \right) \\)
-    /// 
+    ///
     /// Complexity: \\( O(1) \\)
     ///
     pub fn sample_variance(&self) -> F {
@@ -359,17 +359,17 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     ///
     /// Harmonic mean of the sample
     /// \\( H = \left( \frac{1}{n} \sum_i \frac{1}{x_i} \right)^{-1} \\)
-    /// 
+    ///
     /// Complexity: \\( O(1) \\)
-    /// 
+    ///
     fn sample_mean(&self) -> F {
         F::one() / self.recip_space.sample_mean()
     }
     ///
     /// Standard error of the harmonic mean
     /// \\( s_H = \frac{1}{\alpha^2} \frac{s_{1/x_i}}{\sqrt{n-1}} \\)
-    /// 
-    /// where 
+    ///
+    /// where
     /// * the estimate of \\( \alpha \\) is given by \\( \alpha = \frac{1}{n} \sum_i 1/x_i \\);
     /// * \\( s_{1/x_i} \\) is the estimate of the standard deviation of the reciprocals of the samples;
     /// * and \\( n-1 \\) is the degree of freedom of the sample data.
