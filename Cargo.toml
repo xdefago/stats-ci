@@ -20,6 +20,10 @@ categories = ["mathematics", "science", ]
 default = []
 serde = ["dep:serde"]
 
+[[bench]]
+name = "bench_mean_ci"
+harness = false
+
 
 [dependencies]
 statrs = "0.16.0"
@@ -41,3 +45,5 @@ nu-ansi-term = "0.47"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.7.3"
 lazy-regex = "2.5.0"
+criterion = "0.4.0"
+rayon = "1.7.0"
