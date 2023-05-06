@@ -420,7 +420,7 @@ impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            recip_space: self.recip_space + rhs.recip_space
+            recip_space: self.recip_space + rhs.recip_space,
         }
     }
 }
@@ -495,7 +495,7 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            log_space: self.log_space + rhs.log_space
+            log_space: self.log_space + rhs.log_space,
         }
     }
 }
