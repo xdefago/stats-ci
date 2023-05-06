@@ -46,9 +46,9 @@ use num_traits::Float;
 ///
 /// The confidence interval of the difference as a result.
 ///
-/// # Panics
+/// # Errors
 ///
-/// * if the two samples have different lengths
+/// * [`CIError::DifferentSampleSizes`] - if the two samples do not have the same length
 ///
 /// # Notes
 ///
@@ -67,10 +67,15 @@ pub fn paired_ci<T: Float>(
     data1: &[T],
     data2: &[T],
 ) -> CIResult<Interval<T>> {
-    assert!(data1.len() == data2.len());
+    if data1.len() != data2.len() {
+        return Err(CIError::DifferentSampleSizes(
+            data1.len(),
+            data2.len(),
+        ));
+    }
 
-    let data = data1.iter().zip(data2).map(|(&x, &y)| x - y);
-    mean::Arithmetic::ci(confidence, data)
+    let stats = mean::Arithmetic::from_iter(data1.iter().zip(data2).map(|(&x, &y)| x - y))?;
+    stats.ci_mean(confidence)
 }
 
 ///

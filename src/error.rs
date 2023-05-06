@@ -42,6 +42,9 @@ pub enum CIError {
 
     #[error("Interval error: {0}")]
     IntervalError(#[from] IntervalError),
+
+    #[error("Different sample sizes: {0} vs. {1}")]
+    DifferentSampleSizes(usize, usize),
 }
 
 impl From<&str> for CIError {
