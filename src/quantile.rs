@@ -25,9 +25,11 @@
 //!
 use super::*;
 
-/// compute the confidence interval for a given quantile, assuming that the data is already sorted.
-/// this is the function to call if the data is known to be sorted,
+/// Compute the confidence interval for a given quantile, assuming that the data is __already sorted__.
+/// This is the function to call if the data is known to be sorted,
 /// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
+///
+/// Complexity: \\( O(1) \\)
 ///
 /// # Arguments
 ///
@@ -88,7 +90,10 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
     })
 }
 
-/// compute the confidence interval for a given quantile
+/// Compute the confidence interval for a given quantile.
+/// Use [`ci_sorted_unchecked`] instead if the data is already sorted.
+///
+/// Complexity: \\( O(n \log n) \\) where \\( n \\) is the number of samples.
 ///
 /// # Arguments
 ///
@@ -142,15 +147,15 @@ pub fn ci<T: PartialOrd + Clone>(
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
 
-/// compute the confidence interval for a given quantile, assuming that the data is already sorted.
+/// compute the indices of the confidence interval for a given quantile.
 /// The function returns the indices of the lower and upper bounds of the interval.
-/// this is the function to call if the data is known to be sorted,
-/// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
+///
+/// Complexity: \\( O(1) \\)
 ///
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
-/// * `sorted` - the sorted sample
+/// * `data_len` - the number of samples
 /// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
 ///
 /// # Output
