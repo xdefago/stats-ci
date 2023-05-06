@@ -326,6 +326,29 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
     }
 }
 
+impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut sum = F::zero();
+        let mut sum_c = self.sum_c + rhs.sum_c;
+        let mut sum_sq = F::zero();
+        let mut sum_sq_c = self.sum_sq_c + rhs.sum_sq_c;
+        utils::kahan_add(&mut sum, self.sum, &mut sum_c);
+        utils::kahan_add(&mut sum, rhs.sum, &mut sum_c);
+        utils::kahan_add(&mut sum_sq, self.sum_sq, &mut sum_sq_c);
+        utils::kahan_add(&mut sum_sq, rhs.sum_sq, &mut sum_sq_c);
+        let count = self.count + rhs.count;
+        Self {
+            sum,
+            sum_c,
+            sum_sq,
+            sum_sq_c,
+            count,
+        }
+    }
+}
+
 ///
 /// Represents the state of the computation of the harmonic mean.
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
@@ -392,6 +415,16 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     }
 }
 
+impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            recip_space: self.recip_space + rhs.recip_space
+        }
+    }
+}
+
 ///
 /// Represents the state of the computation of the geometric mean.
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
@@ -453,6 +486,16 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
             Confidence::TwoSided(_) => Interval::new(lo, hi).map_err(|e| e.into()),
             Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo)),
             Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
+        }
+    }
+}
+
+impl<F: Float> std::ops::Add<Self> for Geometric<F> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            log_space: self.log_space + rhs.log_space
         }
     }
 }
