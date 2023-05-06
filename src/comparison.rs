@@ -68,10 +68,7 @@ pub fn paired_ci<T: Float>(
     data2: &[T],
 ) -> CIResult<Interval<T>> {
     if data1.len() != data2.len() {
-        return Err(CIError::DifferentSampleSizes(
-            data1.len(),
-            data2.len(),
-        ));
+        return Err(CIError::DifferentSampleSizes(data1.len(), data2.len()));
     }
 
     let stats = mean::Arithmetic::from_iter(data1.iter().zip(data2).map(|(&x, &y)| x - y))?;
