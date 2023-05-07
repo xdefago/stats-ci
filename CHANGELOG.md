@@ -5,7 +5,117 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.7 (2023-05-07)
+
+### Documentation
+
+ - <csr-id-bb296e7372e32cbdb5f90ffbaba148d652460ced/> update example code in readme
+ - <csr-id-d2f83914116f7092ef529d350240c3dc38436f1b/> delete link to private error type
+ - <csr-id-a596f751c8645688c6d601cc75eb561017d4e3bf/> fix references
+ - <csr-id-e5a40eed258037e83b55196e21b1a86ceee188c5/> extend rustdocs; fix references
+ - <csr-id-f4ca187ddeb38694c207b53b97110d35913833bb/> add complexity for quantile functions
+ - <csr-id-18c92c0c00731edb657f10e5432f5a63b2ec1bce/> add comparison of means in outline
+ - <csr-id-ae5bbc1bc6f669b9b6ae081e0c8b9624fce7500c/> state complexity and sample stats in LaTeX
+ - <csr-id-31f9eecb26446b8575719fa88a5d86e37efd3c93/> describe Wilson score formula in LaTeX
+ - <csr-id-7c9cd52949cf0892b9640e062c21ef247141c4aa/> omit single $ for math mode
+   The single dollar `$` for entring LaTeX math mode is removed because
+   it is too common and hence too easy to mistaken enter it somewhere
+   in the documentation.
+ - <csr-id-c8b3f87cb0188e39e170f6a885394401cfcbf97b/> add reference to Noris
+
+### New Features
+
+ - <csr-id-c70fd3f4c00b326d6a9c4649fbb75544affa6dca/> add addition to statistics states
+   The add operation combines the statistics gathered independently by two
+   statistical states of the same kind (arithmetic, geometric, harmonic)
+   This is useful for instance for parallel reduction.
+   NB: This is currently untested.
+
+### Bug Fixes
+
+ - <csr-id-68ee50a8a3fce3d61b0e11b9a949112b068cff8a/> eliminate roundup errors in stats sum
+   The stats sum is now equivalent to running the statistics normally.
+   This is imortant to avoid loss of accuracy when running the statistics
+   in parallel (using the sum as the reduction operation)
+ - <csr-id-fa98085919df1b0b607b31b055cce360edcca947/> return error instead of panic
+   The function paired_ci now returns an error instead of panicking
+   when the two samples have different sizes.
+
+### Other
+
+ - <csr-id-392a2c9911bea32ea3ecc42fe1f8846650d3ad18/> move the html header outside of src
+ - <csr-id-cd5affb486b780f37edfe833ced76bc1af2ca676/> add support for LaTeX in rustdoc comments
+
+### Refactor
+
+ - <csr-id-a8a981bdca1bd3606cea6ff535749bf6032ffc31/> avoid storing intermediate results
+   Computes the interval using only iterators to avoid storing
+   all intermediate results.
+
+### Style
+
+ - <csr-id-712c2dc18f2b12ea41271d979f01de204f66821d/> reformat code
+ - <csr-id-5707431770fbb58830a270c86f5b6ede2ec1603d/> reformat code
+ - <csr-id-4b1dda1dc4999a10f82cc220952b477fe182d709/> reformat code
+ - <csr-id-dba07f9eec1c4621cf83d9e10eb93c6677157d4e/> reformat code
+
+### Test
+
+ - <csr-id-13bea0a201611e879390c33f1c2ec37eba8073b5/> add bench case with par_iter
+ - <csr-id-1a30335493db2e8142bb68b36938a927c3d9abb1/> add benchmarks (criterion) for mean::ci
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 24 commits contributed to the release over the course of 2 calendar days.
+ - 3 days passed between releases.
+ - 22 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update example code in readme ([`bb296e7`](https://github.com/xdefago/stats-ci/commit/bb296e7372e32cbdb5f90ffbaba148d652460ced))
+    - Add bench case with par_iter ([`13bea0a`](https://github.com/xdefago/stats-ci/commit/13bea0a201611e879390c33f1c2ec37eba8073b5))
+    - Reformat code ([`712c2dc`](https://github.com/xdefago/stats-ci/commit/712c2dc18f2b12ea41271d979f01de204f66821d))
+    - Delete link to private error type ([`d2f8391`](https://github.com/xdefago/stats-ci/commit/d2f83914116f7092ef529d350240c3dc38436f1b))
+    - Fix references ([`a596f75`](https://github.com/xdefago/stats-ci/commit/a596f751c8645688c6d601cc75eb561017d4e3bf))
+    - Extend rustdocs; fix references ([`e5a40ee`](https://github.com/xdefago/stats-ci/commit/e5a40eed258037e83b55196e21b1a86ceee188c5))
+    - Move the html header outside of src ([`392a2c9`](https://github.com/xdefago/stats-ci/commit/392a2c9911bea32ea3ecc42fe1f8846650d3ad18))
+    - Eliminate roundup errors in stats sum ([`68ee50a`](https://github.com/xdefago/stats-ci/commit/68ee50a8a3fce3d61b0e11b9a949112b068cff8a))
+    - Merge branch 'benches' ([`ceebef2`](https://github.com/xdefago/stats-ci/commit/ceebef2e64c27bd9c1959f980f2b241775737ecf))
+    - Add complexity for quantile functions ([`f4ca187`](https://github.com/xdefago/stats-ci/commit/f4ca187ddeb38694c207b53b97110d35913833bb))
+    - Merge branch 'main' into mathjax ([`12b8207`](https://github.com/xdefago/stats-ci/commit/12b82077603e1730f02ad4b19e362bd05d3217a8))
+    - Reformat code ([`5707431`](https://github.com/xdefago/stats-ci/commit/5707431770fbb58830a270c86f5b6ede2ec1603d))
+    - Add benchmarks (criterion) for mean::ci ([`1a30335`](https://github.com/xdefago/stats-ci/commit/1a30335493db2e8142bb68b36938a927c3d9abb1))
+    - Reformat code ([`4b1dda1`](https://github.com/xdefago/stats-ci/commit/4b1dda1dc4999a10f82cc220952b477fe182d709))
+    - Add addition to statistics states ([`c70fd3f`](https://github.com/xdefago/stats-ci/commit/c70fd3f4c00b326d6a9c4649fbb75544affa6dca))
+    - Avoid storing intermediate results ([`a8a981b`](https://github.com/xdefago/stats-ci/commit/a8a981bdca1bd3606cea6ff535749bf6032ffc31))
+    - Return error instead of panic ([`fa98085`](https://github.com/xdefago/stats-ci/commit/fa98085919df1b0b607b31b055cce360edcca947))
+    - Add comparison of means in outline ([`18c92c0`](https://github.com/xdefago/stats-ci/commit/18c92c0c00731edb657f10e5432f5a63b2ec1bce))
+    - Reformat code ([`dba07f9`](https://github.com/xdefago/stats-ci/commit/dba07f9eec1c4621cf83d9e10eb93c6677157d4e))
+    - State complexity and sample stats in LaTeX ([`ae5bbc1`](https://github.com/xdefago/stats-ci/commit/ae5bbc1bc6f669b9b6ae081e0c8b9624fce7500c))
+    - Describe Wilson score formula in LaTeX ([`31f9eec`](https://github.com/xdefago/stats-ci/commit/31f9eecb26446b8575719fa88a5d86e37efd3c93))
+    - Omit single $ for math mode ([`7c9cd52`](https://github.com/xdefago/stats-ci/commit/7c9cd52949cf0892b9640e062c21ef247141c4aa))
+    - Add reference to Noris ([`c8b3f87`](https://github.com/xdefago/stats-ci/commit/c8b3f87cb0188e39e170f6a885394401cfcbf97b))
+    - Add support for LaTeX in rustdoc comments ([`cd5affb`](https://github.com/xdefago/stats-ci/commit/cd5affb486b780f37edfe833ced76bc1af2ca676))
+</details>
+
 ## v0.0.6 (2023-05-04)
+
+<csr-id-e7a340fc2bed9bc0264ce3a9ac159eed361158a8/>
+<csr-id-4e425772db4716557cfc83feef12c3918ec9239e/>
+<csr-id-52cdb2f9cd128ab38bdc418b41da155f23bb78aa/>
+<csr-id-be45a591c7da238e30b9dd5d2319645205e03ca1/>
+<csr-id-7829b906191b48276e0b15b0e0ed19fd7cb747e6/>
+<csr-id-c6cd7a252426967322c1c4193dcd1a0135d2fa2b/>
+<csr-id-85d317f1756026acdd9ac27b4de105292f6ab8ce/>
+<csr-id-4ea5e6534d55997f96823acb64d00620a9e0584d/>
 
 ### Documentation
 
@@ -52,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 21 commits contributed to the release over the course of 3 calendar days.
+ - 22 commits contributed to the release over the course of 3 calendar days.
  - 6 days passed between releases.
  - 20 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -64,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.6 ([`e2b5cea`](https://github.com/xdefago/stats-ci/commit/e2b5ceac9775f39831581ea501e186989eaaa2f9))
     - Update TODO list ([`61cf5a5`](https://github.com/xdefago/stats-ci/commit/61cf5a5b001a148147e1356d5c228d8d726acfe9))
     - Add serde support for incremental states ([`25f3517`](https://github.com/xdefago/stats-ci/commit/25f3517bfe9dc570cff72675e93b97ef3d3fc03a))
     - Add complexity information in rustdoc ([`428981d`](https://github.com/xdefago/stats-ci/commit/428981d78a10f53269a5af494a55582d1dc84afd))
