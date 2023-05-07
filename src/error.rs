@@ -4,8 +4,6 @@
 //! The crate defines a type [`CIError`] to represent errors that can occur during the computation of confidence intervals.
 //! The type [`CIResult<T>`] is a type alias for [`Result<T, CIError>`].
 //!
-//! The crate also defines a trait [`FloatConversion`] to convert from a generic [`Float`] type to a [`CIResult<f64>`].
-//!
 
 ///
 /// Result type for confidence interval computations.
