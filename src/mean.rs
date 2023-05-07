@@ -331,13 +331,13 @@ impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut sum = F::zero();
-        let mut sum_c = self.sum_c + rhs.sum_c;
-        let mut sum_sq = F::zero();
-        let mut sum_sq_c = self.sum_sq_c + rhs.sum_sq_c;
-        utils::kahan_add(&mut sum, self.sum, &mut sum_c);
+        let mut sum = self.sum;
+        let mut sum_c = self.sum_c;
+        utils::kahan_add(&mut sum, rhs.sum_c, &mut sum_c);
         utils::kahan_add(&mut sum, rhs.sum, &mut sum_c);
-        utils::kahan_add(&mut sum_sq, self.sum_sq, &mut sum_sq_c);
+        let mut sum_sq = self.sum_sq;
+        let mut sum_sq_c = self.sum_sq_c;
+        utils::kahan_add(&mut sum_sq, rhs.sum_sq_c, &mut sum_sq_c);
         utils::kahan_add(&mut sum_sq, rhs.sum_sq, &mut sum_sq_c);
         let count = self.count + rhs.count;
         Self {
@@ -720,5 +720,29 @@ mod tests {
         assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
 
         Ok(())
+    }
+
+    #[test]
+    fn test_stats_sum() {
+        const VALUE: f32 = 0.1;
+        let size = 1_000_000;
+
+        let mut stats_ref = Arithmetic::default();
+        let mut stats_summed = Arithmetic::default();
+        for _ in 0..size {
+            stats_ref.append(VALUE).unwrap();
+
+            let mut new_stat = Arithmetic::default();
+            new_stat.append(VALUE).unwrap();
+            stats_summed = stats_summed + new_stat;
+        }
+
+        assert_eq!(stats_ref.sample_count(), size);
+        assert_eq!(stats_summed.sample_count(), size);
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed.sample_mean());
+        assert_eq!(stats_ref.sample_variance(), stats_summed.sample_variance());
+        assert_eq!(stats_ref.sample_std_dev(), stats_summed.sample_std_dev());
+        assert_eq!(stats_ref.sample_sem(), stats_summed.sample_sem());
     }
 }
