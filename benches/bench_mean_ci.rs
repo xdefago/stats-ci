@@ -69,7 +69,7 @@ fn bench_mean_rayon(c: &mut Criterion) {
         });
 
         group.bench_with_input(
-            BenchmarkId::new("Parallel (rayon)", size),
+            BenchmarkId::new("Parallel (rayon/chunks)", size),
             &data,
             |b, data| {
                 b.iter(|| {
@@ -77,6 +77,22 @@ fn bench_mean_rayon(c: &mut Criterion) {
                         .clone()
                         .par_chunks(1000)
                         .map(|chunk| mean::Arithmetic::from_iter(chunk.iter().copied()).unwrap())
+                        .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
+
+                    state.ci_mean(confidence)
+                })
+            },
+        );
+
+        group.bench_with_input(
+            BenchmarkId::new("Parallel (rayon/par_iter)", size),
+            &data,
+            |b, data| {
+                b.iter(|| {
+                    let state = data
+                        .clone()
+                        .par_iter()
+                        .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
                         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 
                     state.ci_mean(confidence)
