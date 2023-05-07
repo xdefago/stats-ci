@@ -1,7 +1,7 @@
 use num_traits::Float;
 
 ///
-/// compensated Kahan summation.
+/// Compensated Kahan summation.
 /// See <https://en.wikipedia.org/wiki/Kahan_summation_algorithm>
 ///
 /// The function is meant to be called at each iteration of the summation,

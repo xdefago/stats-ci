@@ -147,7 +147,7 @@ pub fn ci<T: PartialOrd + Clone>(
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
 
-/// compute the indices of the confidence interval for a given quantile.
+/// Compute the indices of the confidence interval for a given quantile.
 /// The function returns the indices of the lower and upper bounds of the interval.
 ///
 /// Complexity: \\( O(1) \\)

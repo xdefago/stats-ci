@@ -31,7 +31,7 @@ use crate::stats::z_value;
 use error::*;
 
 ///
-/// computes the (two sided) confidence interval over the proportion of true values in a given sample.
+/// Computes the (two sided) confidence interval over the proportion of true values in a given sample.
 ///
 /// # Arguments
 ///
@@ -80,7 +80,7 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 }
 
 ///
-/// computes the (two sided) confidence interval over the proportion of a given sample that satisfies a given condition.
+/// Computes the (two sided) confidence interval over the proportion of a given sample that satisfies a given condition.
 ///
 /// # Arguments
 ///
@@ -120,7 +120,7 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 }
 
 ///
-/// computes the (two sided) confidence interval over the proportion of successes a given sample.
+/// Computes the (two sided) confidence interval over the proportion of successes a given sample.
 ///
 /// # Arguments
 ///
@@ -197,7 +197,7 @@ pub fn is_significant(population: usize, successes: usize) -> bool {
 }
 
 ///
-/// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
+/// Computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
 /// This is the method used by default when calling the function [`ci`] of this module.
 ///
 /// # Arguments
@@ -237,7 +237,7 @@ pub fn is_significant(population: usize, successes: usize) -> bool {
 /// # References
 ///
 /// * [Wikipedia article on Wilson score interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval)
-/// * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/)
+/// * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/). Feb 2022.
 ///
 pub fn ci_wilson(
     confidence: Confidence,
@@ -282,7 +282,7 @@ pub fn ci_wilson(
 }
 
 ///
-/// computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
+/// Computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
 /// This is the method used by default when calling the function [`ci`] of this module.
 ///
 /// # Arguments
@@ -317,7 +317,7 @@ pub fn ci_wilson_ratio(
 }
 
 ///
-/// computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
+/// Computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
 ///
 /// # Arguments
 ///
@@ -340,7 +340,6 @@ pub fn ci_wilson_ratio(
 /// # References
 ///
 /// * [Wikipedia article on normal approximation interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Normal_approximation_interval)
-/// * Francis J. DiTraglia. [Blog post: The Normal Approximation Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-normal-approximation-confidence-interval-for-a-proportion/)
 ///
 pub fn ci_z_normal(
     confidence: Confidence,

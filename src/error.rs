@@ -1,9 +1,26 @@
+//!
+//! Error types and conversion traits
+//!
+//! The crate defines a type [`CIError`] to represent errors that can occur during the computation of confidence intervals.
+//! The type [`CIResult<T>`] is a type alias for [`Result<T, CIError>`].
+//!
+//! The crate also defines a trait [`FloatConversion`] to convert from a generic [`Float`] type to a [`CIResult<f64>`].
+//!
+
+///
+/// Result type for confidence interval computations.
+///
+/// This type is a type alias for [`Result<T, CIError>`].
+///  
 pub type CIResult<T> = Result<T, CIError>;
 
 pub use crate::interval::IntervalError;
 
 use num_traits::Float;
 
+///
+/// Error types for confidence interval computations.
+///
 #[derive(thiserror::Error, Debug)]
 pub enum CIError {
     #[error("Too few samples to compute: {0}")]
@@ -53,6 +70,9 @@ impl From<&str> for CIError {
     }
 }
 
+///
+/// Error types for conversion from a generic [`Float`] type to a [`CIResult<f64>`].
+///
 #[derive(thiserror::Error, Debug)]
 pub enum ConversionError {
     #[error("Empty interval has no concrete bounds")]

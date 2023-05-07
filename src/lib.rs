@@ -134,8 +134,11 @@
 //! * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
 //! * [Wikipedia - Binomial proportion confidence interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval)
 //! * [Wikipedia article on normal approximation interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Normal_approximation_interval)
-//! * Francis J. DiTraglia. [Blog post: The Normal Approximation Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-normal-approximation-confidence-interval-for-a-proportion/)
+//! * Dransfield R.D., Brightwell R. (2012) Avoiding and Detecting Statistical Malpractice (or "How to Get On Top of Statistics): Design & Analysis for Biologists, with R. InfluentialPoints, UK [online](https://influentialpoints.com/hyperbook.htm)
+//! * _idem_. Chapter [Confidence intervals of proportions and rates](https://influentialpoints.com/Training/confidence_intervals_of_proportions-principles-properties-assumptions.htm)
+//! * Francis J. DiTraglia. [Blog post: The Wilson Confidence Interval for a Proportion](https://www.econometrics.blog/post/the-wilson-confidence-interval-for-a-proportion/). Feb 2022.
 //! * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
+//! * PennState. Stat 500. [Online](https://online.stat.psu.edu/stat500/)
 //!
 
 #![crate_type = "lib"]

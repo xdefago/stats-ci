@@ -29,8 +29,13 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Confidence {
+    /// Confidence for a two-sided interval.
     TwoSided(f64),
+    
+    /// Confidence for an upper one-sided interval.
     UpperOneSided(f64),
+
+    /// Confidence for a lower one-sided interval.
     LowerOneSided(f64),
 }
 
