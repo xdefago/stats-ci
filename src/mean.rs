@@ -550,23 +550,23 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 pub trait MeanCI<T: PartialOrd> {
     ///
     /// Compute the confidence interval on the mean of a sample
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `confidence` - The confidence level of the interval
     /// * `data` - The data to compute the confidence interval on
-    /// 
+    ///
     /// # Output
-    /// 
+    ///
     /// * `Ok(interval)` - The confidence interval on the mean of the sample
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// * [`CIError::TooFewSamples`] - If the input data has too few samples to compute the confidence interval
     /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
-    /// 
+    ///
     fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
     where
         I: IntoIterator<Item = T>;

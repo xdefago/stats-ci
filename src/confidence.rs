@@ -31,7 +31,7 @@
 pub enum Confidence {
     /// Confidence for a two-sided interval.
     TwoSided(f64),
-    
+
     /// Confidence for an upper one-sided interval.
     UpperOneSided(f64),
 
@@ -93,6 +93,22 @@ impl Confidence {
             Confidence::TwoSided(confidence)
             | Confidence::UpperOneSided(confidence)
             | Confidence::LowerOneSided(confidence) => *confidence,
+        }
+    }
+
+    /// Return the confidence level of the interval as a percentage.
+    ///
+    pub fn percent(&self) -> f64 {
+        self.level() * 100.
+    }
+
+    /// Return the kind of the confidence interval as a string (in English).
+    ///
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Confidence::TwoSided(_) => "two-sided",
+            Confidence::UpperOneSided(_) => "upper one-sided",
+            Confidence::LowerOneSided(_) => "lower one-sided",
         }
     }
 
