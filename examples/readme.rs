@@ -13,42 +13,76 @@ fn block_1() -> stats_ci::CIResult<()> {
         55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23., 37., 72., 62., 77.,
         63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
     ];
+    // 1. create a statistics object
+    let mut stats = mean::Arithmetic::new();
+    // 2. add data
+    stats.extend(data)?;
+
+    // 3. define a confidence level
     let confidence = Confidence::new_two_sided(0.95);
-    let ci = mean::Arithmetic::ci(confidence, data)?;
-    // mean: 53.67
-    // stddev: 28.097613040716798
-    println!("ci: {}", ci); // ci: [48.09482399055084, 59.24517600944916]
+    // 4. compute the confidence interval over the mean for some confidence level
+    let ci = stats.ci_mean(confidence)?;
+    // 5. get and print other statistics on the sample data
+    println!("mean: {}", stats.sample_mean()); // mean: 53.67
+    println!("std_dev: {}", stats.sample_std_dev()); // std_dev: 28.097613040716794
+    println!(
+        "ci ({} {}%): {}",
+        confidence.kind(),
+        confidence.percent(),
+        ci
+    ); // ci (two-sided 95%): [48.09482399055084, 59.24517600944916]
     println!("low: {}", ci.low_f()); // low: 48.09482399055084
     println!("high: {}", ci.high_f()); // high: 59.24517600944916
 
-    let ci = mean::Harmonic::ci(confidence, data)?;
-    // harmonic mean: 30.031313156339586
-    println!("ci: {}", ci); // ci: [23.614092539460778, 41.23786064976718]
-
-    let ci = mean::Geometric::ci(confidence, data)?;
-    // geometric mean: 43.7268032829256
-    println!("ci: {}", ci); // ci: [37.731050052007795, 50.675327686564806]
-
-    let confidence = Confidence::new_upper(0.975);
-    let ci = mean::Arithmetic::ci(confidence, data)?;
+    // 6. compute other confidence intervals (almost no additional perfomance cost)
+    println!(
+        "upper one-sided 90% ci: {}",
+        stats.ci_mean(Confidence::new_upper(0.9))?
+    ); // upper one-sided 90% ci: [50.04495430416555,->)
+    println!(
+        "lower one-sided 80% ci: {}",
+        stats.ci_mean(Confidence::new_lower(0.8))?
+    ); // lower one-sided 80% ci: (<-,56.044998597990755]
+    let ci = stats.ci_mean(Confidence::new_upper(0.975))?;
     println!("ci: {}", ci); // ci: [48.09482399055084,->)
     println!("low: {}", ci.low_f()); // low: 48.09482399055084
     println!("high: {}", ci.high_f()); // high: inf
     println!("low: {:?}", ci.low()); // high: Some(48.09482399055084)
     println!("high: {:?}", ci.high()); // high: None
 
-    // incremental statistics also work
-    let mut stats = mean::Arithmetic::new();
-    stats.extend(data)?;
+    // get statistics for other means (harmonic)
+    let stats = mean::Harmonic::from_iter(data)?;
     let ci = stats.ci_mean(confidence)?;
-    println!("incr ci: {}", ci); // incr ci: [48.09482399055084,->)
+    println!("harmonic mean: {}", stats.sample_mean()); // harmonic mean: 30.03131315633959
+    println!("ci: {}", ci); // ci: [23.614092539460778, 41.23786064976718]
+
+    // get statistics for other means (geometric)
+    let stats = mean::Geometric::from_iter(data)?;
+    let ci = stats.ci_mean(confidence)?;
+    println!("geometric mean: {}", stats.sample_mean()); // geometric mean: 43.7268032829256
+    println!("ci: {}", ci); // ci: [37.731050052007795, 50.675327686564806]
+
+    // incremental/intermediate statistics also work
+    let mut stats = mean::Arithmetic::from_iter(data)?;
+    let ci = stats.ci_mean(confidence)?;
+    // a. confidence interval from the original data
+    println!("incr ci: {}", ci); // incr ci: [48.09482399055084, 59.24517600944916]
+
+    // b. confidence interval after adding 10 additional data points
     for _ in 0..10 {
         stats.append(1_000.)?;
     }
     let ci = stats.ci_mean(confidence)?;
-    println!("incr ci (97.5%): {}", ci); // incr ci (97.5%): [87.80710255546494,->)
-    let ci = stats.ci_mean(Confidence::new_two_sided(0.8))?;
-    println!("incr ci (80%): {}", ci); // incr ci (80%): [105.9411358250259, 173.45886417497408]
+    println!("incr ci: {}", ci); // incr ci: [87.80710255546494, 191.59289744453503]
+
+    // parallel computation of the confidence interval
+    use rayon::prelude::*;
+    let state = data
+        .clone()
+        .par_iter()
+        .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+        .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
+    println!("parallel ci: {}", state.ci_mean(confidence)?); // parallel ci: [48.09482399055084, 59.24517600944916]
 
     Ok(())
 }
@@ -73,7 +107,7 @@ fn block_2() -> stats_ci::CIResult<()> {
     ];
     let confidence = Confidence::new_two_sided(0.95);
     let ci = quantile::ci(confidence, &data, quantile)?;
-    assert_eq!(ci, Interval::new("E", "L")?);
+    println!("ci: {}", ci); // ci: [E, L]
 
     Ok(())
 }
@@ -99,8 +133,13 @@ fn block_3() -> stats_ci::CIResult<()> {
 }
 
 fn main() -> stats_ci::CIResult<()> {
+    println!("block 1\n");
     block_1()?;
+
+    println!("\nblock 2\n");
     block_2()?;
+
+    println!("\nblock 3\n");
     block_3()?;
     Ok(())
 }
