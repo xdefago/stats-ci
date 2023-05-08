@@ -1,0 +1,4 @@
+# limit code width to 72 characters to fit well in the crates.io pages
+# crates.io is limited to 68 characters, but we reclaim 4 characters from
+# the indentation
+max_width = 72
