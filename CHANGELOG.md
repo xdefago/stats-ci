@@ -5,7 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.8 (2023-05-09)
+
+### Documentation
+
+ - <csr-id-6c0383ec7749a2aca8c7f0696ca5581e944230bd/> reformat example code
+   The crates.io webpage severely limits the column width of source code
+   blocks in the README.
+   This commit configures rustfmt for the readme code to such be narrower,
+   and includes the narrower code into the README
+   (with some additional rephrasing)
+
+### New Features
+
+ - <csr-id-9d4f08127ada550e882d90e978d844461ab98443/> add approx equality for intervals (feature)
+   add a crate feature `approx` (enabled by default) with a dependency
+   to the crate `approx` and providing approximate equality to
+   (floating-point) Interval.
+   Tests will not run properly w/o the feature (`--no-default-features`).
+
+### Bug Fixes
+
+ - <csr-id-8c6087f66a94f8be44f95811fe05239e18c525ab/> switch to z-value for large populations
+   When the number of degrees of freedom reaches values around 15 millions,
+   the inverse_cdf of the t-distribution (in statrs) appears to hang.
+   The computation of interval bounds now switches to the z-value of the
+   normal distribution when the population is over a constant.
+   The threshold is currently set to 100_000 which is well above the common
+   folklore value of 30 found in most textbooks.
+   A higher value is not recommended because the inverse_cdf of the student
+   distribution seem to yield inconsistent results well before it hangs.
+
+### Other
+
+ - <csr-id-c30375e36036f437854debd87df996080566645f/> eliminate dependency on assert_approx_eq
+   Replace all approximate equality with macros from the crate approx.
+
+### Style
+
+ - <csr-id-dda951b3521cb548a9769a3616477bcd3031fa44/> reformat code
+
+### Test
+
+ - <csr-id-bc4d6cf90e178b0a385ff61c8195c0214dd7e58b/> extend runtime to  20 million pop.
+   This tests that the computation of the confidence intervals no longer
+   hangs.
+ - <csr-id-558642f618f68db63bf71e1dc91f02d6e40686c6/> add parallel cases to runtime test/example
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 7 commits contributed to the release.
+ - 2 days passed between releases.
+ - 7 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Extend runtime to  20 million pop. ([`bc4d6cf`](https://github.com/xdefago/stats-ci/commit/bc4d6cf90e178b0a385ff61c8195c0214dd7e58b))
+    - Switch to z-value for large populations ([`8c6087f`](https://github.com/xdefago/stats-ci/commit/8c6087f66a94f8be44f95811fe05239e18c525ab))
+    - Reformat code ([`dda951b`](https://github.com/xdefago/stats-ci/commit/dda951b3521cb548a9769a3616477bcd3031fa44))
+    - Eliminate dependency on assert_approx_eq ([`c30375e`](https://github.com/xdefago/stats-ci/commit/c30375e36036f437854debd87df996080566645f))
+    - Add approx equality for intervals (feature) ([`9d4f081`](https://github.com/xdefago/stats-ci/commit/9d4f08127ada550e882d90e978d844461ab98443))
+    - Add parallel cases to runtime test/example ([`558642f`](https://github.com/xdefago/stats-ci/commit/558642f618f68db63bf71e1dc91f02d6e40686c6))
+    - Reformat example code ([`6c0383e`](https://github.com/xdefago/stats-ci/commit/6c0383ec7749a2aca8c7f0696ca5581e944230bd))
+</details>
+
 ## v0.0.7 (2023-05-07)
+
+<csr-id-392a2c9911bea32ea3ecc42fe1f8846650d3ad18/>
+<csr-id-cd5affb486b780f37edfe833ced76bc1af2ca676/>
+<csr-id-a8a981bdca1bd3606cea6ff535749bf6032ffc31/>
+<csr-id-712c2dc18f2b12ea41271d979f01de204f66821d/>
+<csr-id-5707431770fbb58830a270c86f5b6ede2ec1603d/>
+<csr-id-4b1dda1dc4999a10f82cc220952b477fe182d709/>
+<csr-id-dba07f9eec1c4621cf83d9e10eb93c6677157d4e/>
+<csr-id-13bea0a201611e879390c33f1c2ec37eba8073b5/>
+<csr-id-1a30335493db2e8142bb68b36938a927c3d9abb1/>
 
 ### Documentation
 
@@ -68,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 24 commits contributed to the release over the course of 2 calendar days.
+ - 25 commits contributed to the release over the course of 2 calendar days.
  - 3 days passed between releases.
  - 22 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -80,6 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.7 ([`f7e1cdc`](https://github.com/xdefago/stats-ci/commit/f7e1cdc50fcfa0ce52adf098470e70d2b7032c0c))
     - Update example code in readme ([`bb296e7`](https://github.com/xdefago/stats-ci/commit/bb296e7372e32cbdb5f90ffbaba148d652460ced))
     - Add bench case with par_iter ([`13bea0a`](https://github.com/xdefago/stats-ci/commit/13bea0a201611e879390c33f1c2ec37eba8073b5))
     - Reformat code ([`712c2dc`](https://github.com/xdefago/stats-ci/commit/712c2dc18f2b12ea41271d979f01de204f66821d))
