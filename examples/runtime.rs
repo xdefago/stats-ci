@@ -6,13 +6,12 @@ use std::time::Instant;
 ///
 /// Measures the time elapsed to compute a 95% confidence interval for a reasonably large array.
 /// Measurements on a 2022 MacBook Air (M2, 24GB RAM, 1TB SSD) with rustc 1.62.2 yield a runtime of
-/// nearly 50ms for an array of 14M elements (when compiled in --release).
-/// Unfortunately, the runtime seems to hang (or get very slow) when the array size is increased to
-/// 15M elements. Could this be due to cache issues? I'm not sure.
+/// nearly 80ms for an array of 20M elements (when compiled in --release), or about 14ms when run
+/// in parallel (chunks).
 ///
 fn main() {
     type Float = f64;
-    const POPULATION_SIZE: usize = 14_000_000;
+    const POPULATION_SIZE: usize = 20_000_000;
     const CHUNK_SIZE: usize = 10_000;
 
     let mut rng = thread_rng();
@@ -22,7 +21,8 @@ fn main() {
     println!("Sequential call:");
     let population = source_population.clone();
     let start = Instant::now();
-    let ci = mean::Arithmetic::ci(Confidence::new_two_sided(0.95), population).unwrap();
+    let stats = mean::Arithmetic::from_iter(population).unwrap();
+    let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
     let elapsed = start.elapsed();
     println!("Elapsed: {:?}", elapsed);
     println!("CI: {} (theoretical mean: 0.5)", ci);
