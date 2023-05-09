@@ -35,14 +35,21 @@ pub fn t_value(confidence: Confidence, degrees_of_freedom: f64) -> f64 {
     student_t.inverse_cdf(confidence.quantile())
 }
 
+const POPULATION_LIMIT: f64 = 100_000.;
+
 pub(crate) fn interval_bounds(
     confidence: Confidence,
     mean: f64,
     std_err_mean: f64,
     degrees_of_freedom: f64,
 ) -> (f64, f64) {
-    let t = t_value(confidence, degrees_of_freedom);
-    let span = t * std_err_mean;
+    let span = if degrees_of_freedom < POPULATION_LIMIT {
+        let t = t_value(confidence, degrees_of_freedom);
+        t * std_err_mean
+    } else {
+        let z = z_value(confidence);
+        z * std_err_mean
+    };
     (mean - span, mean + span)
 }
 
@@ -65,5 +72,51 @@ mod tests {
                 assert_abs_diff_eq!(t_value, z_value, epsilon = 1e-2);
             }
         }
+    }
+
+    #[test]
+    fn test_interval_bounds() {
+        let confidence = Confidence::new_two_sided(0.95);
+        let mean = 0.;
+        let std_err_mean = 1.;
+
+        for n in [
+            POPULATION_LIMIT - 1.,
+            POPULATION_LIMIT,
+            POPULATION_LIMIT + 1.,
+            POPULATION_LIMIT + 2.,
+        ] {
+            let degrees_of_freedom = n - 1.;
+            let actual = interval_bounds(confidence, mean, std_err_mean, degrees_of_freedom);
+            let bounds_t = only_t(confidence, mean, std_err_mean, degrees_of_freedom);
+            let bounds_z = only_z(confidence, mean, std_err_mean);
+
+            println!("n = {} (dof: {})", n, degrees_of_freedom);
+            println!("actual: ({}, {})", actual.0, actual.1);
+            println!("bounds_t: ({}, {})", bounds_t.0, bounds_t.1);
+            println!("bounds_z: ({}, {})", bounds_z.0, bounds_z.1);
+            println!();
+
+            assert_abs_diff_eq!(actual.0, bounds_t.0, epsilon = 1e-4);
+            assert_abs_diff_eq!(actual.1, bounds_t.1, epsilon = 1e-4);
+            assert_abs_diff_eq!(actual.0, bounds_z.0, epsilon = 1e-4);
+            assert_abs_diff_eq!(actual.1, bounds_z.1, epsilon = 1e-4);
+        }
+    }
+
+    fn only_t(
+        confidence: Confidence,
+        mean: f64,
+        std_err_mean: f64,
+        degrees_of_freedom: f64,
+    ) -> (f64, f64) {
+        let t = t_value(confidence, degrees_of_freedom);
+        let span = t * std_err_mean;
+        (mean - span, mean + span)
+    }
+    fn only_z(confidence: Confidence, mean: f64, std_err_mean: f64) -> (f64, f64) {
+        let z = z_value(confidence);
+        let span = z * std_err_mean;
+        (mean - span, mean + span)
     }
 }
