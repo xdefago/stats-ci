@@ -417,7 +417,8 @@ impl<T: PartialOrd + Copy> Interval<T> {
 }
 
 #[cfg(feature = "approx")]
-impl<T: approx::AbsDiffEq + PartialOrd> approx::AbsDiffEq for Interval<T> where
+impl<T: approx::AbsDiffEq + PartialOrd> approx::AbsDiffEq for Interval<T>
+where
     T::Epsilon: Copy,
 {
     type Epsilon = T::Epsilon;
@@ -443,7 +444,8 @@ impl<T: approx::AbsDiffEq + PartialOrd> approx::AbsDiffEq for Interval<T> where
 }
 
 #[cfg(feature = "approx")]
-impl<T: approx::RelativeEq + PartialOrd> approx::RelativeEq for Interval<T> where
+impl<T: approx::RelativeEq + PartialOrd> approx::RelativeEq for Interval<T>
+where
     T::Epsilon: Copy,
 {
     fn default_max_relative() -> T::Epsilon {
@@ -453,7 +455,8 @@ impl<T: approx::RelativeEq + PartialOrd> approx::RelativeEq for Interval<T> wher
     fn relative_eq(&self, other: &Self, epsilon: T::Epsilon, max_relative: T::Epsilon) -> bool {
         match (self, other) {
             (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
-                T::relative_eq(a, x, epsilon, max_relative) && T::relative_eq(b, y, epsilon, max_relative)
+                T::relative_eq(a, x, epsilon, max_relative)
+                    && T::relative_eq(b, y, epsilon, max_relative)
             }
             (Interval::UpperOneSided(a), Interval::UpperOneSided(x)) => {
                 T::relative_eq(a, x, epsilon, max_relative)
@@ -467,7 +470,8 @@ impl<T: approx::RelativeEq + PartialOrd> approx::RelativeEq for Interval<T> wher
 }
 
 #[cfg(feature = "approx")]
-impl<T: approx::UlpsEq + PartialOrd> approx::UlpsEq for Interval<T> where
+impl<T: approx::UlpsEq + PartialOrd> approx::UlpsEq for Interval<T>
+where
     T::Epsilon: Copy,
 {
     fn default_max_ulps() -> u32 {

@@ -1,7 +1,7 @@
 use rand::{thread_rng, Rng};
+use rayon::prelude::*;
 use stats_ci::*;
 use std::time::Instant;
-use rayon::prelude::*;
 
 ///
 /// Measures the time elapsed to compute a 95% confidence interval for a reasonably large array.
@@ -19,8 +19,6 @@ fn main() {
     let mut source_population = vec![0 as Float; POPULATION_SIZE];
     rng.fill(&mut source_population[..]);
 
-//#[cfg(off)]
-{
     println!("Sequential call:");
     let population = source_population.clone();
     let start = Instant::now();
@@ -28,7 +26,6 @@ fn main() {
     let elapsed = start.elapsed();
     println!("Elapsed: {:?}", elapsed);
     println!("CI: {} (theoretical mean: 0.5)", ci);
-}
 
     println!("\nParallel call:");
     let population = source_population.clone();
