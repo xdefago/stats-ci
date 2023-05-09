@@ -49,7 +49,7 @@ pub(crate) fn interval_bounds(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
+    use approx::*;
 
     #[test]
     fn test_t_and_z_value() {
@@ -62,7 +62,7 @@ mod tests {
                 let confidence = new_confidence(confidence_level);
                 let t_value = t_value(confidence, 1000.);
                 let z_value = z_value(confidence);
-                assert_approx_eq!(t_value, z_value, 1e-2);
+                assert_abs_diff_eq!(t_value, z_value, epsilon = 1e-2);
             }
         }
     }

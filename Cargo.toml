@@ -42,7 +42,6 @@ approx = { version = "0.5.1", optional = true }
 
 # dependencies for tests
 [dev-dependencies]
-assert_approx_eq = "1.1.0"
 rand = "0.8.5"
 rand_seeder = "0.2.3"
 rand_chacha = "0.3.1"

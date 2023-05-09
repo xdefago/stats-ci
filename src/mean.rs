@@ -26,9 +26,8 @@
 //! // reference values computed in python
 //! // [48.094823990767836, 59.24517600923217]
 //! use num_traits::Float;
-//! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-6);
-//! assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-6);
+//! use approx::*;
+//! assert_abs_diff_eq!(ci, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-6);
 //! # Ok(())
 //! # }
 //! ```
@@ -46,14 +45,14 @@
 //! #    37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
-//! let ci = mean::Geometric::ci(confidence, data)?;
+//! let stats = mean::Geometric::from_iter(data)?;
 //! // geometric mean: 43.7268032829256
 //! // reference values computed in python:
 //! // [37.731050052224354, 50.67532768627392]
 //! # use num_traits::Float;
-//! # use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low_f(), 37.731050052224354, 1e-6);
-//! assert_approx_eq!(ci.high_f(), 50.67532768627392, 1e-6);
+//! use approx::*;
+//! assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-6);
+//! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(37.731050052224354, 50.67532768627392)?, epsilon = 1e-6);
 //! # Ok(())
 //! # }
 //! ```
@@ -74,9 +73,8 @@
 //! // reference values computed in python:
 //! // [0.2448670911003175, 0.8521343961033607]
 //! # use num_traits::Float;
-//! # use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low_f(), 0.2448670911003175, 1e-6);
-//! assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
+//! # use approx::*;
+//! assert_abs_diff_eq!(ci, Interval::new(0.2448670911003175, 0.8521343961033607)?, epsilon = 1e-6);
 //! # Ok(())
 //! # }
 //! ```
@@ -119,8 +117,8 @@ use num_traits::Float;
 /// assert_eq!(stats.sample_sem(), 0.5);
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let ci = stats.ci_mean(confidence)?;
-/// assert_eq!(ci.low_f(), 3.5420208206306123);
-/// assert_eq!(ci.high_f(), 7.457979179369388);
+/// # use approx::*;
+/// assert_abs_diff_eq!(ci, Interval::new(3.5420208206306123, 7.457979179369388)?);
 /// # Ok(())
 /// # }
 /// ```
@@ -540,9 +538,8 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 /// // arithmetic mean: 52.5
 ///
 /// use num_traits::Float;
-/// use assert_approx_eq::assert_approx_eq;
-/// assert_approx_eq!(ci.low_f(), 41.6496, 1e-3);
-/// assert_approx_eq!(ci.high_f(), 65.69, 1e-3);
+/// use approx::*;
+/// assert_abs_diff_eq!(ci, Interval::new(41.6496, 65.69)?, epsilon = 1e-3);
 /// # Ok(())
 /// # }
 /// ```
@@ -584,7 +581,7 @@ impl<F: Float, T: StatisticsOps<F>> MeanCI<F> for T {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
+    use approx::*;
 
     #[test]
     fn test_mean_ci() -> CIResult<()> {
@@ -608,32 +605,32 @@ mod tests {
         // import scipy.stats as st
         // st.t.interval(confidence=0.95, df=len(data)-1, loc=np.mean(data), scale=st.sem(data))
         // ```
-        assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-8);
-        assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-8);
-        assert_approx_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67);
 
         let one_sided_ci = Arithmetic::ci(Confidence::UpperOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Arithmetic::ci(Confidence::LowerOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let mut state = Arithmetic::default();
         state.extend(data.iter().copied())?;
         let ci = state.ci_mean(confidence)?;
 
-        assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-8);
-        assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-8);
-        assert_approx_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, epsilon = 1e-8);
 
         let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
-        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
-        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         Ok(())
@@ -657,30 +654,30 @@ mod tests {
         // reference values computed in python:
         // in log space: (3.630483364286656, 3.9254391587458475)
         // [37.731050052224354, 50.67532768627392]
-        assert_approx_eq!(ci.low_f(), 37.731050052224354, 1e-8);
-        assert_approx_eq!(ci.high_f(), 50.67532768627392, 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
 
         let one_sided_ci = Geometric::ci(Confidence::UpperOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Geometric::ci(Confidence::LowerOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let mut state = Geometric::default();
         state.extend(data.iter().copied())?;
         let ci = state.ci_mean(confidence)?;
-        assert_approx_eq!(state.sample_mean(), 43.7268032829256, 1e-8);
-        assert_approx_eq!(ci.low_f(), 37.731050052224354, 1e-8);
-        assert_approx_eq!(ci.high_f(), 50.67532768627392, 1e-8);
+        assert_abs_diff_eq!(state.sample_mean(), 43.7268032829256, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
 
         let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
-        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
-        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         Ok(())
@@ -704,15 +701,15 @@ mod tests {
         // reference values computed in python:
         // in reciprocal space: (0.02424956057996111, 0.042347593849757906)
         // [41.237860649168255, 23.614092539657168]  (reversed by conversion to reciprocal space)
-        assert_approx_eq!(ci.low_f(), 23.614092539657168, 1e-8);
-        assert_approx_eq!(ci.high_f(), 41.237860649168255, 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 23.614092539657168, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.high_f(), 41.237860649168255, epsilon = 1e-8);
 
         let one_sided_ci = Harmonic::ci(Confidence::UpperOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.low_f(), ci.low_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Harmonic::ci(Confidence::LowerOneSided(0.975), data)?;
-        assert_approx_eq!(one_sided_ci.high_f(), ci.high_f(), 1e-8);
+        assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let confidence = Confidence::new_two_sided(0.95);
@@ -728,15 +725,15 @@ mod tests {
         // reference values computed in python:
         // in reciprocal space: (1.1735238063066096, 4.083848080632111)
         // [0.8521343961033607, 0.2448670911003175]
-        assert_approx_eq!(ci.low_f(), 0.2448670911003175, 1e-6);
-        assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
+        assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
+        assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
 
         let mut state = Harmonic::default();
         state.extend(data.iter().copied())?;
         let ci = state.ci_mean(confidence)?;
-        assert_approx_eq!(state.sample_mean(), 0.38041820166550844, 1e-8);
-        assert_approx_eq!(ci.low_f(), 0.2448670911003175, 1e-6);
-        assert_approx_eq!(ci.high_f(), 0.8521343961033607, 1e-6);
+        assert_abs_diff_eq!(state.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
+        assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
+        assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
 
         Ok(())
     }

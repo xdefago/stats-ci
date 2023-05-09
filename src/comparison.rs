@@ -152,7 +152,7 @@ pub fn unpaired_ci<T: Float>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
+    use approx::*;
 
     #[test]
     fn test_paired() {
@@ -177,8 +177,7 @@ mod tests {
 
             println!("ci = {} (ref: )", ci);
             println!("reference: (0.04299, 0.11781)");
-            assert_approx_eq!(ci.low_f(), 0.04299, 1e-4);
-            assert_approx_eq!(ci.high_f(), 0.11781, 1e-4);
+            assert_abs_diff_eq!(ci, Interval::new(0.04299, 0.11781).unwrap(), epsilon = 1e-4);
         }
         {
             // Case 2
@@ -195,8 +194,7 @@ mod tests {
 
             println!("ci = {}", ci);
             println!("reference: (-0.20, 0.32)");
-            assert_approx_eq!(ci.low_f(), -0.20, 1e-2);
-            assert_approx_eq!(ci.high_f(), 0.32, 1e-2);
+            assert_abs_diff_eq!(ci, Interval::new(-0.20, 0.32).unwrap(), epsilon = 1e-2);
 
             let data_pre = [140., 152., 153., 159., 150., 146.];
             let data_post = [150., 159., 170., 164., 148., 166.];
@@ -204,8 +202,7 @@ mod tests {
 
             println!("ci = {}", ci);
             println!("reference: (1.03,17.97)");
-            assert_approx_eq!(ci.low_f(), 1.03, 1e-2);
-            assert_approx_eq!(ci.high_f(), 17.97, 1e-2);
+            assert_abs_diff_eq!(ci, Interval::new(1.03, 17.97).unwrap(), epsilon = 1e-2);
         }
     }
 
@@ -226,7 +223,10 @@ mod tests {
 
         println!("ci = {}", ci);
         println!("reference: (-2.193679, 40.193679)");
-        assert_approx_eq!(ci.low_f(), -2.193679, 1e-2);
-        assert_approx_eq!(ci.high_f(), 40.193679, 1e-2);
+        assert_abs_diff_eq!(
+            ci,
+            Interval::new(-2.193679, 40.193679).unwrap(),
+            epsilon = 1e-2
+        );
     }
 }

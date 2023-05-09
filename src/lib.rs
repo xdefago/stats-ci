@@ -33,6 +33,7 @@
 //! ```
 //! # fn main() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
+//! use approx::*;
 //!
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -42,17 +43,24 @@
 //!     49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
-//! let confidence = Confidence::new_two_sided(0.95);
-//! let ci = mean::Arithmetic::ci(confidence, data)?;
-//! // mean: 53.67
-//! // stddev: 28.097613040716798
+//!
+//! // 1. create a statistics object
+//! let mut stats = mean::Arithmetic::new();
+//! // 2. add data
+//! stats.extend(data)?;
+//! // 3. compute the confidence intervals over the mean for some confidence level
+//! let ci_95 = stats.ci_mean(Confidence::new_two_sided(0.95))?;
+//! let ci_lower = stats.ci_mean(Confidence::new_lower(0.975))?;
+//! // 4. get other statistics on the sample data
+//! assert_abs_diff_eq!(stats.sample_mean(), 53.67);
+//! assert_abs_diff_eq!(stats.sample_std_dev(), 28.097613040716794);
 //! // reference values computed in python/numpy
 //! // [48.094823990767836, 59.24517600923217]
+//! assert_abs_diff_eq!(ci_95.low_f(), 48.094823990767836, epsilon = 1e-6);
+//! assert_abs_diff_eq!(ci_95.high_f(), 59.24517600923217, epsilon = 1e-6);
 //!
-//! use num_traits::Float;
-//! use assert_approx_eq::assert_approx_eq;
-//! assert_approx_eq!(ci.low_f(), 48.094823990767836, 1e-3);
-//! assert_approx_eq!(ci.high_f(), 59.24517600923217, 1e-3);
+//! assert_abs_diff_eq!(ci_95, Interval::new(48.09482399055084, 59.24517600944916)?);
+//! assert_abs_diff_eq!(ci_lower, Interval::new_lower(59.24517600944916));
 //! # Ok(())
 //! # }
 //! ```
@@ -100,8 +108,8 @@
 //! which is more stable than the standard normal approximation but results in slightly more conservative intervals.
 //! ```
 //! # fn main() -> stats_ci::CIResult<()> {
-//! # use assert_approx_eq::assert_approx_eq;
 //! use stats_ci::*;
+//! use approx::*;
 //!
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
@@ -109,21 +117,21 @@
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let interval = proportion::ci_true(confidence, data)?;
-//! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
-//! assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+//! assert_abs_diff_eq!(interval.low().unwrap(), 0.299, epsilon = 1e-2);
+//! assert_abs_diff_eq!(interval.high().unwrap(), 0.701, epsilon = 1e-2);
 //!
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
-//! assert_approx_eq!(interval.low().unwrap(), 0.299, 1e-2);
-//! assert_approx_eq!(interval.high().unwrap(), 0.701, 1e-2);
+//! assert_abs_diff_eq!(interval.low().unwrap(), 0.299, epsilon = 1e-2);
+//! assert_abs_diff_eq!(interval.high().unwrap(), 0.701, epsilon = 1e-2);
 //!
 //! let population = 500;
 //! let successes = 421;
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let interval = proportion::ci(confidence, population, successes)?;
-//! assert_approx_eq!(interval.low().unwrap(), 0.81, 1e-2);
-//! assert_approx_eq!(interval.high().unwrap(), 0.87, 1e-2);
+//! assert_abs_diff_eq!(interval.low().unwrap(), 0.81, epsilon = 1e-2);
+//! assert_abs_diff_eq!(interval.high().unwrap(), 0.87, epsilon = 1e-2);
 //! # Ok(())
 //! # }
 //! ```

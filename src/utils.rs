@@ -25,7 +25,7 @@ pub(crate) fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
+    use approx::*;
 
     #[test]
     fn test_kahan_add() {
@@ -52,7 +52,7 @@ mod tests {
             kahan,
             (kahan - expected) / expected * 100.
         );
-        assert_approx_eq!(expected, kahan, 1e-10);
+        assert_abs_diff_eq!(expected, kahan, epsilon = 1e-10);
         assert!((expected - normal).abs() > 500_000.); // normal summation is not accurate for f32
     }
 }
