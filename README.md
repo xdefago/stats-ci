@@ -37,14 +37,18 @@ In any case, please be circumspect about the results obtained from this crate fo
 
 Add the most recent release to your `Cargo.toml` _(check the latest version number on [crates.io](https://crates.io/crates/stats-ci) and replace `{ latest version }` below)_:
 
-```rust
+```toml
 [dependencies]
 stats-ci = "{ latest version }"
 ```
 
-The crate has an optional feature `serde` which, if enabled, adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html), as well as the incremental states for intervals on the mean.
+## Features
 
-```rust
+The crate has two features:
+
+* `approx` _(default)_ enables approximate comparison between intervals. Adds the dependency to the crate [`approx`](https://crates.io/crates/approx).
+* `serde` feature adds the crate [`serde`](https://crates.io/crates/serde) as a dependency and provides serialization and deserialization for both [`Confidence`](https://docs.rs/stats-ci/latest/stats_ci/enum.Confidence.html) and [`Interval`](https://docs.rs/stats-ci/latest/stats_ci/enum.Interval.html), as well as the incremental states for intervals on the mean.
+```toml
 stats-ci = { version = "{ latest version }", features = ["serde"] }
 ```
 

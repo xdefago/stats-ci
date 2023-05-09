@@ -416,6 +416,80 @@ impl<T: PartialOrd + Copy> Interval<T> {
     }
 }
 
+#[cfg(feature = "approx")]
+impl<T: approx::AbsDiffEq + PartialOrd> approx::AbsDiffEq for Interval<T> where
+    T::Epsilon: Copy,
+{
+    type Epsilon = T::Epsilon;
+
+    fn default_epsilon() -> T::Epsilon {
+        T::default_epsilon()
+    }
+
+    fn abs_diff_eq(&self, other: &Self, epsilon: T::Epsilon) -> bool {
+        match (self, other) {
+            (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
+                T::abs_diff_eq(a, x, epsilon) && T::abs_diff_eq(b, y, epsilon)
+            }
+            (Interval::UpperOneSided(a), Interval::UpperOneSided(x)) => {
+                T::abs_diff_eq(a, x, epsilon)
+            }
+            (Interval::LowerOneSided(b), Interval::LowerOneSided(y)) => {
+                T::abs_diff_eq(b, y, epsilon)
+            }
+            _ => false,
+        }
+    }
+}
+
+#[cfg(feature = "approx")]
+impl<T: approx::RelativeEq + PartialOrd> approx::RelativeEq for Interval<T> where
+    T::Epsilon: Copy,
+{
+    fn default_max_relative() -> T::Epsilon {
+        T::default_max_relative()
+    }
+
+    fn relative_eq(&self, other: &Self, epsilon: T::Epsilon, max_relative: T::Epsilon) -> bool {
+        match (self, other) {
+            (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
+                T::relative_eq(a, x, epsilon, max_relative) && T::relative_eq(b, y, epsilon, max_relative)
+            }
+            (Interval::UpperOneSided(a), Interval::UpperOneSided(x)) => {
+                T::relative_eq(a, x, epsilon, max_relative)
+            }
+            (Interval::LowerOneSided(b), Interval::LowerOneSided(y)) => {
+                T::relative_eq(b, y, epsilon, max_relative)
+            }
+            _ => false,
+        }
+    }
+}
+
+#[cfg(feature = "approx")]
+impl<T: approx::UlpsEq + PartialOrd> approx::UlpsEq for Interval<T> where
+    T::Epsilon: Copy,
+{
+    fn default_max_ulps() -> u32 {
+        T::default_max_ulps()
+    }
+
+    fn ulps_eq(&self, other: &Self, epsilon: T::Epsilon, max_ulps: u32) -> bool {
+        match (self, other) {
+            (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
+                T::ulps_eq(a, x, epsilon, max_ulps) && T::ulps_eq(b, y, epsilon, max_ulps)
+            }
+            (Interval::UpperOneSided(a), Interval::UpperOneSided(x)) => {
+                T::ulps_eq(a, x, epsilon, max_ulps)
+            }
+            (Interval::LowerOneSided(b), Interval::LowerOneSided(y)) => {
+                T::ulps_eq(b, y, epsilon, max_ulps)
+            }
+            _ => false,
+        }
+    }
+}
+
 impl<F: std::ops::Mul<F, Output = F> + PartialOrd + Copy> std::ops::Mul<F> for Interval<F> {
     type Output = Self;
 
@@ -1013,5 +1087,15 @@ mod tests {
     fn test_sync() {
         fn assert_sync<T: Sync>() {}
         assert_sync::<Interval<f64>>();
+    }
+
+    #[test]
+    fn test_approx() {
+        use approx::*;
+
+        let interval1 = Interval::new(0., 10.).unwrap();
+        let interval2 = Interval::new(1e-7, 10.000000001).unwrap();
+        assert!(interval1.abs_diff_eq(&interval2, 1e-6));
+        assert_abs_diff_eq!(interval1, interval2, epsilon = 1e-6);
     }
 }
