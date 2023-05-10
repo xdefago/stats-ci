@@ -51,9 +51,11 @@ impl Confidence {
     /// * if `confidence` is not in the range (0, 1)
     ///
     pub fn new_two_sided(confidence: f64) -> Self {
-        assert!(confidence > 0. && confidence < 1.);
-        //     if confidence <= 0. || confidence >= 1. { return Err(CIError::InvalidConfidenceLevel(confidence)); }
-        Confidence::TwoSided(confidence)
+        if confidence > 0. && confidence < 1. {
+            Confidence::TwoSided(confidence)
+        } else {
+            panic!("Confidence level must be in the range (0, 1).")
+        }
     }
 
     /// Create a new one-sided upper confidence interval with the given confidence level.
@@ -67,8 +69,11 @@ impl Confidence {
     /// * if `confidence` is not in the range (0, 1)
     ///
     pub fn new_upper(confidence: f64) -> Self {
-        assert!(confidence > 0. && confidence < 1.);
-        Confidence::UpperOneSided(confidence)
+        if confidence > 0. && confidence < 1. {
+            Confidence::UpperOneSided(confidence)
+        } else {
+            panic!("Confidence level must be in the range (0, 1).")
+        }
     }
 
     /// Create a new one-sided lower confidence interval with the given confidence level.
@@ -82,8 +87,11 @@ impl Confidence {
     /// * if `confidence` is not in the range (0, 1)
     ///
     pub fn new_lower(confidence: f64) -> Self {
-        assert!(confidence > 0. && confidence < 1.);
-        Confidence::LowerOneSided(confidence)
+        if confidence > 0. && confidence < 1. {
+            Confidence::LowerOneSided(confidence)
+        } else {
+            panic!("Confidence level must be in the range (0, 1).")
+        }
     }
 
     /// Return the confidence level of the interval as a number in the range (0, 1).
@@ -261,5 +269,41 @@ mod tests {
     fn test_sync() {
         fn assert_sync<T: Sync>() {}
         assert_sync::<Confidence>();
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_two_sided_confidence_level_zero() {
+        Confidence::new_two_sided(0.);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_two_sided_confidence_level_one() {
+        Confidence::new_two_sided(1.);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_upper_confidence_level_zero() {
+        Confidence::new_upper(0.);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_upper_confidence_level_one() {
+        Confidence::new_upper(1.);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_lower_confidence_level_zero() {
+        Confidence::new_lower(0.);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_lower_confidence_level_one() {
+        Confidence::new_lower(1.);
     }
 }
