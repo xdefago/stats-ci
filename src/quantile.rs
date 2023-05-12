@@ -3,7 +3,7 @@
 //! # Examples
 //!
 //! ```
-//! # fn main() -> stats_ci::error::CIResult<()> {
+//! # use stats_ci::error;
 //! use stats_ci::{quantile,Confidence,Interval};
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 //! let confidence = Confidence::new_two_sided(0.95);
@@ -19,8 +19,7 @@
 //! let quantile = 0.4; // 40th percentile
 //! let interval = quantile::ci(confidence, &data, quantile)?;
 //! assert_eq!(interval, Interval::new(5, 8)?);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 use super::*;
@@ -52,7 +51,6 @@ use super::*;
 ///
 /// ```
 /// # use stats_ci::*;
-/// # fn main() -> error::CIResult<()> {
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let quantile = 0.5; // median
@@ -67,8 +65,7 @@ use super::*;
 /// let quantile = 0.4; // 40th percentile
 /// let interval = quantile::ci_sorted_unchecked(confidence, &data, quantile)?;
 /// assert_eq!(interval, Interval::new(5, 8)?);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
 ///
 pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
@@ -114,7 +111,6 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
 /// # Examples
 ///
 /// ```
-/// # fn main() -> stats_ci::CIResult<()> {
 /// # use stats_ci::*;
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /// let confidence = Confidence::new_two_sided(0.95);
@@ -134,8 +130,7 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
 /// let quantile = 0.4; // 40th percentile
 /// let interval = quantile::ci(confidence, &data, quantile)?;
 /// assert_eq!(interval, Interval::new(5, 8)?);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
 pub fn ci<T: PartialOrd + Clone>(
     confidence: Confidence,
@@ -173,7 +168,6 @@ pub fn ci<T: PartialOrd + Clone>(
 ///
 /// ```
 /// # use stats_ci::*;
-/// # fn main() -> error::CIResult<()> {
 /// let data = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let quantile = 0.5; // median
@@ -188,8 +182,7 @@ pub fn ci<T: PartialOrd + Clone>(
 /// let quantile = 0.4; // 40th percentile
 /// let interval = quantile::ci_indices(confidence, data.len(), quantile)?;
 /// assert_eq!(interval, Interval::new(4, 7)?);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
 ///
 pub fn ci_indices(

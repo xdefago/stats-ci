@@ -9,7 +9,6 @@
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
 //! ```
-//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //! let data = [
 //!     82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -28,13 +27,11 @@
 //! use num_traits::Float;
 //! use approx::*;
 //! assert_abs_diff_eq!(ci, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-6);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! Confidence intervals on the geometric mean of a sample:
 //! ```
-//! # fn test() -> stats_ci::CIResult<()> {
 //! # use stats_ci::*;
 //! # let data = [
 //! #    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -53,13 +50,11 @@
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(37.731050052224354, 50.67532768627392)?, epsilon = 1e-6);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! Confidence intervals on the harmonic mean of a sample:
 //! ```
-//! # fn test() -> stats_ci::CIResult<()> {
 //! # use stats_ci::*;
 //! # let data = [
 //! #     1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
@@ -75,13 +70,11 @@
 //! # use num_traits::Float;
 //! # use approx::*;
 //! assert_abs_diff_eq!(ci, Interval::new(0.2448670911003175, 0.8521343961033607)?, epsilon = 1e-6);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! The confidence interval and relevant statistics can also be computed incrementally:
 //! ```
-//! # fn test() -> stats_ci::CIResult<()> {
 //! # use stats_ci::*;
 //! # let data = [
 //! #    55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23., 37., 72., 62., 77.,
@@ -90,8 +83,7 @@
 //! let stats = mean::Arithmetic::from_iter(data)?;
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let ci = stats.ci_mean(confidence)?;
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 use super::*;
 use crate::utils;
@@ -108,19 +100,17 @@ use num_traits::Float;
 ///
 /// # Example
 /// ```
-/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
 /// let stats = mean::Arithmetic::from_iter(data)?;
 /// assert_eq!(stats.sample_count(), 10);
 /// assert_eq!(stats.sample_mean(), 5.5);
-/// assert_eq!(stats.sample_sem(), 0.5);
+/// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let ci = stats.ci_mean(confidence)?;
 /// # use approx::*;
-/// assert_abs_diff_eq!(ci, Interval::new(3.5420208206306123, 7.457979179369388)?);
-/// # Ok(())
-/// # }
+/// assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
+/// # Ok::<(),error::CIError>(())
 /// ```
 pub trait StatisticsOps<F: Float>
 where
@@ -156,27 +146,24 @@ where
     ///
     /// # Example
     /// ```
-    /// # fn test() -> stats_ci::CIResult<()> {
+    /// # use approx::*;
     /// use stats_ci::*;
     /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
     /// let stats = mean::Arithmetic::from_iter(data)?;
     /// assert_eq!(stats.sample_count(), 10);
     /// assert_eq!(stats.sample_mean(), 5.5);
-    /// assert_eq!(stats.sample_sem(), 0.5);
-    /// # Ok(())
-    /// # }
+    /// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
+    /// # Ok::<(),error::CIError>(())
     /// ```
     ///
     /// # Note
     ///
     /// This is simply a shortcut for [`Self::new`] and [`Self::extend`]:
     /// ```
-    /// # fn test() -> stats_ci::CIResult<()> {
     /// # use stats_ci::*;
     /// # let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
     /// let stats = mean::Arithmetic::new().extend(data)?;
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),error::CIError>(())
     /// ```
     ///
     fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
@@ -523,7 +510,6 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 /// # Examples
 ///
 /// ```
-/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
 /// let data = [
 ///    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
@@ -539,9 +525,8 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 ///
 /// use num_traits::Float;
 /// use approx::*;
-/// assert_abs_diff_eq!(ci, Interval::new(41.6496, 65.69)?, epsilon = 1e-3);
-/// # Ok(())
-/// # }
+/// assert_abs_diff_eq!(ci, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-3);
+/// # Ok::<(),error::CIError>(())
 /// ```
 ///
 pub trait MeanCI<T: PartialOrd> {
@@ -760,5 +745,18 @@ mod tests {
         assert_eq!(stats_ref.sample_variance(), stats_summed.sample_variance());
         assert_eq!(stats_ref.sample_std_dev(), stats_summed.sample_std_dev());
         assert_eq!(stats_ref.sample_sem(), stats_summed.sample_sem());
+    }
+
+    #[test]
+    fn test_blah() -> CIResult<()>{
+        let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
+        let stats = mean::Arithmetic::from_iter(data)?;
+        assert_eq!(stats.sample_count(), 10);
+        assert_eq!(stats.sample_mean(), 5.5);
+        assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
+        let confidence = Confidence::new_two_sided(0.95);
+        let ci = stats.ci_mean(confidence)?;
+        assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
+        Ok(())
     }
 }

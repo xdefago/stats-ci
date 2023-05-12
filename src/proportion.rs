@@ -532,7 +532,7 @@ mod tests {
     }
 
     #[test]
-    fn fuck_crappy_doctest() -> CIResult<()> {
+    fn test_main_example() -> CIResult<()> {
         let grades = [
             40, 59, 73, 44, 82, 44, 58, 74, 94, 79, 40, 52, 100, 57, 76, 93, 68, 96, 92, 98, 58,
             64, 76, 40, 89, 65, 63, 90, 66, 89,

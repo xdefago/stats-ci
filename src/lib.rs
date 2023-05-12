@@ -77,7 +77,6 @@
 //! In a different context, if the data is an ordered sequence of strings, it could (in some context) make sense to compute an interval around the median of the data, but the mean cannot be computed.
 //!
 //! ```
-//! # fn main() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //!
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -95,8 +94,7 @@
 //! let quantile = 0.5; // median
 //! let interval3 = quantile::ci(confidence, &data, quantile)?;
 //! assert_eq!(interval3, Interval::new("E", "L")?);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! ## C.I. for Proportions
@@ -107,7 +105,6 @@
 //! This crate uses the Wilson score interval to compute the confidence interval for a proportion,
 //! which is more stable than the standard normal approximation but results in slightly more conservative intervals.
 //! ```
-//! # fn main() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
 //! use approx::*;
 //!
@@ -132,8 +129,7 @@
 //! let interval = proportion::ci(confidence, population, successes)?;
 //! assert_abs_diff_eq!(interval.low().unwrap(), 0.81, epsilon = 1e-2);
 //! assert_abs_diff_eq!(interval.high().unwrap(), 0.87, epsilon = 1e-2);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! # References
