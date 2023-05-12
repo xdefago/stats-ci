@@ -3,9 +3,7 @@
 //! # Examples
 //!
 //! ```
-//! # fn test() -> stats_ci::CIResult<()> {
 //! use stats_ci::*;
-//!
 //! let data = [
 //!     true, false, true, true, false, true, true, false, true, true,
 //!     false, false, false, true, false, true, false, false, true, false
@@ -14,8 +12,7 @@
 //! let interval = proportion::ci_true(confidence, data)?;
 //! use approx::*;
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
-//! # Ok(())
-//! # }
+//! # Ok::<(),error::CIError>(())
 //! ```
 //!
 //! # References
@@ -30,12 +27,131 @@ use crate::stats::z_value;
 use error::*;
 
 ///
+/// Represents the state of the computation of a confidence interval for a proportion.
+///
+/// # Examples
+///
+/// ```
+/// # use stats_ci::*;
+/// let grades = [40, 59, 73, 44, 82, 44, 58, 74, 94, 79, 40, 52, 100, 57, 76, 93, 68, 96, 92, 98, 58, 64, 76, 40, 89, 65, 63, 90, 66, 89];
+/// let stats = proportion::Stats::from_iter(grades.iter().map(|&x| x >= 60));
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let pass_rate_ci = stats.ci(confidence)?;
+/// println!("Pass rate: {}", pass_rate_ci);
+/// # use approx::*;
+/// assert_abs_diff_eq!(pass_rate_ci, Interval::new(0.4878, 0.8077)?, epsilon = 1e-3);
+/// # Ok::<(),error::CIError>(())
+/// ```
+///
+/// # Panics
+///
+/// * if the number of successes is larger than the population size
+///
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Stats {
+    pub population: usize,
+    pub successes: usize,
+}
+
+impl Stats {
+    pub const fn new(population: usize, successes: usize) -> Self {
+        if population < successes {
+            panic!("Number of successes must not be larger than population size.")
+        }
+        Stats {
+            population,
+            successes,
+        }
+    }
+
+    pub fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = bool>,
+    {
+        let mut stats = Stats::default();
+        for value in iter {
+            if value {
+                stats.add_success();
+            } else {
+                stats.add_failure();
+            }
+        }
+        stats
+    }
+
+    pub fn population(&self) -> usize {
+        self.population
+    }
+
+    pub fn successes(&self) -> usize {
+        self.successes
+    }
+
+    pub fn add_success(&mut self) {
+        self.population += 1;
+        self.successes += 1;
+    }
+
+    pub fn add_failure(&mut self) {
+        self.population += 1;
+    }
+
+    /// Computes the confidence interval over the proportion of true values in a given sample.
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - the confidence level (must be in (0, 1))
+    ///
+    /// # Errors
+    ///
+    /// * `TooFewSuccesses` - if the number of successes is too small to compute a confidence interval
+    /// * `TooFewFailures` - if the number of failures is too small to compute a confidence interval
+    /// * `InvalidSuccesses` - if the number of successes is larger than the population size
+    /// * `InvalidConfidenceLevel` - if the confidence level is not in (0, 1)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use stats_ci::*;
+    /// use approx::*;
+    ///
+    /// let data = [
+    ///    true, false, true, true, false, true, true, false, true, true,
+    ///   false, false, false, true, false, true, false, false, true, false
+    /// ];
+    /// let confidence = Confidence::new_two_sided(0.95);
+    /// let interval = proportion::ci_true(confidence, data)?;
+    /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+    /// # Ok::<(),error::CIError>(())
+    /// ```
+    ///
+    /// # Notes
+    ///
+    /// The confidence interval is computed using the function [`ci_wilson`] (Wilson score interval).
+    ///
+    pub fn ci(&self, confidence: Confidence) -> CIResult<Interval<f64>> {
+        ci(confidence, self.population, self.successes)
+    }
+}
+impl std::ops::Add for Stats {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Stats {
+            population: self.population + rhs.population,
+            successes: self.successes + rhs.successes,
+        }
+    }
+}
+
+///
 /// Computes the (two sided) confidence interval over the proportion of true values in a given sample.
 ///
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
-/// * `data` - the sample
+/// * `data` - the sample given as a boolean iterator or slice
 ///
 /// # Errors
 ///
@@ -47,10 +163,8 @@ use error::*;
 /// # Examples
 ///
 /// ```
-/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
-/// use approx::*;
-///
+/// # use approx::*;
 /// let data = [
 ///     true, false, true, true, false, true, true, false, true, true,
 ///     false, false, false, true, false, true, false, false, true, false
@@ -58,23 +172,26 @@ use error::*;
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_true(confidence, data)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
+///
+/// # Notes
+///
+/// The confidence interval is computed using the function [`ci_wilson`] (Wilson score interval).
 ///
 pub fn ci_true<T: IntoIterator<Item = bool>>(
     confidence: Confidence,
     data: T,
 ) -> CIResult<Interval<f64>> {
-    let mut population = 0;
-    let mut successes = 0;
+    let mut stats = Stats::default();
     for x in data {
-        population += 1;
         if x {
-            successes += 1;
+            stats.add_success();
+        } else {
+            stats.add_failure();
         }
     }
-    ci(confidence, population, successes)
+    stats.ci(confidence)
 }
 
 ///
@@ -83,8 +200,8 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
-/// * `population` - the size of the population
-/// * `successes` - the number of successes in the sample
+/// * `data` - the sample given as a boolean iterator or slice
+/// * `condition` - the condition that must be satisfied to be counted as a success
 ///
 /// # Errors
 ///
@@ -96,16 +213,13 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 /// # Examples
 ///
 /// ```
-/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
-/// use approx::*;
-///
+/// # use approx::*;
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
 ///
 pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
@@ -139,17 +253,14 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 /// # Examples
 ///
 /// ```
-/// # fn test() -> stats_ci::CIResult<()> {
 /// use stats_ci::*;
-/// use approx::*;
-///
+/// # use approx::*;
 /// let population = 500;
 /// let successes = 421;
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci(confidence, population, successes)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.81, 0.87)?, epsilon = 1e-2);
-/// # Ok(())
-/// # }
+/// # Ok::<(),error::CIError>(())
 /// ```
 ///
 pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResult<Interval<f64>> {
@@ -315,6 +426,17 @@ pub fn ci_wilson_ratio(
 ///
 /// Computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
 ///
+/// Using the normal approximation interval (Wald method), the probability of success \\( p \\) is estimated by:
+/// \\[
+/// p \approx  \frac{n_S}{n} \pm z \sqrt{\frac{n_S ~ n_F}{n^3}} = \hat{p} \pm z \sqrt{\frac{\hat{p} ~ (1 - \hat{p})}{n}}
+/// \\]
+/// where
+/// * \\( n_S \\) is the number of successes,
+/// * \\( n_F \\) is the number of failures,
+/// * \\( n = n_S + n_F \\) is the sample size,
+/// * \\( z \\) is the z-value corresponding to the confidence level, and
+/// * \\( \hat{p} = \frac{n_S}{n} \\) is the estimated probability of success.
+///
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
@@ -407,5 +529,20 @@ mod tests {
         let confidence = Confidence::TwoSided(0.95);
         let ci = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
         assert_abs_diff_eq!(ci, Interval::new(0.299, 0.701).unwrap(), epsilon = 1e-2);
+    }
+
+    #[test]
+    fn fuck_crappy_doctest() -> CIResult<()> {
+        let grades = [
+            40, 59, 73, 44, 82, 44, 58, 74, 94, 79, 40, 52, 100, 57, 76, 93, 68, 96, 92, 98, 58,
+            64, 76, 40, 89, 65, 63, 90, 66, 89,
+        ];
+        let stats = proportion::Stats::from_iter(grades.iter().map(|&x| x >= 60));
+        let confidence = Confidence::new_two_sided(0.95);
+        let pass_rate_ci = stats.ci(confidence)?;
+        println!("Pass rate: {}", pass_rate_ci);
+        use approx::*;
+        assert_abs_diff_eq!(pass_rate_ci, Interval::new(0.4878, 0.8077)?, epsilon = 1e-3);
+        Ok(())
     }
 }
