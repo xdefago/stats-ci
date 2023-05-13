@@ -1,4 +1,4 @@
-//! 
+//!
 //! Confidence intervals for proportions
 //!
 //! # Examples
@@ -54,6 +54,32 @@ pub struct Stats {
     pub successes: usize,
 }
 
+impl FromIterator<bool> for Stats {
+    ///
+    /// Creates a new statistics object with initial values from a Boolean iterator counting the number of successes.
+    ///
+    /// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `iter`.
+    ///
+    /// # Arguments
+    ///
+    /// * `iter` - a Boolean iterator or slice
+    ///
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = bool>,
+    {
+        let mut stats = Stats::default();
+        for value in iter {
+            if value {
+                stats.add_success();
+            } else {
+                stats.add_failure();
+            }
+        }
+        stats
+    }
+}
+
 impl Stats {
     ///
     /// Creates a new statistics object with initial values for the population size and the number of successes.
@@ -73,30 +99,6 @@ impl Stats {
             population,
             successes,
         }
-    }
-
-    ///
-    /// Creates a new statistics object with initial values from a Boolean iterator counting the number of successes.
-    ///
-    /// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `iter`.
-    ///
-    /// # Arguments
-    ///
-    /// * `iter` - a Boolean iterator or slice
-    ///
-    pub fn from_iter<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item = bool>,
-    {
-        let mut stats = Stats::default();
-        for value in iter {
-            if value {
-                stats.add_success();
-            } else {
-                stats.add_failure();
-            }
-        }
-        stats
     }
 
     ///
