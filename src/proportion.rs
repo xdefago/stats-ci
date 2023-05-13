@@ -31,8 +31,7 @@
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
 //! # Ok::<(),error::CIError>(())
 //! ```
-//! 
-//! 
+//!
 //! # References
 //!
 //! * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
