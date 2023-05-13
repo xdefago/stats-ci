@@ -14,7 +14,6 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// # Examples
 ///
 /// ```
-/// # fn main() -> Result<(), stats_ci::error::IntervalError> {
 /// use stats_ci::*;
 ///
 /// let interval = Interval::new(0., 10.)?;
@@ -26,8 +25,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// let interval = Interval::try_from(0..=10)?;
 /// assert_eq!(interval.low(), Some(0));
 /// assert_eq!(interval.high(), Some(10));
-/// # Ok(())
-/// # }
+/// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -47,7 +45,6 @@ impl<T: PartialOrd> Interval<T> {
     /// # Examples
     ///
     /// ```
-    /// # fn main() -> stats_ci::CIResult<()> {
     /// # use stats_ci::Interval;
     /// let interval = Interval::new(0., 1.)?;
     /// assert_eq!(interval.low(), Some(0.));
@@ -58,8 +55,7 @@ impl<T: PartialOrd> Interval<T> {
     /// let interval3 = Interval::new(0, 0_usize)?;
     /// assert_eq!(interval3.low(), Some(0));
     /// assert_eq!(interval3.high(), Some(0));
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),stats_ci::error::IntervalError>(())
     /// ```
     pub fn new(low: T, high: T) -> Result<Self, IntervalError> {
         if low > high {
@@ -78,13 +74,11 @@ impl<T: PartialOrd> Interval<T> {
     ///
     /// The interval below represents [0., +∞).
     /// ```
-    /// # fn main() -> stats_ci::CIResult<()> {
     /// # use stats_ci::Interval;
     /// let interval = Interval::new_upper(0.);
     /// assert_eq!(interval.low(), Some(0.));
     /// assert_eq!(interval.high(), None);
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),stats_ci::error::IntervalError>(())
     /// ```
     ///
     pub fn new_upper(low: T) -> Self {
@@ -100,13 +94,11 @@ impl<T: PartialOrd> Interval<T> {
     ///
     /// The interval below represents (-∞, 1.]
     /// ```
-    /// # fn main() -> stats_ci::CIResult<()> {
     /// # use stats_ci::Interval;
     /// let interval = Interval::new_lower(1.);
     /// assert_eq!(interval.low(), None);
     /// assert_eq!(interval.high(), Some(1.));
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),stats_ci::error::IntervalError>(())
     /// ```
     ///
     pub fn new_lower(high: T) -> Self {
@@ -147,13 +139,11 @@ impl<T: PartialOrd> Interval<T> {
     /// # Examples
     ///
     /// ```
-    /// # fn main() -> stats_ci::CIResult<()> {
     /// # use stats_ci::Interval;
     /// let interval = Interval::new(0., 1.)?;
     /// assert!(interval.contains(&0.5));
     /// assert!(!interval.contains(&2.));
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),stats_ci::error::IntervalError>(())
     /// ```
     ///
     pub fn contains(&self, x: &T) -> bool {
@@ -171,15 +161,13 @@ impl<T: PartialOrd> Interval<T> {
     /// # Examples
     ///
     /// ```
-    /// # fn main() -> stats_ci::CIResult<()> {
     /// # use stats_ci::Interval;
     /// let interval = Interval::new(0., 1.)?;
     /// let interval2 = Interval::new(0.5, 1.5)?;
     /// assert!(interval.intersects(&interval2));
     /// let interval3 = Interval::new(2., 3.)?;
     /// assert!(!interval.intersects(&interval3));
-    /// # Ok(())
-    /// # }
+    /// # Ok::<(),stats_ci::error::IntervalError>(())
     /// ```
     ///
     pub fn intersects(&self, other: &Self) -> bool {
@@ -198,6 +186,7 @@ impl<T: PartialOrd> Interval<T> {
             (Interval::TwoSided(x, y), Interval::TwoSided(a, b)) => x <= b && a <= y,
         }
     }
+
     ///
     /// Test whether the interval is included in another interval.
     ///
@@ -206,6 +195,7 @@ impl<T: PartialOrd> Interval<T> {
     pub fn is_included_in(&self, other: &Self) -> bool {
         other.includes(self)
     }
+
     ///
     /// Test whether the interval includes another interval.
     ///
@@ -234,6 +224,7 @@ impl<T: PartialOrd> Interval<T> {
             Interval::LowerOneSided(_) => None,
         }
     }
+
     ///
     /// Get the right bound of the interval (if any).
     ///
@@ -268,6 +259,7 @@ impl<T: PartialOrd + Clone> Interval<T> {
     pub fn low(&self) -> Option<T> {
         self.left().cloned()
     }
+
     ///
     /// Get the upper bound of the interval (if any) for partially ordered types.
     ///
@@ -290,6 +282,7 @@ impl<T: num_traits::Float> Interval<T> {
             Interval::LowerOneSided(_) => T::neg_infinity(),
         }
     }
+
     ///
     /// Get the upper bound of the interval (if any) for floating point types.
     /// This function returns the infinite value for `T` for upper one-sided intervals.
@@ -301,6 +294,13 @@ impl<T: num_traits::Float> Interval<T> {
             Interval::LowerOneSided(high) => *high,
         }
     }
+
+    ///
+    /// Given two intervals, compute the relative interval compared to the reference (argument).
+    /// The relative interval is defined as the interval of the ratios of the two intervals.
+    /// 
+    /// E.g., for two two-sided intervals \\( [x, y] \\) and reference \\( [a, b] \\), the relative interval is \\( [(x-b)/b, (y-a)/a] \\).
+    /// 
     pub fn relative_to(&self, reference: &Interval<T>) -> Interval<T> {
         match (reference, self) {
             (Interval::TwoSided(a, b), _) if a.is_zero() || b.is_zero() => {
@@ -342,6 +342,7 @@ impl<T: num_traits::PrimInt + num_traits::Signed> Interval<T> {
             Interval::LowerOneSided(_) => <T>::min_value(),
         }
     }
+
     ///
     /// Get the upper bound of the interval (if any) for signed integer types.
     /// This function returns the maximal value for `T` for upper one-sided intervals.
@@ -366,6 +367,7 @@ impl<T: num_traits::PrimInt + num_traits::Unsigned> Interval<T> {
             Interval::LowerOneSided(_) => <T>::min_value(),
         }
     }
+
     ///
     /// Get the upper bound of the interval (if any) for unsigned integer types.
     /// This function returns the maximum value for `T` for upper one-sided intervals.
@@ -388,6 +390,7 @@ impl<T: PartialOrd> Interval<T> {
     pub fn low_as_ref(&self) -> Option<&T> {
         self.left()
     }
+
     ///
     /// Get a reference to the upper bound of the interval (if any).
     ///
@@ -408,6 +411,7 @@ impl<T: PartialOrd + Copy> Interval<T> {
             Interval::UpperOneSided(high) => Interval::LowerOneSided(f_high(*high)),
         }
     }
+
     fn applied_both<F>(&self, f: F) -> Self
     where
         F: Fn(T) -> T,
@@ -501,6 +505,7 @@ impl<F: std::ops::Mul<F, Output = F> + PartialOrd + Copy> std::ops::Mul<F> for I
         self.applied_both(|x| x * rhs)
     }
 }
+
 impl<F: std::ops::Div<F, Output = F> + PartialOrd + Copy> std::ops::Div<F> for Interval<F> {
     type Output = Self;
 
@@ -508,6 +513,7 @@ impl<F: std::ops::Div<F, Output = F> + PartialOrd + Copy> std::ops::Div<F> for I
         self.applied_both(|x| x / rhs)
     }
 }
+
 impl<F: std::ops::Add<F, Output = F> + PartialOrd + Copy> std::ops::Add<F> for Interval<F> {
     type Output = Self;
 
@@ -515,6 +521,7 @@ impl<F: std::ops::Add<F, Output = F> + PartialOrd + Copy> std::ops::Add<F> for I
         self.applied_both(|x| x + rhs)
     }
 }
+
 impl<F: std::ops::Sub<F, Output = F> + PartialOrd + Copy> std::ops::Sub<F> for Interval<F> {
     type Output = Self;
 
@@ -666,6 +673,7 @@ impl<T: PartialOrd> RangeBounds<T> for Interval<T> {
             None => std::ops::Bound::Unbounded,
         }
     }
+
     fn end_bound(&self) -> std::ops::Bound<&T> {
         match self.right() {
             Some(high) => std::ops::Bound::Excluded(high),
