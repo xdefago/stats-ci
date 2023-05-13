@@ -19,14 +19,12 @@
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let ci = mean::Arithmetic::ci(confidence, data)?;
-//! // mean: 53.67
-//! // stddev: 28.097613040716798
-//! // reference values computed in python
-//! // [48.094823990767836, 59.24517600923217]
-//! use num_traits::Float;
+//! let stats = mean::Arithmetic::from_iter(data)?;
+//! // reference values computed in python / numpy
 //! use approx::*;
-//! assert_abs_diff_eq!(ci, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-6);
+//! assert_abs_diff_eq!(stats.sample_mean(), 53.67, epsilon = 1e-6);
+//! assert_abs_diff_eq!(stats.sample_std_dev(), 28.097613040716798, epsilon = 1e-6);
+//! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-6);
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -43,10 +41,7 @@
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let stats = mean::Geometric::from_iter(data)?;
-//! // geometric mean: 43.7268032829256
-//! // reference values computed in python:
-//! // [37.731050052224354, 50.67532768627392]
-//! # use num_traits::Float;
+//! // reference values computed in python / numpy
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(37.731050052224354, 50.67532768627392)?, epsilon = 1e-6);
@@ -57,34 +52,22 @@
 //! ```
 //! # use stats_ci::*;
 //! # let data = [
-//! #     1.81600583, 0.07498389, 1.29092744, 0.62023863, 0.09345327, 1.94670997, 2.27687339,
-//! #     0.9251231, 1.78173864, 0.4391542, 1.36948099, 1.5191194, 0.42286756, 1.48463176,
-//! #     0.17621009, 2.31810064, 0.15633061, 2.55137878, 1.11043948, 1.35923319, 1.58385561,
-//! #     0.63431437, 0.49993148, 0.49168534, 0.11533354,
+//! #    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39., 68., 93., 64., 10., 74.,
+//! #    15., 34., 4., 48., 88., 94., 17., 99., 81., 37., 68., 66., 40., 23., 67., 72., 63.,
+//! #    71., 18., 51., 65., 87., 12., 44., 89., 67., 28., 86., 62., 22., 90., 18., 50., 25.,
+//! #    98., 24., 61., 62., 86., 100., 96., 27., 36., 82., 90., 55., 26., 38., 97., 73., 16.,
+//! #    49., 23., 26., 55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23.,
+//! #    37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
-//! let ci = mean::Harmonic::ci(confidence, data.clone())?;
-//! // harmonic mean: 0.38041820166550844
-//! // reference values computed in python:
-//! // [0.2448670911003175, 0.8521343961033607]
-//! # use num_traits::Float;
-//! # use approx::*;
-//! assert_abs_diff_eq!(ci, Interval::new(0.2448670911003175, 0.8521343961033607)?, epsilon = 1e-6);
+//! let stats = mean::Harmonic::from_iter(data)?;
+//! // reference values computed in python / numpy
+//! use approx::*;
+//! assert_abs_diff_eq!(stats.sample_mean(), 30.031313156339586, epsilon = 1e-6);
+//! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(23.614092539657168, 41.237860649168255)?, epsilon = 1e-6);
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
-//! The confidence interval and relevant statistics can also be computed incrementally:
-//! ```
-//! # use stats_ci::*;
-//! # let data = [
-//! #    55., 26., 3., 23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23., 37., 72., 62., 77.,
-//! #    63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
-//! # ];
-//! let stats = mean::Arithmetic::from_iter(data)?;
-//! let confidence = Confidence::new_two_sided(0.95);
-//! let ci = stats.ci_mean(confidence)?;
-//! # Ok::<(),error::CIError>(())
-//! ```
 use super::*;
 use crate::utils;
 
@@ -704,7 +687,7 @@ mod tests {
         //
         // reference values computed in python:
         // in reciprocal space: (0.02424956057996111, 0.042347593849757906)
-        // [41.237860649168255, 23.614092539657168]  (reversed by conversion to reciprocal space)
+        // [41.237860649168255, 23.614092539657168]  (reversed by conversion from reciprocal space)
         assert_abs_diff_eq!(ci.low_f(), 23.614092539657168, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.high_f(), 41.237860649168255, epsilon = 1e-8);
 
