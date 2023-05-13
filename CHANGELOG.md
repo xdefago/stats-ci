@@ -5,7 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.9 (2023-05-13)
+
+### Documentation
+
+ - <csr-id-4905ad18e269e136cd79c50a61804469e63567bc/> clean up and update examples
+ - <csr-id-782d268eced7214b16652f10b05b7c0726095d57/> add example for proportion
+ - <csr-id-d65a61414bc978a57266569b21bd8d1cb44a6de3/> add doc for relative interval; reformat
+ - <csr-id-5c3d77c2eb007f18a99c0bcf71c97991578ab45f/> unindent example code in README
+
+### New Features
+
+ - <csr-id-7eb2f59af5e55afca5ab912b0f55065eb8c1bd8a/> add extension methods to proportion Stats
+   as stated above plus,
+   * add docs to most methods
+   * add complexity info to most methods
+   * fix doctests (examples) and typos
+ - <csr-id-c4dbd5a59af1348eed36cfb241498701de9e0530/> add incremental statistics for proportions
+
+### Refactor
+
+ - <csr-id-04510ee02da97b97da4c910d40cbd6f745f12304/> implement from_iter as trait
+
+### Style
+
+ - <csr-id-c7109f539b932cd24f51321e6426ee71a6d90a9d/> reformat code
+ - <csr-id-ac35e6683525c94630d466f657a0e29506904947/> reformat code and comments
+
+### Test
+
+ - <csr-id-05e716aa62c61b06b3040ebf4219caaacd03cdc3/> rewrite doctests to ensure they actually run
+ - <csr-id-7cffe736e74d954c3dae5cc748a3ef115ded0bf5/> test panicking for invalid confidence levels
+ - <csr-id-9f6dde04553bc981af451cbc2a96c35155a27411/> add examples for mean,median,proportions
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 12 commits contributed to the release over the course of 3 calendar days.
+ - 3 days passed between releases.
+ - 12 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Reformat code ([`c7109f5`](https://github.com/xdefago/stats-ci/commit/c7109f539b932cd24f51321e6426ee71a6d90a9d))
+    - Clean up and update examples ([`4905ad1`](https://github.com/xdefago/stats-ci/commit/4905ad18e269e136cd79c50a61804469e63567bc))
+    - Add example for proportion ([`782d268`](https://github.com/xdefago/stats-ci/commit/782d268eced7214b16652f10b05b7c0726095d57))
+    - Implement from_iter as trait ([`04510ee`](https://github.com/xdefago/stats-ci/commit/04510ee02da97b97da4c910d40cbd6f745f12304))
+    - Reformat code and comments ([`ac35e66`](https://github.com/xdefago/stats-ci/commit/ac35e6683525c94630d466f657a0e29506904947))
+    - Add doc for relative interval; reformat ([`d65a614`](https://github.com/xdefago/stats-ci/commit/d65a61414bc978a57266569b21bd8d1cb44a6de3))
+    - Add extension methods to proportion Stats ([`7eb2f59`](https://github.com/xdefago/stats-ci/commit/7eb2f59af5e55afca5ab912b0f55065eb8c1bd8a))
+    - Rewrite doctests to ensure they actually run ([`05e716a`](https://github.com/xdefago/stats-ci/commit/05e716aa62c61b06b3040ebf4219caaacd03cdc3))
+    - Add incremental statistics for proportions ([`c4dbd5a`](https://github.com/xdefago/stats-ci/commit/c4dbd5a59af1348eed36cfb241498701de9e0530))
+    - Test panicking for invalid confidence levels ([`7cffe73`](https://github.com/xdefago/stats-ci/commit/7cffe736e74d954c3dae5cc748a3ef115ded0bf5))
+    - Add examples for mean,median,proportions ([`9f6dde0`](https://github.com/xdefago/stats-ci/commit/9f6dde04553bc981af451cbc2a96c35155a27411))
+    - Unindent example code in README ([`5c3d77c`](https://github.com/xdefago/stats-ci/commit/5c3d77c2eb007f18a99c0bcf71c97991578ab45f))
+</details>
+
 ## v0.0.8 (2023-05-09)
+
+<csr-id-c30375e36036f437854debd87df996080566645f/>
+<csr-id-dda951b3521cb548a9769a3616477bcd3031fa44/>
+<csr-id-bc4d6cf90e178b0a385ff61c8195c0214dd7e58b/>
+<csr-id-558642f618f68db63bf71e1dc91f02d6e40686c6/>
 
 ### Documentation
 
@@ -56,7 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 7 commits contributed to the release.
+ - 8 commits contributed to the release.
  - 2 days passed between releases.
  - 7 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -68,6 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.8 ([`6395514`](https://github.com/xdefago/stats-ci/commit/63955144545df18bae303d8f816a618508125689))
     - Extend runtime to  20 million pop. ([`bc4d6cf`](https://github.com/xdefago/stats-ci/commit/bc4d6cf90e178b0a385ff61c8195c0214dd7e58b))
     - Switch to z-value for large populations ([`8c6087f`](https://github.com/xdefago/stats-ci/commit/8c6087f66a94f8be44f95811fe05239e18c525ab))
     - Reformat code ([`dda951b`](https://github.com/xdefago/stats-ci/commit/dda951b3521cb548a9769a3616477bcd3031fa44))
