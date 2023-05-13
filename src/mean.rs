@@ -131,6 +131,7 @@ where
     fn new() -> Self {
         Default::default()
     }
+
     ///
     /// Create a new state and "populates" it with data from an iterator
     ///
@@ -171,36 +172,42 @@ where
         state.extend(data)?;
         Ok(state)
     }
+
     ///
     /// Mean of the sample
     ///
     /// Complexity: \\( O(1) \\)
     ///
     fn sample_mean(&self) -> F;
+
     ///
     /// Standard error of the sample mean
     ///
     /// Complexity: \\( O(1) \\)
     ///
     fn sample_sem(&self) -> F;
+
     ///
     /// Number of samples
     ///
     /// Complexity: \\( O(1) \\)
     ///
     fn sample_count(&self) -> usize;
+
     ///
     /// Confidence interval of the sample mean
     ///
     /// Complexity: \\( O(1) \\)
     ///
     fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>>;
+
     ///
     /// Append a new sample to the data
     ///
     /// Complexity: \\( O(1) \\)
     ///
     fn append(&mut self, x: F) -> CIResult<()>;
+
     ///
     /// Extend the data with additional sample data.
     ///
@@ -267,6 +274,7 @@ impl<F: Float> Arithmetic<F> {
         let mean = self.sample_mean();
         (self.sum_sq - mean * self.sum) / F::from(self.count - 1).unwrap()
     }
+
     ///
     /// Standard deviation of the sample
     ///
@@ -276,6 +284,7 @@ impl<F: Float> Arithmetic<F> {
         self.sample_variance().sqrt()
     }
 }
+
 impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
     fn append(&mut self, x: F) -> CIResult<()> {
         utils::kahan_add(&mut self.sum, x, &mut self.sum_c);
@@ -347,6 +356,7 @@ impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
 }
+
 impl<F: Float> Default for Harmonic<F> {
     fn default() -> Self {
         Self {
@@ -354,6 +364,7 @@ impl<F: Float> Default for Harmonic<F> {
         }
     }
 }
+
 impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     fn append(&mut self, x: F) -> CIResult<()> {
         if x <= F::zero() {
@@ -364,6 +375,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
         self.recip_space.append(F::one() / x)?;
         Ok(())
     }
+
     ///
     /// Harmonic mean of the sample
     /// \\( H = \left( \frac{1}{n} \sum_i \frac{1}{x_i} \right)^{-1} \\)
@@ -373,6 +385,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     fn sample_mean(&self) -> F {
         F::one() / self.recip_space.sample_mean()
     }
+
     ///
     /// Standard error of the harmonic mean
     /// \\( s_H = \frac{1}{\alpha^2} \frac{s_{1/x_i}}{\sqrt{n-1}} \\)
@@ -396,6 +409,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     fn sample_count(&self) -> usize {
         self.recip_space.sample_count()
     }
+
     ///
     /// Confidence interval for the harmonic mean
     ///
@@ -432,6 +446,7 @@ impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
 }
+
 impl<F: Float> Default for Geometric<F> {
     fn default() -> Self {
         Self {
@@ -439,6 +454,7 @@ impl<F: Float> Default for Geometric<F> {
         }
     }
 }
+
 impl<F: Float> StatisticsOps<F> for Geometric<F> {
     fn append(&mut self, x: F) -> CIResult<()> {
         if x <= F::zero() {
@@ -449,12 +465,14 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
         self.log_space.append(x.ln())?;
         Ok(())
     }
+
     ///
     /// Geometric mean of the sample
     ///
     fn sample_mean(&self) -> F {
         self.log_space.sample_mean().exp()
     }
+
     ///
     /// Standard error of the geometric mean
     ///
@@ -476,6 +494,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
     fn sample_count(&self) -> usize {
         self.log_space.sample_count()
     }
+
     ///
     /// Confidence interval for the geometric mean
     ///
@@ -748,7 +767,7 @@ mod tests {
     }
 
     #[test]
-    fn test_blah() -> CIResult<()>{
+    fn test_blah() -> CIResult<()> {
         let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
         let stats = mean::Arithmetic::from_iter(data)?;
         assert_eq!(stats.sample_count(), 10);

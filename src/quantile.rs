@@ -1,3 +1,4 @@
+//!
 //! Confidence intervals for quantiles
 //!
 //! # Examples
@@ -21,9 +22,9 @@
 //! assert_eq!(interval, Interval::new(5, 8)?);
 //! # Ok::<(),error::CIError>(())
 //! ```
-//!
 use super::*;
 
+///
 /// Compute the confidence interval for a given quantile, assuming that the data is __already sorted__.
 /// This is the function to call if the data is known to be sorted,
 /// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
@@ -67,7 +68,6 @@ use super::*;
 /// assert_eq!(interval, Interval::new(5, 8)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
-///
 pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
     confidence: Confidence,
     sorted: &[T],
@@ -87,6 +87,7 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
     })
 }
 
+///
 /// Compute the confidence interval for a given quantile.
 /// Use [`ci_sorted_unchecked`] instead if the data is already sorted.
 ///
@@ -142,6 +143,7 @@ pub fn ci<T: PartialOrd + Clone>(
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
 
+///
 /// Compute the indices of the confidence interval for a given quantile.
 /// The function returns the indices of the lower and upper bounds of the interval.
 ///
@@ -184,7 +186,6 @@ pub fn ci<T: PartialOrd + Clone>(
 /// assert_eq!(interval, Interval::new(4, 7)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
-///
 pub fn ci_indices(
     confidence: Confidence,
     data_len: usize,

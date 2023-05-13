@@ -1,3 +1,4 @@
+//! 
 //! Confidence intervals for proportions
 //!
 //! # Examples
@@ -21,7 +22,6 @@
 //! * [Wikipedia - Binomial proportion confidence interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval)
 //! * <https://influentialpoints.com/Training/confidence_intervals_of_proportions-principles-properties-assumptions.htm>
 //!
-
 use super::*;
 use crate::stats::z_value;
 use error::*;
@@ -238,6 +238,7 @@ impl Stats {
         }
     }
 }
+
 impl std::ops::Add for Stats {
     type Output = Self;
 

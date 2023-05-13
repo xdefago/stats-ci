@@ -1,6 +1,8 @@
+//!
 //! Implements the [`Confidence`] enum, which represents a confidence interval.
 //!
 
+///
 /// Confidence level of a confidence interval.
 ///
 /// # Examples
@@ -40,6 +42,7 @@ pub enum Confidence {
 }
 
 impl Confidence {
+    ///
     /// Create a new two-sided confidence interval with the given confidence level.
     ///
     /// # Arguments
@@ -58,6 +61,7 @@ impl Confidence {
         }
     }
 
+    ///
     /// Create a new one-sided upper confidence interval with the given confidence level.
     ///
     /// # Arguments
@@ -76,6 +80,7 @@ impl Confidence {
         }
     }
 
+    ///
     /// Create a new one-sided lower confidence interval with the given confidence level.
     ///
     /// # Arguments
@@ -94,6 +99,7 @@ impl Confidence {
         }
     }
 
+    ///
     /// Return the confidence level of the interval as a number in the range (0, 1).
     ///
     pub fn level(&self) -> f64 {
@@ -104,12 +110,14 @@ impl Confidence {
         }
     }
 
+    ///
     /// Return the confidence level of the interval as a percentage.
     ///
     pub fn percent(&self) -> f64 {
         self.level() * 100.
     }
 
+    ///
     /// Return the kind of the confidence interval as a string (in English).
     ///
     pub fn kind(&self) -> &'static str {
@@ -120,30 +128,35 @@ impl Confidence {
         }
     }
 
+    ///
     /// Test if the confidence interval is two-sided.
     ///
     pub fn is_two_sided(&self) -> bool {
         matches!(self, Confidence::TwoSided(_))
     }
 
+    ///
     /// Test if the confidence interval is one-sided.
     ///
     pub fn is_one_sided(&self) -> bool {
         !self.is_two_sided()
     }
 
+    ///
     /// Test if the confidence interval is upper (one-sided).
     ///
     pub fn is_upper(&self) -> bool {
         matches!(self, Confidence::UpperOneSided(_))
     }
 
+    ///
     /// Test if the confidence interval is lower (one-sided).
     ///
     pub fn is_lower(&self) -> bool {
         matches!(self, Confidence::LowerOneSided(_))
     }
 
+    ///
     /// Return the confidence interval with the same confidence level but flipped.
     /// For a two-sided interval, this is the same interval.
     /// For a one-sided interval, this is the interval with the opposite direction.
@@ -157,6 +170,7 @@ impl Confidence {
         }
     }
 
+    ///
     /// Return the quantile of the confidence interval.
     ///
     /// For a two-sided interval, this is (1-\alpha/2) where \alpha is 1-confidence.

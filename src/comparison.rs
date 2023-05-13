@@ -1,5 +1,7 @@
+//!
+//!
 //! Comparison of two samples
-//! ========================
+//! =========================
 //!
 //! This module provides functions to compare two samples for two different cases.
 //!

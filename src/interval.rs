@@ -298,9 +298,9 @@ impl<T: num_traits::Float> Interval<T> {
     ///
     /// Given two intervals, compute the relative interval compared to the reference (argument).
     /// The relative interval is defined as the interval of the ratios of the two intervals.
-    /// 
+    ///
     /// E.g., for two two-sided intervals \\( [x, y] \\) and reference \\( [a, b] \\), the relative interval is \\( [(x-b)/b, (y-a)/a] \\).
-    /// 
+    ///
     pub fn relative_to(&self, reference: &Interval<T>) -> Interval<T> {
         match (reference, self) {
             (Interval::TwoSided(a, b), _) if a.is_zero() || b.is_zero() => {
