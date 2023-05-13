@@ -55,6 +55,16 @@ pub struct Stats {
 }
 
 impl Stats {
+    ///
+    /// Creates a new statistics object with initial values for the population size and the number of successes.
+    /// The number of successes must not be larger than the population size.
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    /// # Panics
+    ///
+    /// * if the number of successes is larger than the population size
+    ///
     pub const fn new(population: usize, successes: usize) -> Self {
         if population < successes {
             panic!("Number of successes must not be larger than population size.")
@@ -65,6 +75,15 @@ impl Stats {
         }
     }
 
+    ///
+    /// Creates a new statistics object with initial values from a Boolean iterator counting the number of successes.
+    ///
+    /// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `iter`.
+    ///
+    /// # Arguments
+    ///
+    /// * `iter` - a Boolean iterator or slice
+    ///
     pub fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = bool>,
@@ -80,24 +99,56 @@ impl Stats {
         stats
     }
 
+    ///
+    /// Returns the population size (total number of samples).
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
     pub fn population(&self) -> usize {
         self.population
     }
 
+    ///
+    /// Returns the number of successes (number of `true` values found in the sample).
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
     pub fn successes(&self) -> usize {
         self.successes
     }
 
+    ///
+    /// Add a success to the statistics and updates the population accordingly.
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
     pub fn add_success(&mut self) {
         self.population += 1;
         self.successes += 1;
     }
 
+    ///
+    /// Add a failure to the statistics and updates the population accordingly.
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
     pub fn add_failure(&mut self) {
         self.population += 1;
     }
 
+    ///
+    /// Tests if the conditions for the validity of the Wilson score interval are met.
+    /// The conditions for the validity of the Wilson score interval are stated as follows:
+    /// <https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm>
+    /// 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
+    /// 2. The number of successes and failures are large enough to ensure that the sampling distribution of the sample proportion is approximately normal (x > 5 and n - x > 5)
+    pub fn is_significant(&self) -> bool {
+        is_significant(self.population, self.successes)
+    }
+
     /// Computes the confidence interval over the proportion of true values in a given sample.
+    ///
+    /// Complexity: \\( O(1) \\)
     ///
     /// # Arguments
     ///
@@ -113,15 +164,15 @@ impl Stats {
     /// # Examples
     ///
     /// ```
-    /// use stats_ci::*;
-    /// use approx::*;
-    ///
+    /// # use stats_ci::*;
+    /// # use approx::*;
     /// let data = [
     ///    true, false, true, true, false, true, true, false, true, true,
     ///   false, false, false, true, false, true, false, false, true, false
     /// ];
     /// let confidence = Confidence::new_two_sided(0.95);
-    /// let interval = proportion::ci_true(confidence, data)?;
+    /// let stats = proportion::Stats::from_iter(data);
+    /// let interval = stats.ci(confidence)?;
     /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
     /// # Ok::<(),error::CIError>(())
     /// ```
@@ -133,10 +184,76 @@ impl Stats {
     pub fn ci(&self, confidence: Confidence) -> CIResult<Interval<f64>> {
         ci(confidence, self.population, self.successes)
     }
+
+    ///
+    /// Extend the data with additional sample data.
+    ///
+    /// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `data`.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - the sample given as a boolean iterator or slice
+    ///
+    /// # Examples
+    /// ```
+    /// # use stats_ci::*;
+    /// let data = [true, false, true, true, false, true, true, false, true, true];
+    /// let mut stats = proportion::Stats::default();
+    /// stats.extend(data);
+    /// assert_eq!(stats, proportion::Stats::new(10, 7));
+    /// ```
+    pub fn extend<I: IntoIterator<Item = bool>>(&mut self, data: I) {
+        self.extend_if(data, |x| x)
+    }
+
+    ///
+    /// Extend the data with additional sample data and a condition that must be satisfied to be counted as a success.
+    ///
+    /// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `data`.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - the sample given as an iterator or slice
+    /// * `is_success` - a function that returns `true` if a sample value is a success
+    ///
+    /// # Examples
+    /// ```
+    /// # use stats_ci::*;
+    /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    /// let mut stats = proportion::Stats::default();
+    /// stats.extend_if(data.iter(), |&x| x <= 5);
+    /// assert_eq!(stats, proportion::Stats::new(10, 5));
+    /// ```
+    pub fn extend_if<T, I, F>(&mut self, data: I, is_success: F)
+    where
+        I: IntoIterator<Item = T>,
+        F: Fn(T) -> bool,
+    {
+        for x_i in data {
+            if is_success(x_i) {
+                self.add_success();
+            } else {
+                self.add_failure();
+            }
+        }
+    }
 }
 impl std::ops::Add for Stats {
     type Output = Self;
 
+    ///
+    /// Combines two statistics objects by adding the number of samples and the number of successes.
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    /// # Examples
+    /// ```
+    /// # use stats_ci::*;
+    /// let stats1 = proportion::Stats::new(100, 50);
+    /// let stats2 = proportion::Stats::new(200, 100);
+    /// let stats = stats1 + stats2;
+    /// assert_eq!(stats, proportion::Stats::new(300, 150));
+    /// ```
     fn add(self, rhs: Self) -> Self::Output {
         Stats {
             population: self.population + rhs.population,
@@ -147,6 +264,8 @@ impl std::ops::Add for Stats {
 
 ///
 /// Computes the (two sided) confidence interval over the proportion of true values in a given sample.
+///
+/// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `data`.
 ///
 /// # Arguments
 ///
@@ -184,18 +303,14 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
     data: T,
 ) -> CIResult<Interval<f64>> {
     let mut stats = Stats::default();
-    for x in data {
-        if x {
-            stats.add_success();
-        } else {
-            stats.add_failure();
-        }
-    }
+    stats.extend(data);
     stats.ci(confidence)
 }
 
 ///
 /// Computes the (two sided) confidence interval over the proportion of a given sample that satisfies a given condition.
+///
+/// Complexity: \\( O(n) \\) where \\( n \\) is the number of samples in `data`.
 ///
 /// # Arguments
 ///
@@ -233,6 +348,8 @@ pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
 ///
 /// Computes the (two sided) confidence interval over the proportion of successes a given sample.
 ///
+/// Complexity: \\( O(1) \\)
+///
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
@@ -269,7 +386,7 @@ pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResu
 
 ///
 /// Check if the conditions for the validity of the Wilson score interval are met.
-/// The condetions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
+/// The conditions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
 /// <https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm>
 /// 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
 /// 2. The number of successes and failures are large enough to ensure that the sampling distribution of the sample proportion is approximately normal (x > 5 and n - x > 5)
@@ -294,7 +411,7 @@ pub fn ci(confidence: Confidence, population: usize, successes: usize) -> CIResu
 pub fn is_significant(population: usize, successes: usize) -> bool {
     // significance criteria for Wilson score intervals.
     // see https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval
-    // The condetions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
+    // The conditions for the validity of hypothesis tests (from which the Wilson score is derived) are stated as follows:
     // https://www.itl.nist.gov/div898/handbook/prc/section2/prc24.htm
     // 1. The sample size is large enough to ensure that the sampling distribution of the sample proportion is approximately normal (N > 30)
     (population > 30)
@@ -389,7 +506,7 @@ pub fn ci_wilson(
 }
 
 ///
-/// Computes the (two sided) confidence interval over the proportion of successes a given sample using the Wilson score interval.
+/// Computes the (two sided) confidence interval over the proportion of successes in a given sample using the Wilson score interval.
 /// This is the method used by default when calling the function [`ci`] of this module.
 ///
 /// # Arguments
@@ -424,7 +541,7 @@ pub fn ci_wilson_ratio(
 }
 
 ///
-/// Computes the confidence interval over the proportion of successes a given sample using the normal approximation interval (Wald interval).
+/// Computes the confidence interval over the proportion of successes in a given sample using the normal approximation interval (Wald interval).
 ///
 /// Using the normal approximation interval (Wald method), the probability of success \\( p \\) is estimated by:
 /// \\[
