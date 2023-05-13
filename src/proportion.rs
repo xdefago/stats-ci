@@ -16,6 +16,23 @@
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
+//! The confidence interval can also be computed incremetally, as follows:
+//! ```
+//! # use stats_ci::*;
+//! # let data = [
+//! #     true, false, true, true, false, true, true, false, true, true,
+//! #     false, false, false, true, false, true, false, false, true, false
+//! # ];
+//! # let confidence = Confidence::new_two_sided(0.95);
+//! let mut stats = proportion::Stats::default();
+//! stats.extend(data);
+//! let interval = stats.ci(confidence)?;
+//! # use approx::*;
+//! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+//! # Ok::<(),error::CIError>(())
+//! ```
+//! 
+//! 
 //! # References
 //!
 //! * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
