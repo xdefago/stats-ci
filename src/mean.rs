@@ -1,16 +1,16 @@
-//! 
+//!
 //! Confidence intervals over the mean (arithmetic, geometric, harmonic) of a given sample.
-//! 
+//!
 //! The premise on which confidence intervals are computed is that the sample data is a random
 //! sample from a population following some (unknown) distribution. The confidence interval
 //! is computed from the sample data, and is an estimate of the true mean of the population.
-//! 
+//!
 //! Unlike what is sometimes stated, the population does not need to be normally distributed.
 //! However, it is assumed that the __standard error__ of the sample mean is normally distributed
 //! (or close to it).
 //! This is true for most distributions (especially symmetrical ones), and is guaranteed by
 //! the central limit theorem as the size of the sample data grows large.
-//! 
+//!
 //! The calculations use Student's t distribution almost regardless of sample size (until
 //! a size of 100'000). This provides more conservative (and accurate intervals) than the
 //! normal distribution when the number of samples is small, and asymptotically approaches
@@ -18,14 +18,14 @@
 //! fact that the central limit theorem applies only asymptotically.
 //!
 //! # Assumptions
-//! 
+//!
 //! The following assumptions are made:
-//! 
+//!
 //! * The sample data is a random sample from a population following some (unknown) distribution.
 //! * The sample data is independent and identically distributed (iid).
 //! * The standard approaches a normal distribution.
 //! * For geometric / harmonic means, the sample data is strictly positive.
-//! 
+//!
 //! # Examples
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
@@ -248,20 +248,16 @@ where
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Arithmetic<F: Float> {
-    sum: F,
-    sum_c: F,
-    sum_sq: F,
-    sum_sq_c: F,
+    sum: utils::KahanSum<F>,
+    sum_sq: utils::KahanSum<F>,
     count: usize,
 }
 
 impl<F: Float> Default for Arithmetic<F> {
     fn default() -> Self {
         Self {
-            sum: F::zero(),
-            sum_c: F::zero(),
-            sum_sq: F::zero(),
-            sum_sq_c: F::zero(),
+            sum: utils::KahanSum::default(),
+            sum_sq: utils::KahanSum::default(),
             count: 0,
         }
     }
@@ -276,7 +272,7 @@ impl<F: Float> Arithmetic<F> {
     ///
     pub fn sample_variance(&self) -> F {
         let mean = self.sample_mean();
-        (self.sum_sq - mean * self.sum) / F::from(self.count - 1).unwrap()
+        (self.sum_sq.sum() - mean * self.sum.sum()) / F::from(self.count - 1).unwrap()
     }
 
     ///
@@ -291,14 +287,14 @@ impl<F: Float> Arithmetic<F> {
 
 impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
     fn append(&mut self, x: F) -> CIResult<()> {
-        utils::kahan_add(&mut self.sum, x, &mut self.sum_c);
-        utils::kahan_add(&mut self.sum_sq, x * x, &mut self.sum_sq_c);
+        self.sum += x;
+        self.sum_sq += x * x;
         self.count += 1;
         Ok(())
     }
 
     fn sample_mean(&self) -> F {
-        self.sum / F::from(self.count).unwrap()
+        self.sum.sum() / F::from(self.count).unwrap()
     }
 
     fn sample_sem(&self) -> F {
@@ -330,21 +326,11 @@ impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut sum = self.sum;
-        let mut sum_c = self.sum_c;
-        utils::kahan_add(&mut sum, rhs.sum_c, &mut sum_c);
-        utils::kahan_add(&mut sum, rhs.sum, &mut sum_c);
         let mut sum_sq = self.sum_sq;
-        let mut sum_sq_c = self.sum_sq_c;
-        utils::kahan_add(&mut sum_sq, rhs.sum_sq_c, &mut sum_sq_c);
-        utils::kahan_add(&mut sum_sq, rhs.sum_sq, &mut sum_sq_c);
+        sum += rhs.sum;
+        sum_sq += rhs.sum_sq;
         let count = self.count + rhs.count;
-        Self {
-            sum,
-            sum_c,
-            sum_sq,
-            sum_sq_c,
-            count,
-        }
+        Self { sum, sum_sq, count }
     }
 }
 
