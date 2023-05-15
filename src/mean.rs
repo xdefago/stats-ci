@@ -272,7 +272,7 @@ impl<F: Float> Arithmetic<F> {
     ///
     pub fn sample_variance(&self) -> F {
         let mean = self.sample_mean();
-        (self.sum_sq.sum() - mean * self.sum.sum()) / F::from(self.count - 1).unwrap()
+        (self.sum_sq.value() - mean * self.sum.value()) / F::from(self.count - 1).unwrap()
     }
 
     ///
@@ -294,7 +294,7 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
     }
 
     fn sample_mean(&self) -> F {
-        self.sum.sum() / F::from(self.count).unwrap()
+        self.sum.value() / F::from(self.count).unwrap()
     }
 
     fn sample_sem(&self) -> F {
