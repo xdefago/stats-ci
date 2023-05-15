@@ -1,10 +1,31 @@
+//! 
 //! Confidence intervals over the mean (arithmetic, geometric, harmonic) of a given sample.
+//! 
+//! The premise on which confidence intervals are computed is that the sample data is a random
+//! sample from a population following some (unknown) distribution. The confidence interval
+//! is computed from the sample data, and is an estimate of the true mean of the population.
+//! 
+//! Unlike what is sometimes stated, the population does not need to be normally distributed.
+//! However, it is assumed that the __standard error__ of the sample mean is normally distributed
+//! (or close to it).
+//! This is true for most distributions (especially symmetrical ones), and is guaranteed by
+//! the central limit theorem as the size of the sample data grows large.
+//! 
+//! The calculations use Student's t distribution almost regardless of sample size (until
+//! a size of 100'000). This provides more conservative (and accurate intervals) than the
+//! normal distribution when the number of samples is small, and asymptotically approaches
+//! the normal distribution as the number of samples increases. This compensates for the
+//! fact that the central limit theorem applies only asymptotically.
 //!
-//! The calculations use Student's t distribution regardless of sample size.
-//! This provides more conservative (and accurate intervals) than the normal distribution
-//! when the number of samples is small, and asymptotically approaches the normal distribution
-//! as the number of samples increases.
-//!
+//! # Assumptions
+//! 
+//! The following assumptions are made:
+//! 
+//! * The sample data is a random sample from a population following some (unknown) distribution.
+//! * The sample data is independent and identically distributed (iid).
+//! * The standard approaches a normal distribution.
+//! * For geometric / harmonic means, the sample data is strictly positive.
+//! 
 //! # Examples
 //!
 //! Confidence intervals on the arithmetic mean of a sample:
