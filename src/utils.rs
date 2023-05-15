@@ -29,11 +29,11 @@ pub struct KahanSum<T: Float> {
 impl<T: Float> KahanSum<T> {
     ///
     /// Create a new KahanSum register with the given initial value
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `value` - the initial value
-    /// 
+    ///
     pub fn new(value: T) -> Self {
         Self {
             sum: value,
@@ -43,7 +43,7 @@ impl<T: Float> KahanSum<T> {
 
     ///
     /// Return the current value of the sum
-    /// 
+    ///
     pub fn value(&self) -> T {
         self.sum + self.compensation
     }

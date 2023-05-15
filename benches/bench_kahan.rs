@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, black_box, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use stats_ci::utils::KahanSum;
 
 fn bench_add_assign() {
