@@ -112,7 +112,8 @@ impl<T: Float> From<T> for KahanSum<T> {
 /// * `x` - the next value to add to the sum
 /// * `compensation` - the compensation term
 ///
-pub(crate) fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
+#[inline]
+fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
     let sum = *current_sum;
     let c = *compensation;
     let y = x - c;
