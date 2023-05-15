@@ -28,6 +28,10 @@ rustdoc-args = [ "--html-in-header", "./resources/docs-header.html" ]
 name = "bench_mean_ci"
 harness = false
 
+[[bench]]
+name = "bench_kahan"
+harness = false
+
 
 [dependencies]
 statrs = "0.16.0"
