@@ -403,7 +403,7 @@ impl<T: Float> Unpaired<T> {
     ///
     /// ```
     /// # use stats_ci::*;
-    /// # let mut stats = comparison::Unpaired::from_iter([1., 2. ,3.], [4., 5., 6.]);
+    /// # let mut stats = comparison::Unpaired::from_iter([1., 2. ,3.], [4., 5., 6.])?;
     /// let mean_b = stats.stats_b().sample_mean();
     /// # Ok::<(),error::CIError>(())
     /// ```
