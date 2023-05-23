@@ -199,7 +199,7 @@ impl<T: Float> Paired<T> {
     ///
     pub fn ci(confidence: Confidence, data_a: &[T], data_b: &[T]) -> CIResult<Interval<T>> {
         let mut stats = Paired::default();
-        stats.extend(data_a.into_iter().copied(), data_b.into_iter().copied())?;
+        stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
         stats.ci_mean(confidence)
     }
 }
@@ -281,7 +281,7 @@ pub fn paired_ci<T: Float>(
     data_b: &[T],
 ) -> CIResult<Interval<T>> {
     let mut stats = Paired::default();
-    stats.extend(data_a.into_iter().copied(), data_b.into_iter().copied())?;
+    stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
     stats.ci_mean(confidence)
 }
 
@@ -661,7 +661,7 @@ impl<T: Float> Unpaired<T> {
     ///
     pub fn ci(confidence: Confidence, data_a: &[T], data_b: &[T]) -> CIResult<Interval<T>> {
         let mut stats = Self::default();
-        stats.extend(data_a.into_iter().copied(), data_b.into_iter().copied())?;
+        stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
         stats.ci_mean(confidence)
     }
 }
