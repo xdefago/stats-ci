@@ -5,7 +5,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.10 (2023-05-23)
+
+### Documentation
+
+ - <csr-id-898a9f8010439e4919a9247e60858b5d1eeba406/> update broken link to method in docs
+   update broken link to `Self::new` in docs of `StatisticsOps::from_iter`
+ - <csr-id-ba52e8d6b18af00051476527f48b19455a046f97/> fix test doc
+ - <csr-id-821be376d352a6c5437f4ba7530b8be4f249df1d/> add explanations on root page of module mean
+
+### New Features
+
+ - <csr-id-659d6c3b9bb0a6990f7801d8d7592ea35b93237a/> add incremental stats for comparison
+ - <csr-id-fdaee5a7507f87f0d4820d59b16d6e06dc219d9d/> provide KahanSum for compensated sums
+
+### Refactor
+
+ - <csr-id-1c21917efd3699a6e6833573946285186935ed6d/> move `new` outside of `StatisticsOps`
+ - <csr-id-bdbbd0068b17b745eff4a1d494b48de25cc2199c/> remove dep. on new for StatisticsOps
+   remove dependency on `new()` for `StatisticsOps`
+   Instead, rely on the fact that Statistics requires
+   Default (and change the relevant syntax)
+ - <csr-id-a9fad6da8bf96b6983bd27719fda4b39f845f3b0/> change `kahan_add` visibility to private
+ - <csr-id-ea2ac6aa645d7f66780f7b402eaf5527545523f4/> rename `sum` method on KahanSum
+   The `sum` method is renamed `value` to avoid confusion.
+   The code in means is updated accordingly.
+ - <csr-id-1ddf678cc0a148d627ffaa4b2549476d98302924/> rebase mean on KahanSum
+ - <csr-id-4628bf0234684b6afca0ff1f1d10a7177b3f5e94/> add kahan sum as a structure
+
+### Style
+
+ - <csr-id-8b151de1744fca76595f6b2839eab99a1811c434/> improve based on clippy
+ - <csr-id-eaea3e26f01d8ea77f673ed482ad7726928a118e/> reformat code
+ - <csr-id-26f6e3ce7f2dfafe8aa85a83e681a1068473d08e/> reformat code
+
+### Test
+
+ - <csr-id-bde6ec1d846b3e0d9536b419e0bbcc8dbd623902/> add benchmarks for kahan sum
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 15 commits contributed to the release over the course of 8 calendar days.
+ - 10 days passed between releases.
+ - 15 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update broken link to method in docs ([`898a9f8`](https://github.com/xdefago/stats-ci/commit/898a9f8010439e4919a9247e60858b5d1eeba406))
+    - Improve based on clippy ([`8b151de`](https://github.com/xdefago/stats-ci/commit/8b151de1744fca76595f6b2839eab99a1811c434))
+    - Reformat code ([`eaea3e2`](https://github.com/xdefago/stats-ci/commit/eaea3e26f01d8ea77f673ed482ad7726928a118e))
+    - Move `new` outside of `StatisticsOps` ([`1c21917`](https://github.com/xdefago/stats-ci/commit/1c21917efd3699a6e6833573946285186935ed6d))
+    - Fix test doc ([`ba52e8d`](https://github.com/xdefago/stats-ci/commit/ba52e8d6b18af00051476527f48b19455a046f97))
+    - Remove dep. on new for StatisticsOps ([`bdbbd00`](https://github.com/xdefago/stats-ci/commit/bdbbd0068b17b745eff4a1d494b48de25cc2199c))
+    - Add incremental stats for comparison ([`659d6c3`](https://github.com/xdefago/stats-ci/commit/659d6c3b9bb0a6990f7801d8d7592ea35b93237a))
+    - Reformat code ([`26f6e3c`](https://github.com/xdefago/stats-ci/commit/26f6e3ce7f2dfafe8aa85a83e681a1068473d08e))
+    - Add benchmarks for kahan sum ([`bde6ec1`](https://github.com/xdefago/stats-ci/commit/bde6ec1d846b3e0d9536b419e0bbcc8dbd623902))
+    - Provide KahanSum for compensated sums ([`fdaee5a`](https://github.com/xdefago/stats-ci/commit/fdaee5a7507f87f0d4820d59b16d6e06dc219d9d))
+    - Change `kahan_add` visibility to private ([`a9fad6d`](https://github.com/xdefago/stats-ci/commit/a9fad6da8bf96b6983bd27719fda4b39f845f3b0))
+    - Rename `sum` method on KahanSum ([`ea2ac6a`](https://github.com/xdefago/stats-ci/commit/ea2ac6aa645d7f66780f7b402eaf5527545523f4))
+    - Rebase mean on KahanSum ([`1ddf678`](https://github.com/xdefago/stats-ci/commit/1ddf678cc0a148d627ffaa4b2549476d98302924))
+    - Add kahan sum as a structure ([`4628bf0`](https://github.com/xdefago/stats-ci/commit/4628bf0234684b6afca0ff1f1d10a7177b3f5e94))
+    - Add explanations on root page of module mean ([`821be37`](https://github.com/xdefago/stats-ci/commit/821be376d352a6c5437f4ba7530b8be4f249df1d))
+</details>
+
 ## v0.0.9 (2023-05-13)
+
+<csr-id-04510ee02da97b97da4c910d40cbd6f745f12304/>
+<csr-id-c7109f539b932cd24f51321e6426ee71a6d90a9d/>
+<csr-id-ac35e6683525c94630d466f657a0e29506904947/>
+<csr-id-05e716aa62c61b06b3040ebf4219caaacd03cdc3/>
+<csr-id-7cffe736e74d954c3dae5cc748a3ef115ded0bf5/>
+<csr-id-9f6dde04553bc981af451cbc2a96c35155a27411/>
 
 ### Documentation
 
@@ -16,12 +94,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
+<csr-id-c4dbd5a59af1348eed36cfb241498701de9e0530/>
+
  - <csr-id-7eb2f59af5e55afca5ab912b0f55065eb8c1bd8a/> add extension methods to proportion Stats
    as stated above plus,
    * add docs to most methods
-   * add complexity info to most methods
-   * fix doctests (examples) and typos
- - <csr-id-c4dbd5a59af1348eed36cfb241498701de9e0530/> add incremental statistics for proportions
+* add complexity info to most methods
+* fix doctests (examples) and typos
 
 ### Refactor
 
@@ -42,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 12 commits contributed to the release over the course of 3 calendar days.
+ - 13 commits contributed to the release over the course of 3 calendar days.
  - 3 days passed between releases.
  - 12 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -54,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.9 ([`6033fcd`](https://github.com/xdefago/stats-ci/commit/6033fcdda04c95e61dce015a33c4110717bf251a))
     - Reformat code ([`c7109f5`](https://github.com/xdefago/stats-ci/commit/c7109f539b932cd24f51321e6426ee71a6d90a9d))
     - Clean up and update examples ([`4905ad1`](https://github.com/xdefago/stats-ci/commit/4905ad18e269e136cd79c50a61804469e63567bc))
     - Add example for proportion ([`782d268`](https://github.com/xdefago/stats-ci/commit/782d268eced7214b16652f10b05b7c0726095d57))
@@ -67,6 +147,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add examples for mean,median,proportions ([`9f6dde0`](https://github.com/xdefago/stats-ci/commit/9f6dde04553bc981af451cbc2a96c35155a27411))
     - Unindent example code in README ([`5c3d77c`](https://github.com/xdefago/stats-ci/commit/5c3d77c2eb007f18a99c0bcf71c97991578ab45f))
 </details>
+
+<csr-unknown>
+ add incremental statistics for proportions<csr-unknown/>
 
 ## v0.0.8 (2023-05-09)
 
