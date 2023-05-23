@@ -116,8 +116,7 @@ use num_traits::Float;
 /// assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
 /// # Ok::<(),error::CIError>(())
 /// ```
-pub trait StatisticsOps<F: Float> : Default
-{
+pub trait StatisticsOps<F: Float>: Default {
     ///
     /// Create a new state and "populates" it with data from an iterator
     ///

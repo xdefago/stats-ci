@@ -289,7 +289,7 @@ pub fn paired_ci<T: Float>(
 /// Structure to collect statistics on two unpaired samples.
 ///
 /// # Examples
-/// 
+///
 /// ```
 /// # use stats_ci::*;
 /// // Gain in weight of 19 female rats between 28 and 84 days after birth.
@@ -303,7 +303,7 @@ pub fn paired_ci<T: Float>(
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95))?;
 /// # Ok::<(),error::CIError>(())
 /// ```
-/// 
+///
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Unpaired<T: Float> {
