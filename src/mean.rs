@@ -144,7 +144,7 @@ pub trait StatisticsOps<F: Float>: Default {
     ///
     /// # Note
     ///
-    /// This is simply a shortcut for [`Self::new`] and [`Self::extend`]:
+    /// This is simply a shortcut for [`Default::default`] and [`Self::extend`]:
     /// ```
     /// # use stats_ci::*;
     /// # let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
