@@ -119,22 +119,6 @@ use num_traits::Float;
 pub trait StatisticsOps<F: Float> : Default
 {
     ///
-    /// Create a new empty state
-    ///
-    /// # Example
-    /// ```
-    /// use stats_ci::*;
-    /// let mut stats = mean::Arithmetic::new();
-    /// stats.append(10.);
-    /// assert_eq!(stats.sample_count(), 1);
-    /// assert_eq!(stats.sample_mean(), 10.);
-    /// ```
-    ///
-    fn new() -> Self {
-        Default::default()
-    }
-
-    ///
     /// Create a new state and "populates" it with data from an iterator
     ///
     /// Complexity: \\( O(n) \\), where \\( n \\) is the number of elements in `data`
@@ -263,6 +247,22 @@ impl<F: Float> Default for Arithmetic<F> {
 
 impl<F: Float> Arithmetic<F> {
     ///
+    /// Create a new empty state
+    ///
+    /// # Example
+    /// ```
+    /// use stats_ci::*;
+    /// let mut stats = mean::Arithmetic::new();
+    /// stats.append(10.);
+    /// assert_eq!(stats.sample_count(), 1);
+    /// assert_eq!(stats.sample_mean(), 10.);
+    /// ```
+    ///
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    ///
     /// Variance of the sample
     /// \\( \frac{1}{n-1}\left(\sum_{i=1}^n x_i^2 - \frac{1}{n} \left(\sum_{i=1}^n x_i\right)^2 \right) \\)
     ///
@@ -343,6 +343,24 @@ impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
+}
+
+impl<F: Float> Harmonic<F> {
+    ///
+    /// Create a new empty state
+    ///
+    /// # Example
+    /// ```
+    /// use stats_ci::*;
+    /// let mut stats = mean::Harmonic::new();
+    /// stats.append(10.);
+    /// assert_eq!(stats.sample_count(), 1);
+    /// assert_eq!(stats.sample_mean(), 10.);
+    /// ```
+    ///
+    pub fn new() -> Self {
+        Default::default()
+    }
 }
 
 impl<F: Float> Default for Harmonic<F> {
@@ -433,6 +451,26 @@ impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
+}
+
+impl<F: Float> Geometric<F> {
+    ///
+    /// Create a new empty state
+    ///
+    /// # Example
+    /// ```
+    /// # use stats_ci::*;
+    /// # use approx::*;
+    /// let mut stats = mean::Geometric::new();
+    /// stats.append(10.)?;
+    /// assert_eq!(stats.sample_count(), 1);
+    /// assert_abs_diff_eq!(stats.sample_mean(), 10., epsilon = 1e-10);
+    /// # Ok::<(),error::CIError>(())
+    /// ```
+    ///
+    pub fn new() -> Self {
+        Default::default()
+    }
 }
 
 impl<F: Float> Default for Geometric<F> {
