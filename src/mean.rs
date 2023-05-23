@@ -116,9 +116,7 @@ use num_traits::Float;
 /// assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
 /// # Ok::<(),error::CIError>(())
 /// ```
-pub trait StatisticsOps<F: Float>
-where
-    Self: Default,
+pub trait StatisticsOps<F: Float> : Default
 {
     ///
     /// Create a new empty state
@@ -172,7 +170,7 @@ where
     /// ```
     ///
     fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
-        let mut state = Self::new();
+        let mut state = Self::default();
         state.extend(data)?;
         Ok(state)
     }
