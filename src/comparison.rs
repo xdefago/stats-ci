@@ -86,7 +86,7 @@ use num_traits::Float;
 /// stats.extend(data_bottom_water, data_surface_water).unwrap();
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Paired<T: Float> {
     stats: mean::Arithmetic<T>,
@@ -304,7 +304,7 @@ pub fn paired_ci<T: Float>(
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Unpaired<T: Float> {
     stats_a: mean::Arithmetic<T>,

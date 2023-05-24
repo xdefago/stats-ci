@@ -226,7 +226,7 @@ pub trait StatisticsOps<F: Float>: Default {
 ///
 /// It is best used through the [`StatisticsOps`] trait.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Arithmetic<F: Float> {
     sum: utils::KahanSum<F>,
@@ -338,7 +338,7 @@ impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
 ///
 /// It is best used through the [`StatisticsOps`] trait.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Harmonic<F: Float> {
     recip_space: Arithmetic<F>,
@@ -446,7 +446,7 @@ impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
 ///
 /// It is best used through the [`StatisticsOps`] trait.
 ///
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Geometric<F: Float> {
     log_space: Arithmetic<F>,
