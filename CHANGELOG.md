@@ -252,7 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - <csr-id-ae5bbc1bc6f669b9b6ae081e0c8b9624fce7500c/> state complexity and sample stats in LaTeX
  - <csr-id-31f9eecb26446b8575719fa88a5d86e37efd3c93/> describe Wilson score formula in LaTeX
  - <csr-id-7c9cd52949cf0892b9640e062c21ef247141c4aa/> omit single $ for math mode
-   The single dollar `$` for entring LaTeX math mode is removed because
+   The single dollar `$` for entering LaTeX math mode is removed because
    it is too common and hence too easy to mistaken enter it somewhere
    in the documentation.
  - <csr-id-c8b3f87cb0188e39e170f6a885394401cfcbf97b/> add reference to Noris
@@ -269,7 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-68ee50a8a3fce3d61b0e11b9a949112b068cff8a/> eliminate roundup errors in stats sum
    The stats sum is now equivalent to running the statistics normally.
-   This is imortant to avoid loss of accuracy when running the statistics
+   This is important to avoid loss of accuracy when running the statistics
    in parallel (using the sum as the reduction operation)
  - <csr-id-fa98085919df1b0b607b31b055cce360edcca947/> return error instead of panic
    The function paired_ci now returns an error instead of panicking
@@ -714,7 +714,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fix typos in comment of example ([`4c2b905`](https://github.com/xdefago/stats-ci/commit/4c2b9059e03263fde597f78a3d40df0dced4fd17))
     - Conversion error reporting wrong type ([`4435b0c`](https://github.com/xdefago/stats-ci/commit/4435b0ce8c3f7898897c294c6aba460df29cbe5b))
     - State that mean CIs are computed with the t-value ([`c70c0bf`](https://github.com/xdefago/stats-ci/commit/c70c0bff19d4d7c0f315386d09bf113a0c97bd79))
-    - Return None if the interval falls ourside the data ([`da24755`](https://github.com/xdefago/stats-ci/commit/da24755c0679acedb88ac5993c2641be85de32aa))
+    - Return None if the interval falls outside the data ([`da24755`](https://github.com/xdefago/stats-ci/commit/da24755c0679acedb88ac5993c2641be85de32aa))
     - Disable default serde feature; document in readme ([`98f0d22`](https://github.com/xdefago/stats-ci/commit/98f0d22b8b787841a4367c91ef2e930ad92c61bf))
     - Reorder and tag badges ([`09ad8e0`](https://github.com/xdefago/stats-ci/commit/09ad8e02c4d189f50b4d6c0fa263bb0257487cb3))
     - Add badges ([`3a711b9`](https://github.com/xdefago/stats-ci/commit/3a711b9cf2af658324423aaae76290ec5e7a1926))

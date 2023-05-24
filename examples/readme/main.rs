@@ -42,7 +42,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     println!("high: {}", ci.high_f()); // high: 59.24517600944916
 
     // 6. compute other confidence intervals
-    //    (almost no additional perfomance cost)
+    //    (almost no additional performance cost)
     println!(
         "upper one-sided 90% ci: {}",
         stats.ci_mean(Confidence::new_upper(0.9))?

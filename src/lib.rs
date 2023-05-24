@@ -72,7 +72,7 @@
 //!
 //! Depending on the type of data and measurements, it is sometimes inappropriate to compute the mean of the data because that value makes little sense.
 //! For instance, consider a communication system and suppose that we want to test if at least 95% of messages are delivered within 1 second with 90% confidence.
-//! Then, the value of interest is the one-sided confidence interval of the 95th percentile (quantile=.95, condidence level=0.9).
+//! Then, the value of interest is the one-sided confidence interval of the 95th percentile (quantile=.95, confidence level=0.9).
 //!
 //! In a different context, if the data is an ordered sequence of strings, it could (in some context) make sense to compute an interval around the median of the data, but the mean cannot be computed.
 //!

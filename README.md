@@ -30,7 +30,7 @@ The motivation behind creating this crate came both from the recurring need of c
 NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no particular efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
 
 I am far from being a statistician and I will gladly welcome any advice or corrections.
-I only made a feeble attempt at numerical statibility (e.g., kahan sum, log-sum-exp).
+I only made a feeble attempt at numerical stability (e.g., Kahan sum, log-sum-exp).
 In any case, please be circumspect about the results obtained from this crate for the time being.
 
 ## Usage
@@ -104,7 +104,7 @@ println!("low: {}", ci.low_f()); // low: 48.09482399055084
 println!("high: {}", ci.high_f()); // high: 59.24517600944916
 
 // 6. compute other confidence intervals
-//    (almost no additional perfomance cost)
+//    (almost no additional performance cost)
 println!(
     "upper one-sided 90% ci: {}",
     stats.ci_mean(Confidence::new_upper(0.9))?
@@ -173,7 +173,7 @@ Incremental statistics is useful in at least three common scenarios:
 
 Depending on the type of data and measurements, it is sometimes inappropriate to compute the mean of the data because that value makes little sense.
 For instance, consider a communication system and suppose that we want to find an upper bound on message delays such that, with 90% confidence, at least 95% of messages are delivered within this bound.
-Then, the value of interest is the lower one-sided confidence interval of the 95th percentile with 90% confidence (quantile=.95, condidence level=0.9).
+Then, the value of interest is the lower one-sided confidence interval of the 95th percentile with 90% confidence (quantile=.95, confidence level=0.9).
 
 In a different context, if the data is an ordered sequence of strings, it might make sense to compute an interval around the median of the data, but the mean cannot be computed.
 

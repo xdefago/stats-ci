@@ -16,7 +16,7 @@
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
-//! The confidence interval can also be computed incremetally, as follows:
+//! The confidence interval can also be computed incrementally, as follows:
 //! ```
 //! # use stats_ci::*;
 //! # let data = [

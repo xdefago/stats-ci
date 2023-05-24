@@ -547,7 +547,7 @@ impl<F: Float> std::ops::Add<Self> for Geometric<F> {
 ///
 /// Trait for computing confidence intervals on the mean of a sample.
 ///
-/// It is superceded by the [`StatisticsOps`] trait which allows incremental statistics.
+/// It is superseded by the [`StatisticsOps`] trait which allows incremental statistics.
 /// It is retained for backwards compatibility and will be deprecated in the future, as
 /// it brings no advantage over [`StatisticsOps`] and is less flexible.
 ///
