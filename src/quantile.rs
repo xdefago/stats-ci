@@ -25,6 +25,128 @@
 use super::*;
 
 ///
+/// Running statistics for quantiles
+/// 
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Stats {
+    population: usize,
+}
+
+impl Stats {
+    ///
+    /// Create a new instance with an initial population
+    /// 
+    pub fn new(population: usize) -> Self {
+        Self { population }
+    }
+
+    ///
+    /// Return the confidence interval on the indices for a given quantile.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `confidence` - the confidence level
+    /// * `quantile` - the quantile (must be in the range [0, 1])
+    /// 
+    /// # Returns
+    /// 
+    /// A confidence interval containing indices on the corresponding data.
+    /// 
+    /// # Errors
+    /// 
+    /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
+    /// * `InvalidQuantile` - if the quantile is not in the range [0, 1]
+    /// * `IndexError` - if the confidence interval falls outside the range of the data
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::*;
+    /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    /// let confidence = Confidence::new_two_sided(0.8);
+    /// let quantile = 0.5; // median
+    /// let stats = quantile::Stats::new(data.len());
+    /// let interval = stats.ci(confidence, quantile)?;
+    /// assert_eq!(interval, Interval::new(3, 6)?);
+    /// # Ok::<(),error::CIError>(())
+    /// ```
+    pub fn ci(&self, confidence: Confidence, quantile: f64) -> CIResult<Interval<usize>> {
+        if quantile <= 0. || 1. <= quantile {
+            return Err(error::CIError::InvalidQuantile(quantile));
+        }
+
+        if self.population < 4 {
+            // too few samples to compute
+            return Err(error::CIError::TooFewSamples(self.population));
+        }
+
+        let successes = (quantile * self.population as f64).round() as usize;
+        let proportion_ci = proportion::ci_wilson(confidence, self.population, successes)?;
+
+        let (low, high): (f64, f64) = proportion_ci.into();
+
+        if low < 0. {
+            // interval falls outside the range of the data
+            return Err(error::CIError::IndexError(low, self.population));
+        }
+
+        if high > 1. {
+            // interval falls outside the range of the data
+            return Err(error::CIError::IndexError(high, self.population));
+        }
+
+        let lo_index = self.index(low)?;
+        let hi_index = self.index(high)?;
+
+        match confidence {
+            Confidence::TwoSided(_) => Interval::new(lo_index, hi_index).map_err(|e| e.into()),
+            Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo_index)),
+            Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi_index)),
+        }
+    }
+
+    ///
+    /// Return the index for a given quantile.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `quantile` - the quantile (must be in the range [0, 1])
+    /// 
+    /// # Returns
+    /// 
+    /// The index corresponding to the quantile.
+    /// 
+    /// # Errors
+    /// 
+    /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
+    /// * `InvalidQuantile` - if the quantile is not in (0, 1)
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::*;
+    /// let data = ['a', 'b', 'c', 'd', 'e'];
+    /// let stats = quantile::Stats::new(data.len());
+    /// assert_eq!(stats.index(0.).unwrap(), 0);
+    /// assert_eq!(stats.index(0.5).unwrap(), 2);
+    /// assert_eq!(stats.index(1.).unwrap(), 4);
+    /// assert_eq!(data[stats.index(0.25).unwrap()], 'b');
+    /// assert_eq!(data[stats.index(0.75).unwrap()], 'd');
+    /// ```
+    pub fn index(&self, quantile: f64) -> CIResult<usize> {
+        if self.population == 0 {
+            return Err(error::CIError::TooFewSamples(self.population));
+        }
+        if quantile < 0. || 1. < quantile {
+            return Err(error::CIError::InvalidQuantile(quantile));
+        }
+        let index = (quantile * self.population as f64).floor() as usize;
+        let index = index.min(self.population - 1);
+        Ok(index)
+    }
+}
+
+///
 /// Compute the confidence interval for a given quantile, assuming that the data is __already sorted__.
 /// This is the function to call if the data is known to be sorted,
 /// or if the order of elements is meant to be their position in the slice (e.g., order of arrival).
@@ -191,38 +313,8 @@ pub fn ci_indices(
     data_len: usize,
     quantile: f64,
 ) -> CIResult<Interval<usize>> {
-    assert!(quantile > 0. && quantile < 1.);
-
-    if data_len < 3 {
-        // too few samples to compute
-        return Err(error::CIError::TooFewSamples(data_len));
-    }
-
-    let successes = (quantile * data_len as f64).round() as usize;
-    let proportion_ci = proportion::ci_wilson(confidence, data_len, successes)?;
-
-    let (low, high): (f64, f64) = proportion_ci.into();
-
-    if low < 0. {
-        // interval falls outside the range of the data
-        return Err(error::CIError::IndexError(low, data_len));
-    }
-
-    let lo_index = (low * data_len as f64).floor() as usize;
-    let hi_index = (high * data_len as f64).floor() as usize;
-
-    if hi_index > data_len {
-        // interval falls outside the range of the data
-        return Err(error::CIError::IndexError(hi_index as f64, data_len));
-    }
-
-    let hi_index = hi_index.min(data_len - 1);
-
-    match confidence {
-        Confidence::TwoSided(_) => Interval::new(lo_index, hi_index).map_err(|e| e.into()),
-        Confidence::UpperOneSided(_) => Ok(Interval::new_upper(lo_index)),
-        Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi_index)),
-    }
+    let stats = Stats::new(data_len);
+    stats.ci(confidence, quantile)
 }
 
 #[cfg(test)]
@@ -258,6 +350,14 @@ mod tests {
         let confidence = Confidence::new_two_sided(0.95);
         let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.4).unwrap();
         assert_eq!(quantile_ci, Interval::new(12., 21.)?);
+
+        let confidence = Confidence::new_two_sided(0.999);
+        let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.867).unwrap();
+        assert_eq!(quantile_ci, Interval::new(19., 28.)?);
+
+        let confidence = Confidence::new_two_sided(0.999);
+        let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.133).unwrap();
+        assert_eq!(quantile_ci, Interval::new(8., 21.)?);
 
         let data = [
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
@@ -311,6 +411,32 @@ mod tests {
     }
 
     #[test]
+    fn test_one_sided() {
+        let data = [
+            8., 11., 12., 13., 15., 17., 19., 20., 21., 21., 22., 23., 25., 26., 28.,
+        ];
+        let confidence = Confidence::new_upper(0.975);
+        let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.4).unwrap();
+        assert_eq!(quantile_ci, Interval::new_upper(12.));
+
+        let confidence = Confidence::new_lower(0.975);
+        let quantile_ci = ci_sorted_unchecked(confidence, &data, 0.4).unwrap();
+        assert_eq!(quantile_ci, Interval::new_lower(21.));
+
+        let data = [
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+        ];
+        let confidence = Confidence::new_upper(0.975);
+        let quantile = 0.5; // median
+        let interval = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+        assert_eq!(interval, Interval::new_upper(4));
+
+        let confidence = Confidence::new_lower(0.975);
+        let interval = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
+        assert_eq!(interval, Interval::new_lower(11));  
+    }
+
+    #[test]
     fn test_ci_indices() -> CIResult<()> {
         let data = [
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
@@ -352,7 +478,7 @@ mod tests {
     }
 
     #[test]
-    fn test_median_undordered() -> CIResult<()> {
+    fn test_median_unordered() -> CIResult<()> {
         use Numbers::*;
         let data = [
             One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Thirteen,
