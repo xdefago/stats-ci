@@ -148,6 +148,9 @@
 #![crate_type = "lib"]
 #![crate_name = "stats_ci"]
 #![forbid(unsafe_code)]
+#![deny(rustdoc::broken_intra_doc_links)]
+#![deny(rustdoc::private_intra_doc_links)]
+#![warn(missing_docs)]
 
 pub mod comparison;
 pub mod error;

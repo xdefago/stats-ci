@@ -19,6 +19,7 @@ use num_traits::Float;
 ///
 /// Error types for confidence interval computations.
 ///
+#[allow(missing_docs)]
 #[derive(thiserror::Error, Debug)]
 pub enum CIError {
     #[error("Too few samples to compute: {0}")]
@@ -71,6 +72,7 @@ impl From<&str> for CIError {
 ///
 /// Error types for conversion from a generic [`Float`] type to a [`CIResult<f64>`].
 ///
+#[allow(missing_docs)]
 #[derive(thiserror::Error, Debug)]
 pub enum ConversionError {
     #[error("Empty interval has no concrete bounds")]

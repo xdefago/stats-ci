@@ -1,7 +1,14 @@
+//!
+//! Groups utility functions and types
+//! 
+//! Offers support for the computation of compensated floating point sums (aka. Kahan summation).
+//! 
+//! The main type is [`KahanSum`] where you can find further explanations and an example.
+
 use num_traits::Float;
 
 ///
-/// Kahan compensated summation register
+/// Kahan compensated summation register.
 ///
 /// This is a register that can be used to sum a sequence of floating point numbers with a better precision than a naive summation.
 ///

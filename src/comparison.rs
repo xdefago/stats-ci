@@ -93,12 +93,34 @@ pub struct Paired<T: Float> {
 }
 
 impl<T: Float> Paired<T> {
+    ///
+    /// Add a pair of observations to the two samples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `data_a` - the observation for the first sample
+    /// * `data_b` - the observation for the second sample
+    /// 
+    /// # Errors
+    /// 
+    /// * [`CIError::FloatConversionError`] - if the conversion to `T` fails
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::*;
+    /// let mut stats = comparison::Paired::default();
+    /// stats.append_pair(1., 2.)?;
+    /// # assert_eq!(stats.sample_count(), 1);
+    /// # assert_eq!(stats.sample_mean(), -1.);
+    /// # Ok::<(),error::CIError>(())
+    /// ```
     pub fn append_pair(&mut self, data_a: T, data_b: T) -> CIResult<()> {
         self.append(data_a - data_b)
     }
 
     ///
-    /// Append pairs of observations to the two samples.
+    /// Append multiple pairs of observations to the two samples.
     ///
     /// # Arguments
     ///
@@ -125,6 +147,29 @@ impl<T: Float> Paired<T> {
         self.stats.extend(iter.into_iter().map(|(x, y)| x - y))
     }
 
+    ///
+    /// Append multiple observations to the two samples.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `data_a` - an iterable collection of observations for the first sample
+    /// * `data_b` - an iterable collection of observations for the second sample
+    /// 
+    /// # Errors
+    /// 
+    /// * [`CIError::DifferentSampleSizes`] - if the two iterables have different lengths
+    /// * [`CIError::FloatConversionError`] - if the conversion to `T` fails
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// # use stats_ci::*;
+    /// let mut stats = comparison::Paired::default();
+    /// stats.extend([1., 3.], [2., 4.])?;
+    /// # assert_eq!(stats.sample_count(), 2);
+    /// # assert_eq!(stats.sample_mean(), -1.);
+    /// # Ok::<(),error::CIError>(())
+    /// ```
     pub fn extend<I1, I2>(&mut self, data_a: I1, data_b: I2) -> CIResult<()>
     where
         I1: IntoIterator<Item = T>,

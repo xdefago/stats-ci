@@ -33,8 +33,25 @@ pub enum Interval<T>
 where
     T: PartialOrd,
 {
+    ///
+    /// Two-sided interval with lower and upper bounds.
+    /// The interval is defined as [low, high].
+    /// The bounds are included in the interval.
+    /// 
     TwoSided(T, T),   // [T, T]
+
+    ///
+    /// Upper one-sided interval with a lower bound.
+    /// The interval is defined as [low, +∞).
+    /// The lower bound is included in the interval.
+    /// 
     UpperOneSided(T), // [T, +inf)
+
+    ///
+    /// Lower one-sided interval with an upper bound.
+    /// The interval is defined as (-∞, high].
+    /// The upper bound is included in the interval.
+    /// 
     LowerOneSided(T), // (-inf, T]
 }
 
@@ -792,6 +809,7 @@ impl<T: PartialOrd> PartialOrd for Interval<T> {
 ///
 /// An error type for interval creation.
 ///
+#[allow(missing_docs)]
 #[derive(thiserror::Error, Debug)]
 pub enum IntervalError {
     #[error("Invalid bounds: the left bound is greater than the right bound")]
