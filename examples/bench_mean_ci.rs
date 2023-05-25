@@ -92,7 +92,7 @@ where
 
     let a_ci = mean::Arithmetic::ci(confidence, micros_a.clone()).unwrap();
     let b_ci = mean::Arithmetic::ci(confidence, micros_b.clone()).unwrap();
-    let paired = comparison::paired_ci(confidence, &micros_a, &micros_b).unwrap();
+    let paired = comparison::Paired::ci(confidence, &micros_a, &micros_b).unwrap();
     println!("A   :   {} µs", a_ci);
     println!("B   :   {} µs", b_ci);
     println!("diff:   {} µs", paired);

@@ -218,6 +218,29 @@ pub trait StatisticsOps<F: Float>: Default {
         }
         Ok(())
     }
+
+    ///
+    /// Compute the confidence interval on the mean of a sample
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - The confidence level of the interval
+    /// * `data` - The data to compute the confidence interval on
+    ///
+    /// # Output
+    ///
+    /// * `Ok(interval)` - The confidence interval on the mean of the sample
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::TooFewSamples`] - If the input data has too few samples to compute the confidence interval
+    /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
+    /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
+    /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
+    ///
+    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    where
+        I: IntoIterator<Item = F>;
 }
 
 macro_rules! impl_statistics_ops_for {
@@ -242,6 +265,13 @@ macro_rules! impl_statistics_ops_for {
             #[inline]
             fn sample_count(&self) -> usize {
                 self.sample_count()
+            }
+            #[inline]
+            fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+            where
+                I: IntoIterator<Item = F>,
+            {
+                <$x>::ci(confidence, data)
             }
         }
     };
@@ -373,9 +403,9 @@ impl<F: Float> Arithmetic<F> {
 
     ///
     /// Combine two states
-    /// 
+    ///
     /// Complexity: \\( O(1) \\)
-    /// 
+    ///
     pub fn add(self, rhs: Self) -> Self {
         let mut sum = self.sum;
         let mut sum_sq = self.sum_sq;
@@ -520,9 +550,9 @@ impl<F: Float> Harmonic<F> {
 
     ///
     /// Combine two states
-    /// 
+    ///
     /// Complexity: \\( O(1) \\)
-    /// 
+    ///
     pub fn add(self, rhs: Self) -> Self {
         Self {
             recip_space: self.recip_space + rhs.recip_space,
@@ -669,9 +699,9 @@ impl<F: Float> Geometric<F> {
 
     ///
     /// Combine two states
-    /// 
+    ///
     /// Complexity: \\( O(1) \\)
-    /// 
+    ///
     pub fn add(self, rhs: Self) -> Self {
         Self {
             log_space: self.log_space + rhs.log_space,
