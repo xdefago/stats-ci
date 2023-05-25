@@ -26,7 +26,7 @@ use super::*;
 
 ///
 /// Running statistics for quantiles
-/// 
+///
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Stats {
     population: usize,
@@ -35,31 +35,31 @@ pub struct Stats {
 impl Stats {
     ///
     /// Create a new instance with an initial population
-    /// 
+    ///
     pub fn new(population: usize) -> Self {
         Self { population }
     }
 
     ///
     /// Return the confidence interval on the indices for a given quantile.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `confidence` - the confidence level
     /// * `quantile` - the quantile (must be in the range [0, 1])
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A confidence interval containing indices on the corresponding data.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
     /// * `InvalidQuantile` - if the quantile is not in the range [0, 1]
     /// * `IndexError` - if the confidence interval falls outside the range of the data
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use stats_ci::*;
     /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -107,22 +107,22 @@ impl Stats {
 
     ///
     /// Return the index for a given quantile.
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `quantile` - the quantile (must be in the range [0, 1])
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// The index corresponding to the quantile.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
     /// * `InvalidQuantile` - if the quantile is not in (0, 1)
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use stats_ci::*;
     /// let data = ['a', 'b', 'c', 'd', 'e'];
@@ -433,7 +433,7 @@ mod tests {
 
         let confidence = Confidence::new_lower(0.975);
         let interval = quantile::ci_indices(confidence, data.len(), quantile).unwrap();
-        assert_eq!(interval, Interval::new_lower(11));  
+        assert_eq!(interval, Interval::new_lower(11));
     }
 
     #[test]
