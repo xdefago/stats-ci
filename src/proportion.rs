@@ -66,8 +66,8 @@ use error::*;
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Stats {
-    pub population: usize,
-    pub successes: usize,
+    population: usize,
+    successes: usize,
 }
 
 impl FromIterator<bool> for Stats {
