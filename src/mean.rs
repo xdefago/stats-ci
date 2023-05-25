@@ -220,6 +220,37 @@ pub trait StatisticsOps<F: Float>: Default {
     }
 }
 
+macro_rules! impl_statistics_ops_for {
+    ( $x:ty ) => {
+        impl<F: Float> StatisticsOps<F> for $x {
+            #[inline]
+            fn append(&mut self, x: F) -> CIResult<()> {
+                self.append(x)
+            }
+            #[inline]
+            fn sample_mean(&self) -> F {
+                self.sample_mean()
+            }
+            #[inline]
+            fn sample_sem(&self) -> F {
+                self.sample_sem()
+            }
+            #[inline]
+            fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+                self.ci_mean(confidence)
+            }
+            #[inline]
+            fn sample_count(&self) -> usize {
+                self.sample_count()
+            }
+        }
+    };
+}
+
+impl_statistics_ops_for!(Arithmetic<F>);
+impl_statistics_ops_for!(Harmonic<F>);
+impl_statistics_ops_for!(Geometric<F>);
+
 ///
 /// Represents the state of the computation of the arithmetic mean.
 /// This is a simple implementation that accumulates information about the samples, such as sum and sum of squares.
@@ -280,9 +311,12 @@ impl<F: Float> Arithmetic<F> {
     pub fn sample_std_dev(&self) -> F {
         self.sample_variance().sqrt()
     }
-}
 
-impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
+    ///
+    /// Append a new sample to the data
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
     fn append(&mut self, x: F) -> CIResult<()> {
         self.sum += x;
         self.sum_sq += x * x;
@@ -290,15 +324,30 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
         Ok(())
     }
 
-    fn sample_mean(&self) -> F {
+    ///
+    /// Mean of the sample
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn sample_mean(&self) -> F {
         self.sum.value() / F::from(self.count).unwrap()
     }
 
-    fn sample_sem(&self) -> F {
+    ///
+    /// Standard error of the sample mean
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn sample_sem(&self) -> F {
         self.sample_std_dev() / F::from(self.count - 1).unwrap().sqrt()
     }
 
-    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+    ///
+    /// Confidence interval of the sample mean
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
         let n = self.count as f64;
         let mean = self.sample_mean().try_f64("stats.mean")?;
         let std_dev = self.sample_std_dev().try_f64("stats.std_dev")?;
@@ -313,21 +362,62 @@ impl<F: Float> StatisticsOps<F> for Arithmetic<F> {
         }
     }
 
-    fn sample_count(&self) -> usize {
+    ///
+    /// Number of samples
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn sample_count(&self) -> usize {
         self.count
     }
-}
 
-impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
+    ///
+    /// Combine two states
+    /// 
+    /// Complexity: \\( O(1) \\)
+    /// 
+    pub fn add(self, rhs: Self) -> Self {
         let mut sum = self.sum;
         let mut sum_sq = self.sum_sq;
         sum += rhs.sum;
         sum_sq += rhs.sum_sq;
         let count = self.count + rhs.count;
         Self { sum, sum_sq, count }
+    }
+
+    ///
+    /// Compute the confidence interval on the mean of a sample
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - The confidence level of the interval
+    /// * `data` - The data to compute the confidence interval on
+    ///
+    /// # Output
+    ///
+    /// * `Ok(interval)` - The confidence interval on the mean of the sample
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::TooFewSamples`] - If the input data has too few samples to compute the confidence interval
+    /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
+    /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
+    /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
+    ///
+    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    where
+        I: IntoIterator<Item = F>,
+    {
+        Self::from_iter(data)?.ci_mean(confidence)
+    }
+}
+
+impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, rhs: Self) -> Self::Output {
+        self.add(rhs)
     }
 }
 
@@ -360,18 +450,13 @@ impl<F: Float> Harmonic<F> {
     pub fn new() -> Self {
         Default::default()
     }
-}
 
-impl<F: Float> Default for Harmonic<F> {
-    fn default() -> Self {
-        Self {
-            recip_space: Arithmetic::default(),
-        }
-    }
-}
-
-impl<F: Float> StatisticsOps<F> for Harmonic<F> {
-    fn append(&mut self, x: F) -> CIResult<()> {
+    ///
+    /// Append a new sample to the data
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn append(&mut self, x: F) -> CIResult<()> {
         if x <= F::zero() {
             return Err(error::CIError::NonPositiveValue(
                 x.to_f64().unwrap_or(f64::NAN),
@@ -387,7 +472,7 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     ///
     /// Complexity: \\( O(1) \\)
     ///
-    fn sample_mean(&self) -> F {
+    pub fn sample_mean(&self) -> F {
         F::one() / self.recip_space.sample_mean()
     }
 
@@ -404,21 +489,26 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
     ///
     /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
     ///
-    fn sample_sem(&self) -> F {
+    pub fn sample_sem(&self) -> F {
         let harm_mean = self.sample_mean();
         let recip_std_dev = self.recip_space.sample_std_dev();
         harm_mean * harm_mean * recip_std_dev
             / F::from(self.recip_space.sample_count() - 1).unwrap().sqrt()
     }
 
-    fn sample_count(&self) -> usize {
+    ///
+    /// Number of samples
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn sample_count(&self) -> usize {
         self.recip_space.sample_count()
     }
 
     ///
     /// Confidence interval for the harmonic mean
     ///
-    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+    pub fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
         let arith_ci = self.recip_space.ci_mean(confidence.flipped())?;
         let (lo, hi) = (F::one() / arith_ci.high_f(), F::one() / arith_ci.low_f());
         match confidence {
@@ -427,15 +517,59 @@ impl<F: Float> StatisticsOps<F> for Harmonic<F> {
             Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
         }
     }
+
+    ///
+    /// Combine two states
+    /// 
+    /// Complexity: \\( O(1) \\)
+    /// 
+    pub fn add(self, rhs: Self) -> Self {
+        Self {
+            recip_space: self.recip_space + rhs.recip_space,
+        }
+    }
+
+    ///
+    /// Compute the confidence interval on the mean of a sample
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - The confidence level of the interval
+    /// * `data` - The data to compute the confidence interval on
+    ///
+    /// # Output
+    ///
+    /// * `Ok(interval)` - The confidence interval on the mean of the sample
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::TooFewSamples`] - If the input data has too few samples to compute the confidence interval
+    /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
+    /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
+    /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
+    ///
+    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    where
+        I: IntoIterator<Item = F>,
+    {
+        Self::from_iter(data)?.ci_mean(confidence)
+    }
+}
+
+impl<F: Float> Default for Harmonic<F> {
+    fn default() -> Self {
+        Self {
+            recip_space: Arithmetic::default(),
+        }
+    }
 }
 
 impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            recip_space: self.recip_space + rhs.recip_space,
-        }
+        self.add(rhs)
     }
 }
 
@@ -470,18 +604,13 @@ impl<F: Float> Geometric<F> {
     pub fn new() -> Self {
         Default::default()
     }
-}
 
-impl<F: Float> Default for Geometric<F> {
-    fn default() -> Self {
-        Self {
-            log_space: Arithmetic::default(),
-        }
-    }
-}
-
-impl<F: Float> StatisticsOps<F> for Geometric<F> {
-    fn append(&mut self, x: F) -> CIResult<()> {
+    ///
+    /// Append a new sample to the data
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn append(&mut self, x: F) -> CIResult<()> {
         if x <= F::zero() {
             return Err(error::CIError::NonPositiveValue(
                 x.to_f64().unwrap_or(f64::NAN),
@@ -494,7 +623,7 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
     ///
     /// Geometric mean of the sample
     ///
-    fn sample_mean(&self) -> F {
+    pub fn sample_mean(&self) -> F {
         self.log_space.sample_mean().exp()
     }
 
@@ -510,20 +639,25 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
     ///
     /// * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
     ///
-    fn sample_sem(&self) -> F {
+    pub fn sample_sem(&self) -> F {
         let geom_mean = self.sample_mean();
         let log_std_dev = self.log_space.sample_std_dev();
         geom_mean * log_std_dev / F::from(self.log_space.sample_count() - 1).unwrap().sqrt()
     }
 
-    fn sample_count(&self) -> usize {
+    ///
+    /// Number of samples
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    pub fn sample_count(&self) -> usize {
         self.log_space.sample_count()
     }
 
     ///
     /// Confidence interval for the geometric mean
     ///
-    fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
+    pub fn ci_mean(&self, confidence: Confidence) -> CIResult<Interval<F>> {
         let arith_ci = self.log_space.ci_mean(confidence)?;
         let (lo, hi) = (arith_ci.low_f().exp(), arith_ci.high_f().exp());
         match confidence {
@@ -532,15 +666,59 @@ impl<F: Float> StatisticsOps<F> for Geometric<F> {
             Confidence::LowerOneSided(_) => Ok(Interval::new_lower(hi)),
         }
     }
+
+    ///
+    /// Combine two states
+    /// 
+    /// Complexity: \\( O(1) \\)
+    /// 
+    pub fn add(self, rhs: Self) -> Self {
+        Self {
+            log_space: self.log_space + rhs.log_space,
+        }
+    }
+
+    ///
+    /// Compute the confidence interval on the mean of a sample
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - The confidence level of the interval
+    /// * `data` - The data to compute the confidence interval on
+    ///
+    /// # Output
+    ///
+    /// * `Ok(interval)` - The confidence interval on the mean of the sample
+    ///
+    /// # Errors
+    ///
+    /// * [`CIError::TooFewSamples`] - If the input data has too few samples to compute the confidence interval
+    /// * [`CIError::NonPositiveValue`] - If the input data contains non-positive values when computing harmonic/geometric means.
+    /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
+    /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
+    ///
+    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    where
+        I: IntoIterator<Item = F>,
+    {
+        Self::from_iter(data)?.ci_mean(confidence)
+    }
+}
+
+impl<F: Float> Default for Geometric<F> {
+    fn default() -> Self {
+        Self {
+            log_space: Arithmetic::default(),
+        }
+    }
 }
 
 impl<F: Float> std::ops::Add<Self> for Geometric<F> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            log_space: self.log_space + rhs.log_space,
-        }
+        self.add(rhs)
     }
 }
 
@@ -598,14 +776,22 @@ pub trait MeanCI<T: PartialOrd> {
         I: IntoIterator<Item = T>;
 }
 
-impl<F: Float, T: StatisticsOps<F>> MeanCI<F> for T {
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
-    where
-        I: IntoIterator<Item = F>,
-    {
-        Self::from_iter(data)?.ci_mean(confidence)
-    }
+macro_rules! impl_mean_ci_for {
+    ( $x:ty ) => {
+        impl<F: Float> MeanCI<F> for $x {
+            fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+            where
+                I: IntoIterator<Item = F>,
+            {
+                <$x>::ci(confidence, data)
+            }
+        }
+    };
 }
+
+impl_mean_ci_for!(Arithmetic<F>);
+impl_mean_ci_for!(Harmonic<F>);
+impl_mean_ci_for!(Geometric<F>);
 
 #[cfg(test)]
 mod tests {
