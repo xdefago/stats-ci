@@ -44,6 +44,22 @@ pub enum Confidence {
 impl Confidence {
     ///
     /// Create a new two-sided confidence interval with the given confidence level.
+    /// This is the same as [`Confidence::new_two_sided`].
+    ///
+    /// # Arguments
+    ///
+    /// * `confidence` - the confidence level, e.g. 0.95 for 95% confidence
+    ///
+    /// # Panics
+    ///
+    /// * if `confidence` is not in the range (0, 1)
+    ///
+    pub fn new(confidence: f64) -> Self {
+        Self::new_two_sided(confidence)
+    }
+
+    ///
+    /// Create a new two-sided confidence interval with the given confidence level.
     ///
     /// # Arguments
     ///
