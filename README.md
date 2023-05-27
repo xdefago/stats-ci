@@ -5,44 +5,311 @@
 [![Downloads](https://img.shields.io/crates/d/stats-ci)](https://crates.io/crates/stats-ci)
 [![Latest crates.io](https://img.shields.io/crates/v/stats-ci)](https://crates.io/crates/stats-ci)
 
-# stats-ci
+A library to help compute confidence intervals in various situations. 
 
-## Description
+This crate provides convenient means to help compute confidence intervals in multiple cases.
+It is meant to be used when analyzing experimental data and measurements.
+Experimental data is subject to experimental error which must be taken into account during analysis.
+Among several statistical methods, confidence intervals provide information that it easy to interpret.
 
-Stats-ci provides some basic functions to compute confidence intervals of sample data.
-This includes the following:
-* confidence intervals around the mean for numerical data,
+The motivation comes from a personal need and was that no
+crate seem to provide an easy and comprehensive solution to computing such intervals.
+One exception is the crate `criterion` which computes confidence intervals for its
+measurements but does not export such functionality.
+
+This crate provides the means to easily and efficiently compute confidence intervals of sample data
+in situations as follows:
+* confidence intervals around the mean (arithmetic, harmonic, geometric) for numerical data,
 * confidence intervals around a quantile (e.g., median) for arbitrary ordered data,
 * confidence intervals for proportions.
 * confidence intervals for comparisons (paired or unpaired observations).
 
-Not included yet but planned are:
+This crate does not (yet) support the following:
 * confidence intervals for regression parameters.
 * confidence intervals for other statistics (e.g., variance, etc.)
 * Chi square test
 
-## Motivation
+This crate's documentation provides several simple examples of how to use each feature.
 
-The motivation behind creating this crate came both from the recurring need of confidence intervals in personal projects and also out of frustration from having to look up the formulas each time. I reckoned that I might not be alone in this situation and that such a crate could prove useful to some.
+# Usage
 
-## Disclaimer
-
-NB: As probably obvious from the `0.0.x` version number, this crate is not currently in a finished state and any commit can possibly introduce breaking changes. At this point, I am making no particular efforts to preserve backward compatibility. Therefore, please use at your own risks at least until version `0.1` or above. 
-
-I am far from being a statistician and I will gladly welcome any advice or corrections.
-I only made a feeble attempt at numerical stability (e.g., Kahan sum, log-sum-exp).
-In any case, please be circumspect about the results obtained from this crate for the time being.
-
-## Usage
-
-Add the most recent release to your `Cargo.toml` _(check the latest version number on [crates.io](https://crates.io/crates/stats-ci) and replace `{ latest version }` below)_:
+This crate is on [crates.io](https://crates.io/crates/stats-ci) and can be used by simply adding `stats-ci` to the dependencies in your project's `Cargo.toml` _(check the latest version number on [crates.io](https://crates.io/crates/stats-ci) and replace `{ latest version }` below)_:
 
 ```toml
 [dependencies]
 stats-ci = "{ latest version }"
 ```
 
-## Features
+The crate is still somewhat unstable and breaking changes can possibly occur from a minor version to the next.
+
+
+# Confidence intervals (overview)
+
+Statistics are based on the idea that experimental data is a random sampling over some theoretical
+(yet unknown) probability distribution. Hypothetically, if the sampled data could consist of an 
+infinite number of measurements, the data would exactly describe that theoretical distribution.
+In realistic situations, however, only a very limited number of measurements are available.
+This raises the question as how to estimate the parameters of the theoretical distribution (e.g., the mean) based on that limited number of samples, and with what accuracy.
+
+In this context, confidence intervals provide a statistical answer to both questions.
+Roughly, the idea is that one chooses a desired __level of confidence__ (or how unlikely are the conclusions to be bogus) and the estimated parameter is no longer represented as a single value, but as an interval. The width of that interval depends on the confidence level, the variability of the data, and the number of samples. The way to interpret it is that the theoretical value of the parameter (e.g., mean, median) can be any value from that interval. A level of confidence of 95% means that, if repeating the entire experiment under the exact same circumstances, about 95% of the confidence intervals obtained in each experiment will include the theoretical value of the parameter.
+
+Consider a simple experiment yielding the following random data sampled from some unknown distribution:
+```rust
+let data = [
+    10.6, 6.6, 26.7, 0.4, 5.7, 0.3, 1.1, 5.0, 8.4, 1.4, 15.1, 0.3,
+    20.4, 1.2, 28.4, 10.7, 0.4, 10.1, 4.5, 7.1, 4.3, 37.4, 0.9, 10.1,
+    12.6, 21.7, 21.9, 2.0, 8.4, 9.3
+];
+```
+
+* __What is the _mean_ of the original distribution?__ <br>
+    The sample mean is 9.76667 but how close is it from the theoretical mean?
+    Computing the 95% confidence interval on the mean for this data yields \[6.18467, 13.34866\], which means that the theoretical mean can be any number in this interval (with 95% confidence).
+    The resulting interval is wide and hence the estimation is not very precise.
+    This is good evidence that the experimental error is quite large and drawing conclusions and extrapolations based on an exact value of 9.76667 for the mean is very dangerous.
+    Keeping the same confidence, the only way to reduce this interval is by increasing the sample size, i.e., running additional experiments.
+
+* __What is the _median_ of the original distribution?__ <br>
+    The 95% confidence interval on the median yields \[4.3, 10.6\].
+    In this case, both bounds of the interval are observed values.
+
+* In this example, the data was actually taken from an exponential distribution with parameter λ = 0.1 (mean = 1/λ = 10 and median = ln(2)/λ = 6.93147…). In this special case, we can verify that both theoretical mean and median are indeed contained in their respective confidence interval.
+
+# Examples
+
+This crate makes it easy to compute confidence intervals based on sample data for various situations, including mean, quantiles, proportions, and comparison.
+
+This crate exports a type [`Confidence`] to express a confidence level and
+a type [`Interval`] to represent a confidence interval.
+Intervals are generic and can be instantiated for various types, beyond the usual
+float or integer types.
+
+
+## Mean and median
+Given the example discussed above, the intervals can be computed on the mean or on quantiles (e.g., median) as described below:
+```rust
+// 1. import the crate
+use stats_ci::*;
+// 2. collect the data
+let data = [
+    10.6, 6.6, 26.7, 0.4, 5.7, 0.3, 1.1, 5.0, 8.4, 1.4, 15.1, 0.3,
+    20.4, 1.2, 28.4, 10.7, 0.4, 10.1, 4.5, 7.1, 4.3, 37.4, 0.9,
+    10.1, 12.6, 21.7, 21.9, 2.0, 8.4, 9.3
+];
+// 3. define the confidence level (for 95% confidence)
+let confidence = Confidence::new(0.95);
+
+// 4a. compute the interval for the arithmetic mean
+if let Ok(ci) = mean::Arithmetic::ci(confidence, data) {
+    // display the interval
+    println!("{}% c.i. for the mean = {}", confidence.percent(), ci);
+    if ! ci.contains(&10.) {
+        println!("Does NOT contains the theoretical mean!");
+    }
+}
+// 4b. compute the interval for the median (i.e., 0.5-quantile)
+if let Ok(ci) = quantile::ci(confidence, data, 0.5) {
+    // display the interval
+    println!("{}% c.i. for the median = {}", confidence.percent(), ci);
+    if ! ci.contains(&6.93147) {
+        println!("Does NOT contains the theoretical median!");
+    }
+}
+```
+
+Similarly, the confidence interval on the geometric and the harmonic mean can be computed as follows.
+```rust
+# use stats_ci::*;
+let data = [ 10.6, 6.6, /* ... */ ];
+let confidence = Confidence::new(0.95);
+let ci = mean::Geometric::ci(confidence, data);
+let ci = mean::Harmonic::ci(confidence, data);
+```
+
+## Proportions
+Confidence intervals can also be computed on proportions. This happens for instance when trying to estimate the loss rate of a given communication channel (i.e., the proportion of message lost against the number of message sent). This can be computed in a straightforward way if one knows the number of losses (qualified as "`success`" in the crate) and the total number of messages (qualified as "`population`"):
+```rust
+use stats_ci::*;
+let confidence = Confidence::new(0.95);
+let population = 10_000; // total number of sent messages
+let successes = 89;      // number of lost messages
+let ci = proportion::ci(confidence, population, successes).unwrap();
+println!("Loss rate: {}", ci);
+// > Loss rate: [0.007238518896069928, 0.010938644303608623]
+//
+// which means that the loss rate is estimated (95% confidence) to be
+// between 0.7238% and 1.0939%.
+
+// One-sided confidence
+let confidence = Confidence::new_lower(0.95);
+let ci = proportion::ci(confidence, population, successes).unwrap();
+println!("Loss rate less than: {}", ci);
+// > Loss rate less than: [0, 0.010583156571857643]
+//
+// which means that the loss rate is likely (95% confidence) to be
+// less than 1.05832%.
+```
+
+Some convenience functions make it easier to deal with an iterator or array
+of data and a "success" condition:
+```rust
+use stats_ci::*;
+let data = [
+    8, 11, 4, 18, 17, 9, 20, 3, 10, 14, 12, 7, 13, 16, 1, 6, 5, 2,
+    15, 19
+];
+let confidence = Confidence::new(0.95);
+let ci = proportion::ci_if(confidence, data, |x| x <= 10).unwrap();
+println!("ci: {}", ci);
+// > ci: [0.2992980081982124, 0.7007019918017876]
+//
+// yields the estimated proportion of numbers that are less or equal
+// to 10, based on data obtained from random sampling.
+```
+
+## Comparison
+A frequent use of confidence intervals is to compare groups of data. This happens
+for instance when comparing two systems, say system A and system B, such as to
+determine if the new system B introduces an improvement over the state-of-the-art
+system A. In this case, there are two situations:
+
+### Paired observations
+Paired observations occur only when each measurement on system B can be paired
+with a corresponding measurement on system A. This happens when experiments are
+carefully designed such that both systems are measured under the exact same
+conditions and for the exact same input.
+```rust
+use stats_ci::*;
+// Zinc concentration in water samples from a river
+let data_bottom_water = [
+   0.430, 0.266, 0.567, 0.531, 0.707, 0.716, 0.651, 0.589, 0.469, 0.723,
+];
+let data_surface_water = [
+  0.415, 0.238, 0.390, 0.410, 0.605, 0.609, 0.632, 0.523, 0.411, 0.612,
+];
+let confidence = Confidence::new(0.95);
+let ci = comparison::Paired::ci(
+    confidence,
+    &data_bottom_water,
+    &data_surface_water
+).unwrap();
+```
+The confidence interval is on the difference of the two means and can be interpreted as follows:
+
+* if __both bounds__ are strictly positive, then system A has a higher mean than system B. Also, the increase in the mean is at least the lower bound and at most the upper bound of the interval.
+* if __both bounds__ are strictly negative, then system A has a lower mean than system B.
+* otherwise, if zero is included in the interval, then the means of system A and system B are not significantly different. Regardless of the values, claiming an improvement (or degradation) in that case is a bogus claim.
+
+
+### Unpaired observations
+Unpaired observations occur in all other cases where observations cannot be paired one-by-one. For instance, in the example above, two independent groups of users are made to use either system A or
+system B and the collected data is used for comparison. In this case, the measurements cannot be
+matched one-to-one and the number of measurements could even be different for one system versus the other.
+Computing the interval on the difference of the means is more involved in this situation and also requires more measurements to achieve equivalent precision.
+
+With this crate, unpaired observation is very similar to paired observations: 
+```rust
+use stats_ci::*;
+// Gain in weight of 19 female rats between 28 and 84 days after birth.
+// 12 were fed on a high protein diet and 7 on a low protein diet.
+let data_high_protein = [
+    134., 146., 104., 119., 124., 161., 107., 83., 113., 129., 97., 123.,
+];
+let data_low_protein = [70., 118., 101., 85., 107., 132., 94.];
+let confidence = Confidence::new(0.95);
+let ci = comparison::Unpaired::ci(
+    confidence,
+    &data_high_protein,
+    &data_low_protein
+).unwrap();
+```
+The interpretation of the confidence interval is the same as with paired observations above:
+
+* if __both bounds__ are strictly positive, then system A has a __higher__ mean than system B.
+* if __both bounds__ are strictly negative, then system A has a __lower__ mean than system B.
+* if zero is included in the interval, then the means of system A and system B are not significantly different.
+
+### Advanced: Incremental statistics
+While the easier interface described until now is sufficient for most use cases, the crate offers a slightly more flexible interface making it possible to extend the number of samples after obtaining intervals.
+
+The example below shows how to do this when computing the arithmetic mean, but that approach is also available for the other types of intervals; check the [API documentation](https://docs.rs/stats-ci) for each module for further information and additional examples. Points 1. to 3. are identical to the original example:
+```rust
+// 1. import the crate
+use stats_ci::*;
+// 2. collect the data
+let data = [
+    10.6, 6.6, 26.7, 0.4, 5.7, 0.3, 1.1, 5.0, 8.4, 1.4, 15.1, 0.3,
+    20.4, 1.2, 28.4, 10.7, 0.4, 10.1, 4.5, 7.1, 4.3, 37.4, 0.9,
+    10.1, 12.6, 21.7, 21.9, 2.0, 8.4, 9.3
+];
+// 3. define the confidence level (for 95% confidence)
+let confidence = Confidence::new(0.95);
+
+// 4. create a statistics object
+let mut stats = mean::Arithmetic::new();
+// 5. add data
+stats.extend(data).unwrap();
+// shortcut: combines 4. and 5.
+let mut stats = mean::Arithmetic::from_iter(data).unwrap();
+
+// 6. compute the confidence interval over the mean for some
+//    confidence level
+let ci = stats.ci_mean(confidence).unwrap();
+
+// 7. add more data
+stats.extend([ 10.7, 9.8, /* … */ ]).unwrap();
+// 8. compute the new confidence interval
+let ci = stats.ci_mean(confidence).unwrap();
+// 9. or maybe with a different confidence level
+let ci = stats.ci_mean(Confidence::new(0.99)).unwrap();
+//10. and get other statistics
+let mean = stats.sample_mean();
+let variance = stats.sample_variance();
+let std_dev = stats.sample_std_dev();
+let std_err = stats.sample_sem();
+```
+Note that only the points 5. and 7. are potentially costly operations when the data is very large.
+
+This interface is useful, for instance, in the following situations:
+
+* when you have a stream of data and don't want to keep all values.
+* when you want to continue collecting data until you have sufficient statistical significance (e.g., interval shorter than some width relative to the mean).
+* when you want to continue collecting data and improve accuracy until some deadline.
+* when you want to compute the confidence intervals of several confidence levels or of different types in a single pass through the data.
+* when you need to improve performance through concurrent execution (see next section).
+
+### Advanced: Parallel execution
+If performance is an issue, the crate allows for easy parallel execution with the crate [`rayon`](https://crates.io/crates/rayon). 
+
+```rust
+// 1. import the crates
+use stats_ci::*;
+use rayon::prelude::*;
+// 2. (as before:) collect the data
+let data = [
+    10.6, 6.6, 26.7, 0.4, 5.7, 0.3, 1.1, 5.0, 8.4, 1.4, 15.1, 0.3,
+    20.4, 1.2, 28.4, 10.7, 0.4, 10.1, 4.5, 7.1, 4.3, 37.4, 0.9,
+    10.1, 12.6, 21.7, 21.9, 2.0, 8.4, 9.3, /* … many more … */
+];
+// 3. (as before:) define the confidence level
+let confidence = Confidence::new(0.95);
+// 4. create and compute the statistics object
+let stats = data
+    .clone()
+    .par_iter()
+    .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+    .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
+// 5. (as before:) compute the confidence interval
+let ci = stats.ci_mean(confidence).unwrap();
+```
+Note that it makes little sense to parallelize when dealing with only a few thousand samples.
+
+### Additional examples
+You can find further information and additional examples from this crate's [API documentation](https://docs.rs/stats-ci).
+
+
+# Crate features
 
 The crate has two features:
 
@@ -52,183 +319,7 @@ The crate has two features:
 stats-ci = { version = "{ latest version }", features = ["serde"] }
 ```
 
-## Examples
-
-You can find more detailed information and additional examples from this crate's [API documentation](https://docs.rs/stats-ci).
-
-### C.I. for the Mean
-
-The crate provides functions to compute confidence intervals for the mean of floating-point (`f32` or `f64`) data.
-The functions are generic and can be used with any type that implements the `Float` trait from the crate [`num-traits`](https://crates.io/crates/num-traits).
- 
-The crate provides three functions to compute confidence intervals for the mean of floating-point data:
-* `mean::Arithmetic::ci` computes the confidence interval for the arithmetic mean.
-* `mean::Geometric::ci` computes the confidence interval for the geometric mean
-* `mean::Harmonic::ci` computes the confidence interval for the harmonic mean
-
-```rust
-use stats_ci::*;
-let data = [
-    82., 94., 68., 6., 39., 80., 10., 97., 34., 66., 62., 7., 39.,
-    68., 93., 64., 10., 74., 15., 34., 4., 48., 88., 94., 17., 99.,
-    81., 37., 68., 66., 40., 23., 67., 72., 63., 71., 18., 51.,
-    65., 87., 12., 44., 89., 67., 28., 86., 62., 22., 90., 18.,
-    50., 25., 98., 24., 61., 62., 86., 100., 96., 27., 36., 82.,
-    90., 55., 26., 38., 97., 73., 16., 49., 23., 26., 55., 26., 3.,
-    23., 47., 27., 58., 27., 97., 32., 29., 56., 28., 23., 37.,
-    72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17.,
-    77.,
-];
-// 1. create a statistics object
-let mut stats = mean::Arithmetic::new();
-// 2. add data
-stats.extend(data)?;
-
-// 3. define a confidence level
-let confidence = Confidence::new_two_sided(0.95);
-// 4. compute the confidence interval over the mean for some
-//    confidence level
-let ci = stats.ci_mean(confidence)?;
-// 5. get and print other statistics on the sample data
-println!("mean: {}", stats.sample_mean());
-    // mean: 53.67
-println!("std_dev: {}", stats.sample_std_dev());
-    // std_dev: 28.097613040716794
-println!(
-    "ci ({} {}%): {}",
-    confidence.kind(),
-    confidence.percent(),
-    ci
-); // ci (two-sided 95%): [48.09482399055084, 59.24517600944916]
-println!("low: {}", ci.low_f()); // low: 48.09482399055084
-println!("high: {}", ci.high_f()); // high: 59.24517600944916
-
-// 6. compute other confidence intervals
-//    (almost no additional performance cost)
-println!(
-    "upper one-sided 90% ci: {}",
-    stats.ci_mean(Confidence::new_upper(0.9))?
-); // upper one-sided 90% ci: [50.04495430416555,->)
-println!(
-    "lower one-sided 80% ci: {}",
-    stats.ci_mean(Confidence::new_lower(0.8))?
-); // lower one-sided 80% ci: (<-,56.044998597990755]
-let ci = stats.ci_mean(Confidence::new_upper(0.975))?;
-println!("ci: {}", ci); // ci: [48.09482399055084,->)
-println!("low: {}", ci.low_f()); // low: 48.09482399055084
-println!("high: {}", ci.high_f()); // high: inf
-println!("low: {:?}", ci.low()); // high: Some(48.09482399055084)
-println!("high: {:?}", ci.high()); // high: None
-
-// get statistics for other means (harmonic)
-let stats = mean::Harmonic::from_iter(data)?;
-let ci = stats.ci_mean(confidence)?;
-println!("harmonic mean: {}", stats.sample_mean());
-    // harmonic mean: 30.03131315633959
-println!("ci: {}", ci);
-    // ci: [23.614092539460778, 41.23786064976718]
-
-// get statistics for other means (geometric)
-let stats = mean::Geometric::from_iter(data)?;
-let ci = stats.ci_mean(confidence)?;
-println!("geometric mean: {}", stats.sample_mean());
-    // geometric mean: 43.7268032829256
-println!("ci: {}", ci);
-    // ci: [37.731050052007795, 50.675327686564806]
-
-// incremental/intermediate statistics also work
-let mut stats = mean::Arithmetic::from_iter(data)?;
-let ci = stats.ci_mean(confidence)?;
-// a. confidence interval from the original data
-println!("incr ci: {}", ci);
-    // incr ci: [48.09482399055084, 59.24517600944916]
-
-// b. confidence interval after adding 10 additional data points
-for _ in 0..10 {
-    stats.append(1_000.)?;
-}
-let ci = stats.ci_mean(confidence)?;
-println!("incr ci: {}", ci);
-    // incr ci: [87.80710255546494, 191.59289744453503]
-
-// parallel computation of the confidence interval
-use rayon::prelude::*;
-let state = data
-    .clone()
-    .par_iter()
-    .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
-    .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
-println!("parallel ci: {}", state.ci_mean(confidence)?);
-    // parallel ci: [48.09482399055084, 59.24517600944916]
-```
-
-Incremental statistics is useful in at least three common scenarios:
-
-* when you have a stream of data and don't want to keep all values.
-* when you want to continue collecting data until you have sufficient statistical significance (e.g., interval shorter than some width relative to the mean).
-* when you want to compute the confidence intervals of several confidence levels in a single pass through the data.
-
-
-## C.I. for Quantiles
-
-Depending on the type of data and measurements, it is sometimes inappropriate to compute the mean of the data because that value makes little sense.
-For instance, consider a communication system and suppose that we want to find an upper bound on message delays such that, with 90% confidence, at least 95% of messages are delivered within this bound.
-Then, the value of interest is the lower one-sided confidence interval of the 95th percentile with 90% confidence (quantile=.95, confidence level=0.9).
-
-In a different context, if the data is an ordered sequence of strings, it might make sense to compute an interval around the median of the data, but the mean cannot be computed.
-
-```rust
-use stats_ci::*;
-
-let quantile = 0.5; // median
-
-let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
-let confidence = Confidence::new_two_sided(0.95);
-let ci = quantile::ci(confidence, &data, quantile)?;
-assert_eq!(ci, Interval::new(5, 12)?);
-
-let confidence = Confidence::new_two_sided(0.8);
-let ci = quantile::ci(confidence, &data, quantile)?;
-assert_eq!(ci, Interval::new(6, 11)?);
-
-let data = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
-    "M", "N", "O",
-];
-let confidence = Confidence::new_two_sided(0.95);
-let ci = quantile::ci(confidence, &data, quantile)?;
-println!("ci: {}", ci); // ci: [E, L]
-```
-
-## C.I. for Proportions
-
-Confidence intervals for proportions are often used in the context of A/B testing or when measuring the success/failure rate of a system.
-It is also useful when running Monte-Carlo simulations to estimate the winning chances of a player in a game.
- 
-This crate uses the Wilson score interval to compute the confidence interval for a proportion,
-which is more stable than the standard normal approximation but results in slightly more conservative intervals.
-
-```rust
-use stats_ci::*;
-let confidence = Confidence::new_two_sided(0.95);
-
-let data = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-    19, 20,
-];
-let ci = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
-println!("ci: {}", ci); // ci: [0.2992980081982124, 0.7007019918017876]
-assert!(ci.contains(&0.5));
-
-let population = 500;
-let successes = 421;
-let ci = proportion::ci(confidence, population, successes)?;
-println!("ci: {}", ci); // ci: [0.8074376489887337, 0.8713473021355645]
-assert!(ci.contains(&0.842));
-```
-
-## Contributing
+# Contributing
 
 I will gladly and carefully consider any constructive comments that you have to offer.
 In particular, I will be considering constructive feedback both on the interface and the calculations
@@ -236,12 +327,13 @@ with the following priorities correctness, code readability, genericity, efficie
 
 Currently, the following are on my TODO list:
 
-* [feature] confidence intervals for regression parameters.
-* [stats] review/fix statistical tests
-* [API] remove `unwrap()` and reduce panicking code
-* [Refactoring] restructure error results
+* \[feature\] confidence intervals for regression parameters.
+* \[stats\] review/fix statistical tests
+* \[API\] reduce panicking code
+* \[Refactoring\] restructure error results
 
-## References
+
+# References
 
 * Raj Jain. [The Art of Computer Systems Performance Analysis: Techniques for Experimental Design, Measurement, Simulation, and Modeling,](https://www.cse.wustl.edu/~jain/books/perfbook.htm) John Wiley & Sons, 1991.
 * [Wikipedia - Confidence interval](https://en.wikipedia.org/wiki/Confidence_interval)
@@ -253,18 +345,19 @@ Currently, the following are on my TODO list:
 * Nilan Noris. "The standard errors of the geometric and harmonic means and their application to index numbers." Ann. Math. Statist. 11(4): 445-448 (December, 1940). DOI: [10.1214/aoms/1177731830](https://doi.org/10.1214/aoms/1177731830) [JSTOR](https://www.jstor.org/stable/2235727)
 * PennState. Stat 500. [Online](https://online.stat.psu.edu/stat500/)
 
-## License
+
+# License
 
 Licensed under either of
 
  * Apache License, Version 2.0
-   ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+   ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
  * MIT license
-   ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+   ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
 at your option.
 
-## Contribution
+# Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
