@@ -91,12 +91,12 @@ fn block_1() -> stats_ci::CIResult<()> {
 
     // parallel computation of the confidence interval
     use rayon::prelude::*;
-    let state = data
+    let stats = data
         .clone()
         .par_iter()
         .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
-    println!("parallel ci: {}", state.ci_mean(confidence)?);
+    println!("parallel ci: {}", stats.ci_mean(confidence)?);
     //     parallel ci: [48.09482399055084, 59.24517600944916]
 
     Ok(())

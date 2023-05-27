@@ -153,9 +153,9 @@ pub trait StatisticsOps<F: Float>: Default {
     /// ```
     ///
     fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
-        let mut state = Self::default();
-        state.extend(data)?;
-        Ok(state)
+        let mut stats = Self::default();
+        stats.extend(data)?;
+        Ok(stats)
     }
 
     ///
@@ -865,19 +865,19 @@ mod tests {
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
-        let mut state = Arithmetic::default();
-        state.extend(data.iter().copied())?;
-        let ci = state.ci_mean(confidence)?;
+        let mut stats = Arithmetic::default();
+        stats.extend(data.iter().copied())?;
+        let ci = stats.ci_mean(confidence)?;
 
         assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, epsilon = 1e-8);
 
-        let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
+        let one_sided_ci = stats.ci_mean(Confidence::UpperOneSided(0.975))?;
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
-        let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
+        let one_sided_ci = stats.ci_mean(Confidence::LowerOneSided(0.975))?;
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -913,18 +913,18 @@ mod tests {
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
-        let mut state = Geometric::default();
-        state.extend(data.iter().copied())?;
-        let ci = state.ci_mean(confidence)?;
-        assert_abs_diff_eq!(state.sample_mean(), 43.7268032829256, epsilon = 1e-8);
+        let mut stats = Geometric::default();
+        stats.extend(data.iter().copied())?;
+        let ci = stats.ci_mean(confidence)?;
+        assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
 
-        let one_sided_ci = state.ci_mean(Confidence::UpperOneSided(0.975))?;
+        let one_sided_ci = stats.ci_mean(Confidence::UpperOneSided(0.975))?;
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
-        let one_sided_ci = state.ci_mean(Confidence::LowerOneSided(0.975))?;
+        let one_sided_ci = stats.ci_mean(Confidence::LowerOneSided(0.975))?;
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -976,10 +976,10 @@ mod tests {
         assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
         assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
 
-        let mut state = Harmonic::default();
-        state.extend(data.iter().copied())?;
-        let ci = state.ci_mean(confidence)?;
-        assert_abs_diff_eq!(state.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
+        let mut stats = Harmonic::default();
+        stats.extend(data.iter().copied())?;
+        let ci = stats.ci_mean(confidence)?;
+        assert_abs_diff_eq!(stats.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
         assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
 

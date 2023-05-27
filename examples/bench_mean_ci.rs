@@ -68,14 +68,14 @@ where
         let data_b = data_a.clone();
 
         let start = std::time::Instant::now();
-        let state = <A as StatisticsOps<f64>>::from_iter(data_a).unwrap();
-        let _ = state.ci_mean(confidence);
+        let stats = <A as StatisticsOps<f64>>::from_iter(data_a).unwrap();
+        let _ = stats.ci_mean(confidence);
         let elapsed = start.elapsed();
         time_a.push(elapsed);
 
         let start = std::time::Instant::now();
-        let state = <B as StatisticsOps<f64>>::from_iter(data_b).unwrap();
-        let _ = state.ci_mean(confidence);
+        let stats = <B as StatisticsOps<f64>>::from_iter(data_b).unwrap();
+        let _ = stats.ci_mean(confidence);
         let elapsed = start.elapsed();
         time_b.push(elapsed);
     }

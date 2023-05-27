@@ -554,10 +554,10 @@ impl<T: Float> Unpaired<T> {
         Ia: IntoIterator<Item = T>,
         Ib: IntoIterator<Item = T>,
     {
-        let mut state = Self::default();
-        state.extend_a(data_a)?;
-        state.extend_b(data_b)?;
-        Ok(state)
+        let mut stats = Self::default();
+        stats.extend_a(data_a)?;
+        stats.extend_b(data_b)?;
+        Ok(stats)
     }
 
     ///

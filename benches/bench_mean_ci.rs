@@ -73,13 +73,13 @@ fn bench_mean_rayon(c: &mut Criterion) {
             &data,
             |b, data| {
                 b.iter(|| {
-                    let state = data
+                    let stats = data
                         .clone()
                         .par_chunks(1000)
                         .map(|chunk| mean::Arithmetic::from_iter(chunk.iter().copied()).unwrap())
                         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 
-                    state.ci_mean(confidence)
+                    stats.ci_mean(confidence)
                 })
             },
         );
@@ -89,13 +89,13 @@ fn bench_mean_rayon(c: &mut Criterion) {
             &data,
             |b, data| {
                 b.iter(|| {
-                    let state = data
+                    let stats = data
                         .clone()
                         .par_iter()
                         .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
                         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 
-                    state.ci_mean(confidence)
+                    stats.ci_mean(confidence)
                 })
             },
         );
