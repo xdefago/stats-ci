@@ -5,7 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.11 (2023-05-27)
+
+### Documentation
+
+ - <csr-id-633f5707e2725aa21000236b07cb601627f4daf0/> combine README and root doc
+   This combines the README with the doc for the root of the crate.
+   This is an entire rewrite of the documentation, focussing on the simpler
+   interface rather than the flexible interface using statistics objects.
+   While the latter is more flexible, most scenarios are expected to only
+   need the simpler one.
+   The documentation is more consistent with recent changes.
+ - <csr-id-5b2921319376c9064d75f38f57982e01d24859e8/> add missing documentation
+ - <csr-id-4f064e8265ef3ed664853ab67469443c1cd874be/> fix typos
+
+### New Features
+
+ - <csr-id-1ac462213e3e8f4d1d0182c688b2e8a1788c3564/> add `new` to Confidence for 2-sided
+ - <csr-id-896276fe866dd290a3c2f6a871c775d94778dad9/> add incremental Stats for quantile
+ - <csr-id-ac74c998d6cfc0eb5eb9f013212943340a674317/> add partial eq to stats
+
+### Other
+
+ - <csr-id-290ce9786a54b9430b22e9dcd559f8ee4911479a/> update criterion version
+
+### Refactor
+
+ - <csr-id-b276bc94b23694b60b85d820f32705732fd8df86/> deprecate function in comparison
+   deprecate the functions `paired_ci` and `unpaired_ci` and
+   reorganize the documentation.
+   Use `Paired::ci` instead of `paired_ci` and `Unpaired::ci` in place
+   of `unpaired_ci`
+   The commit also removes test cases that are no longer meaningful and
+   replaces calls to the deprecated functions.
+ - <csr-id-3ea954c464977c136139a7c0932ec68faaa36b87/> move methods from trait to impl
+   move the main methods to the impl of each struct and overload in the
+   implementation of the traits `StatisticsOps` and `MeanCI`.
+   This allows the methods to be accessible without importing the trait
+   and the trait is now only useful for rudimentary polymorphism.
+   This also brings the documented methods to the forefront.
+
+### Style
+
+ - <csr-id-960fef8d4d5108cb214f4e0b9dbd095b01fda771/> improve style based on clippy
+ - <csr-id-4a696e04aa2013ab73392d4a6319e96d703ecdbf/> reformat code
+
+### Test
+
+ - <csr-id-f632e853d4de2c422b6c5433cff96c71daa4afce/> fix test to using iterator
+
+### Refactor (BREAKING)
+
+ - <csr-id-c973aee0231082781f32bd6ed91cd9e648d9d43c/> data argument takes IntoIterator
+   The function `quantile::ci` now takes IntoIterator instead of a slice.
+   This is a breaking change because code that passed a reference to a
+   slice now need to pass the slice itself.
+ - <csr-id-4588bcad924b68b296dfb6f15914b56cb8506057/> make fields private
+   fields of `proportion::Stats` become private.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 14 commits contributed to the release over the course of 3 calendar days.
+ - 3 days passed between releases.
+ - 14 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update criterion version ([`290ce97`](https://github.com/xdefago/stats-ci/commit/290ce9786a54b9430b22e9dcd559f8ee4911479a))
+    - Combine README and root doc ([`633f570`](https://github.com/xdefago/stats-ci/commit/633f5707e2725aa21000236b07cb601627f4daf0))
+    - Improve style based on clippy ([`960fef8`](https://github.com/xdefago/stats-ci/commit/960fef8d4d5108cb214f4e0b9dbd095b01fda771))
+    - Fix test to using iterator ([`f632e85`](https://github.com/xdefago/stats-ci/commit/f632e853d4de2c422b6c5433cff96c71daa4afce))
+    - Data argument takes IntoIterator ([`c973aee`](https://github.com/xdefago/stats-ci/commit/c973aee0231082781f32bd6ed91cd9e648d9d43c))
+    - Add `new` to Confidence for 2-sided ([`1ac4622`](https://github.com/xdefago/stats-ci/commit/1ac462213e3e8f4d1d0182c688b2e8a1788c3564))
+    - Deprecate function in comparison ([`b276bc9`](https://github.com/xdefago/stats-ci/commit/b276bc94b23694b60b85d820f32705732fd8df86))
+    - Reformat code ([`4a696e0`](https://github.com/xdefago/stats-ci/commit/4a696e04aa2013ab73392d4a6319e96d703ecdbf))
+    - Move methods from trait to impl ([`3ea954c`](https://github.com/xdefago/stats-ci/commit/3ea954c464977c136139a7c0932ec68faaa36b87))
+    - Add missing documentation ([`5b29213`](https://github.com/xdefago/stats-ci/commit/5b2921319376c9064d75f38f57982e01d24859e8))
+    - Add incremental Stats for quantile ([`896276f`](https://github.com/xdefago/stats-ci/commit/896276fe866dd290a3c2f6a871c775d94778dad9))
+    - Make fields private ([`4588bca`](https://github.com/xdefago/stats-ci/commit/4588bcad924b68b296dfb6f15914b56cb8506057))
+    - Fix typos ([`4f064e8`](https://github.com/xdefago/stats-ci/commit/4f064e8265ef3ed664853ab67469443c1cd874be))
+    - Add partial eq to stats ([`ac74c99`](https://github.com/xdefago/stats-ci/commit/ac74c998d6cfc0eb5eb9f013212943340a674317))
+</details>
+
 ## v0.0.10 (2023-05-23)
+
+<csr-id-1c21917efd3699a6e6833573946285186935ed6d/>
+<csr-id-bdbbd0068b17b745eff4a1d494b48de25cc2199c/>
+<csr-id-a9fad6da8bf96b6983bd27719fda4b39f845f3b0/>
+<csr-id-ea2ac6aa645d7f66780f7b402eaf5527545523f4/>
+<csr-id-1ddf678cc0a148d627ffaa4b2549476d98302924/>
+<csr-id-4628bf0234684b6afca0ff1f1d10a7177b3f5e94/>
+<csr-id-8b151de1744fca76595f6b2839eab99a1811c434/>
+<csr-id-eaea3e26f01d8ea77f673ed482ad7726928a118e/>
+<csr-id-26f6e3ce7f2dfafe8aa85a83e681a1068473d08e/>
+<csr-id-bde6ec1d846b3e0d9536b419e0bbcc8dbd623902/>
 
 ### Documentation
 
@@ -47,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 15 commits contributed to the release over the course of 8 calendar days.
+ - 16 commits contributed to the release over the course of 8 calendar days.
  - 10 days passed between releases.
  - 15 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -59,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.10 ([`d1f4d93`](https://github.com/xdefago/stats-ci/commit/d1f4d93e37b4d7ac888570045dd0727b3cf0f62f))
     - Update broken link to method in docs ([`898a9f8`](https://github.com/xdefago/stats-ci/commit/898a9f8010439e4919a9247e60858b5d1eeba406))
     - Improve based on clippy ([`8b151de`](https://github.com/xdefago/stats-ci/commit/8b151de1744fca76595f6b2839eab99a1811c434))
     - Reformat code ([`eaea3e2`](https://github.com/xdefago/stats-ci/commit/eaea3e26f01d8ea77f673ed482ad7726928a118e))
@@ -147,9 +249,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add examples for mean,median,proportions ([`9f6dde0`](https://github.com/xdefago/stats-ci/commit/9f6dde04553bc981af451cbc2a96c35155a27411))
     - Unindent example code in README ([`5c3d77c`](https://github.com/xdefago/stats-ci/commit/5c3d77c2eb007f18a99c0bcf71c97991578ab45f))
 </details>
-
-<csr-unknown>
- add incremental statistics for proportions<csr-unknown/>
 
 ## v0.0.8 (2023-05-09)
 
@@ -714,7 +813,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fix typos in comment of example ([`4c2b905`](https://github.com/xdefago/stats-ci/commit/4c2b9059e03263fde597f78a3d40df0dced4fd17))
     - Conversion error reporting wrong type ([`4435b0c`](https://github.com/xdefago/stats-ci/commit/4435b0ce8c3f7898897c294c6aba460df29cbe5b))
     - State that mean CIs are computed with the t-value ([`c70c0bf`](https://github.com/xdefago/stats-ci/commit/c70c0bff19d4d7c0f315386d09bf113a0c97bd79))
-    - Return None if the interval falls outside the data ([`da24755`](https://github.com/xdefago/stats-ci/commit/da24755c0679acedb88ac5993c2641be85de32aa))
+    - Return None if the interval falls ourside the data ([`da24755`](https://github.com/xdefago/stats-ci/commit/da24755c0679acedb88ac5993c2641be85de32aa))
     - Disable default serde feature; document in readme ([`98f0d22`](https://github.com/xdefago/stats-ci/commit/98f0d22b8b787841a4367c91ef2e930ad92c61bf))
     - Reorder and tag badges ([`09ad8e0`](https://github.com/xdefago/stats-ci/commit/09ad8e02c4d189f50b4d6c0fa263bb0257487cb3))
     - Add badges ([`3a711b9`](https://github.com/xdefago/stats-ci/commit/3a711b9cf2af658324423aaae76290ec5e7a1926))
