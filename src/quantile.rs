@@ -9,16 +9,16 @@
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let quantile = 0.5; // median
-//! let interval = quantile::ci(confidence, &data, quantile)?;
+//! let interval = quantile::ci(confidence, data, quantile)?;
 //! assert_eq!(interval, Interval::new(5, 12)?);
 //!
 //! let confidence = Confidence::new_two_sided(0.8);
-//! let interval = quantile::ci(confidence, &data, quantile)?;
+//! let interval = quantile::ci(confidence, data, quantile)?;
 //! assert_eq!(interval, Interval::new(6, 11)?);
 //!
 //! let confidence = Confidence::new_two_sided(0.5);
 //! let quantile = 0.4; // 40th percentile
-//! let interval = quantile::ci(confidence, &data, quantile)?;
+//! let interval = quantile::ci(confidence, data, quantile)?;
 //! assert_eq!(interval, Interval::new(5, 8)?);
 //! # Ok::<(),error::CIError>(())
 //! ```
@@ -218,7 +218,7 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
 /// # Arguments
 ///
 /// * `confidence` - the confidence level (must be in (0, 1))
-/// * `data` - the sample
+/// * `data` - the sample data
 /// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
 ///
 /// # Errors
@@ -238,29 +238,29 @@ pub fn ci_sorted_unchecked<T: PartialOrd + Clone>(
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let quantile = 0.5; // median
-/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// let interval = quantile::ci(confidence, data, quantile)?;
 /// assert_eq!(interval, Interval::new(5, 12)?);
 ///
 /// let data2 = [2, 14, 13, 6, 8, 4, 15, 9, 3, 11, 10, 7, 1, 12, 5];
-/// let interval2 = quantile::ci(confidence, &data2, quantile)?;
+/// let interval2 = quantile::ci(confidence, data2, quantile)?;
 /// assert_eq!(interval, interval2);
 ///
 /// let confidence = Confidence::new_two_sided(0.8);
-/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// let interval = quantile::ci(confidence, data, quantile)?;
 /// assert_eq!(interval, Interval::new(6, 11)?);
 ///
 /// let confidence = Confidence::new_two_sided(0.5);
 /// let quantile = 0.4; // 40th percentile
-/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// let interval = quantile::ci(confidence, data, quantile)?;
 /// assert_eq!(interval, Interval::new(5, 8)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
-pub fn ci<T: PartialOrd + Clone>(
-    confidence: Confidence,
-    data: &[T],
-    quantile: f64,
-) -> CIResult<Interval<T>> {
-    let mut sorted = data.to_vec();
+pub fn ci<T, I>(confidence: Confidence, data: I, quantile: f64) -> CIResult<Interval<T>>
+where
+    T: PartialOrd + Clone,
+    I: IntoIterator<Item = T>,
+{
+    let mut sorted = data.into_iter().collect::<Vec<T>>();
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
@@ -389,22 +389,22 @@ mod tests {
         ];
         let confidence = Confidence::new_two_sided(0.95);
         let quantile = 0.5; // median
-        let interval = quantile::ci(confidence, &data, quantile)?;
+        let interval = quantile::ci(confidence, data, quantile)?;
         assert_eq!(interval, Interval::new('E', 'L')?);
 
         let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         let confidence = Confidence::new_two_sided(0.95);
         let quantile = 0.5; // median
-        let interval = quantile::ci(confidence, &data, quantile)?;
+        let interval = quantile::ci(confidence, data, quantile)?;
         assert_eq!(interval, Interval::new(5, 12)?);
 
         let confidence = Confidence::new_two_sided(0.8);
-        let interval = quantile::ci(confidence, &data, quantile)?;
+        let interval = quantile::ci(confidence, data, quantile)?;
         assert_eq!(interval, Interval::new(6, 11)?);
 
         let confidence = Confidence::new_two_sided(0.5);
         let quantile = 0.4; // 40th percentile
-        let interval = quantile::ci(confidence, &data, quantile)?;
+        let interval = quantile::ci(confidence, data, quantile)?;
         assert_eq!(interval, Interval::new(5, 8)?);
 
         Ok(())
@@ -502,7 +502,7 @@ mod tests {
         for _i in 0..100 {
             let mut shuffled = data.to_vec();
             shuffled.shuffle(&mut thread_rng());
-            let interval = ci(confidence, &shuffled, quantile)?;
+            let interval = ci(confidence, shuffled, quantile)?;
             assert_eq!(interval, Interval::new(5, 12)?);
         }
         Ok(())
