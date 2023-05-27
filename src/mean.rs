@@ -406,6 +406,7 @@ impl<F: Float> Arithmetic<F> {
     ///
     /// Complexity: \\( O(1) \\)
     ///
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         let mut sum = self.sum;
         let mut sum_sq = self.sum_sq;
@@ -553,6 +554,7 @@ impl<F: Float> Harmonic<F> {
     ///
     /// Complexity: \\( O(1) \\)
     ///
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         Self {
             recip_space: self.recip_space + rhs.recip_space,
@@ -702,6 +704,7 @@ impl<F: Float> Geometric<F> {
     ///
     /// Complexity: \\( O(1) \\)
     ///
+    #[allow(clippy::should_implement_trait)]
     pub fn add(self, rhs: Self) -> Self {
         Self {
             log_space: self.log_space + rhs.log_space,

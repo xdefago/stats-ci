@@ -137,6 +137,7 @@ impl Stats {
         if self.population == 0 {
             return Err(error::CIError::TooFewSamples(self.population));
         }
+        #[allow(clippy::manual_range_contains)]
         if quantile < 0. || 1. < quantile {
             return Err(error::CIError::InvalidQuantile(quantile));
         }

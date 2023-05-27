@@ -19,11 +19,11 @@
 //!
 //! The structure [`Unpaired`] deals with the case of unpaired observations and can be used in simple form through the function [`Unpaired::ci`]
 //! or incrementally with the function [`Unpaired::ci_mean`].
-//! 
+//!
 //! # Examples
 //!
 //! ## Paired observations
-//! 
+//!
 //! The examples below have the following preamble:
 //! ```
 //! use stats_ci::*;
@@ -36,7 +36,7 @@
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! ```
-//! 
+//!
 //! ### Easy interface (paired)
 //! ```
 //! # use stats_ci::*;
@@ -74,7 +74,7 @@
 //! ```
 //!
 //! ## Unpaired observations
-//! 
+//!
 //! The examples below have the following preamble:
 //! ```
 //! # use stats_ci::*;
@@ -86,7 +86,7 @@
 //! let data_low_protein = [70., 118., 101., 85., 107., 132., 94.];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! ```
-//! 
+//!
 //! ### Easy interface (unpaired)
 //! ```
 //! # use stats_ci::*;
@@ -104,7 +104,7 @@
 //! )?;
 //! # Ok::<(),error::CIError>(())
 //! ```
-//! 
+//!
 //! ### Incremental interface (unpaired)
 //! ```
 //! # use stats_ci::*;
@@ -385,7 +385,7 @@ impl<T: Float> Paired<T> {
     /// the samples are known a priori and there is no need to include additional observations,
     /// obtain the confidence intervals for other levels or access the sample statistics. For more refined
     /// use cases, it is recommended to use [`Paired::ci_mean`] instead.
-    /// 
+    ///
     /// # References
     ///
     /// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
@@ -755,7 +755,7 @@ impl<T: Float> Unpaired<T> {
     /// * [`CIError::TooFewSamples`] - if one of the two samples has less than 2 observations
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// # use stats_ci::*;
     /// let confidence = Confidence::new_two_sided(0.95);
@@ -764,7 +764,7 @@ impl<T: Float> Unpaired<T> {
     /// let ci = stats.ci_mean(confidence)?;
     /// # Ok::<(),error::CIError>(())
     /// ```
-    /// 
+    ///
     /// # Notes
     ///
     /// If the interval includes zero, the difference is not significant.
@@ -819,7 +819,7 @@ impl<T: Float> Unpaired<T> {
 
     ///
     /// Compute the confidence interval of the difference between the means of the two samples.
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `confidence` - the confidence level
@@ -845,7 +845,7 @@ impl<T: Float> Unpaired<T> {
     /// the samples are known a priori and there is no need to include additional observations,
     /// obtain the confidence intervals for other levels or access the sample statistics. For more refined
     /// use cases, it is recommended to use [`Unpaired::ci_mean`] instead.
-    /// 
+    ///
     /// # Examples
     ///
     /// ```
@@ -919,7 +919,7 @@ pub fn unpaired_ci<T: Float>(
     data_b: &[T],
 ) -> CIResult<Interval<T>> {
     let mut stats = comparison::Unpaired::<T>::default();
-    stats.extend(data_a.into_iter().copied(), data_b.into_iter().copied())?;
+    stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
     stats.ci_mean(confidence)
 }
 
