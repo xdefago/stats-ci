@@ -110,11 +110,11 @@ fn block_2() -> stats_ci::CIResult<()> {
     let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     let confidence = Confidence::new_two_sided(0.95);
-    let ci = quantile::ci(confidence, &data, quantile)?;
+    let ci = quantile::ci(confidence, data, quantile)?;
     assert_eq!(ci, Interval::new(5, 12)?);
 
     let confidence = Confidence::new_two_sided(0.8);
-    let ci = quantile::ci(confidence, &data, quantile)?;
+    let ci = quantile::ci(confidence, data, quantile)?;
     assert_eq!(ci, Interval::new(6, 11)?);
 
     let data = [

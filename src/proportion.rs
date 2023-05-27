@@ -351,7 +351,7 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 /// # use approx::*;
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 /// let confidence = Confidence::new_two_sided(0.95);
-/// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
+/// let interval = proportion::ci_if(confidence, data, |x| x <= 10)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
 /// # Ok::<(),error::CIError>(())
 /// ```
@@ -680,5 +680,18 @@ mod tests {
         use approx::*;
         assert_abs_diff_eq!(pass_rate_ci, Interval::new(0.4878, 0.8077)?, epsilon = 1e-3);
         Ok(())
+    }
+
+    #[test]
+    fn test_readme_simple() {
+        let confidence = Confidence::new(0.95);
+        let messages = 10_000;
+        let losses = 89;
+        let ci = proportion::ci(confidence, messages, losses).unwrap();
+        println!("Loss rate: {}", ci);
+
+        let confidence = Confidence::new_lower(0.95);
+        let ci = proportion::ci(confidence, messages, losses).unwrap();
+        println!("Loss rate less than: {}", ci);
     }
 }
