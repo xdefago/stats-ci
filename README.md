@@ -14,15 +14,15 @@ Among several statistical methods, confidence intervals provide information that
 
 The motivation comes from a personal need and was that no
 crate seem to provide an easy and comprehensive solution to computing such intervals.
-One exception is the crate `criterion` which computes confidence intervals for its
-measurements but does not export such functionality.
+One exception is the crate [`criterion`](https://crates.io/crates/criterion) which computes
+confidence intervals for its measurements but does not export such functionality.
 
 This crate provides the means to easily and efficiently compute confidence intervals of sample data
 in situations as follows:
-* confidence intervals around the mean (arithmetic, harmonic, geometric) for numerical data,
-* confidence intervals around a quantile (e.g., median) for arbitrary ordered data,
-* confidence intervals for proportions.
-* confidence intervals for comparisons (paired or unpaired observations).
+* [`mean`] confidence intervals around the mean (arithmetic, harmonic, geometric) for numerical data,
+* [`quantile`] confidence intervals around a quantile (e.g., median) for arbitrary ordered data,
+* [`proportion`] confidence intervals for proportions.
+* [`comparison`] confidence intervals for comparisons (paired or unpaired observations).
 
 This crate does not (yet) support the following:
 * confidence intervals for regression parameters.
@@ -314,6 +314,13 @@ Note that it makes little sense to parallelize when dealing with only a few thou
 You can find further information and additional examples from this crate's [API documentation](https://docs.rs/stats-ci).
 
 
+# Statistics / computations
+
+* Intervals on the mean use the Student t-distribution up to about 100_000 values, above which the computation switches to the normal distribution.
+* Intervals on proportions and quantiles rely on the Wilson score method which is known to be more statistically stable than the Wald score method that is typically presented in textbooks.
+* The crate uses compensated summation (Kahan summation) to avoid accumulating roundup errors during summation of very large data.
+
+
 # Crate features
 
 The crate has two features:
@@ -323,20 +330,6 @@ The crate has two features:
 ```toml
 stats-ci = { version = "{ latest version }", features = ["serde"] }
 ```
-
-# Contributing
-
-I will gladly and carefully consider any constructive comments that you have to offer.
-In particular, I will be considering constructive feedback both on the interface and the calculations
-with the following priorities correctness, code readability, genericity, efficiency.
-
-Currently, the following are on my TODO list:
-
-* \[feature\] confidence intervals for regression parameters.
-* \[stats\] review/fix statistical tests
-* \[API\] reduce panicking code
-* \[Refactoring\] restructure error results
-
 
 # References
 
@@ -367,3 +360,17 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
+
+# Contributing
+
+I will gladly and carefully consider any constructive comments that you have to offer.
+In particular, I will be considering constructive feedback both on the interface and the calculations
+with the following priorities correctness, code readability, genericity, efficiency.
+
+Currently, the following are on my TODO list:
+
+* \[feature\] confidence intervals for regression parameters.
+* \[stats\] review/fix statistical tests
+* \[API\] reduce panicking code
+* \[Refactoring\] restructure error results
+
