@@ -132,12 +132,26 @@ use num_traits::Float;
 
 ///
 /// Structure to collect statistics on two paired samples.
-///
+/// 
+/// Paired observations are when each measurement in the first sample is paired with
+/// a measurement in the second sample.
+/// For instance, when measuring the performance of two algorithms, the same input
+/// data is used for both algorithms to yield a pair of related observations.
+/// 
+/// When observations cannot naturally be paired, the samples must be compared using
+/// unpaired observations (see [`Unpaired`]). Typically, unpaired observations require
+/// noticeably more observations to achieve the same statistical significance.
+/// 
 /// # Examples
-///
+/// 
+/// The example below considers the zinc concentration in water samples from a river.
+/// Each sample is taken at the same location, but one at the bottom of the river and
+/// the other at the surface. Thus, those measurements are paired (bottom and surface).
+/// See <https://online.stat.psu.edu/stat500/lesson/7/7.3/7.3.2> for details on this
+/// example.
+/// 
 /// ```
 /// # use stats_ci::*;
-/// // based on an example from https://online.stat.psu.edu/stat500/lesson/7/7.3/7.3.2
 /// // Zinc concentration in water samples from a river
 /// let data_bottom_water = [
 ///     0.430, 0.266, 0.567, 0.531, 0.707, 0.716, 0.651, 0.589, 0.469, 0.723,
@@ -150,6 +164,13 @@ use num_traits::Float;
 /// stats.extend(data_bottom_water, data_surface_water).unwrap();
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
 /// ```
+/// 
+/// # References
+///
+/// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
+/// * [Wikipedia article on paired difference test](https://en.wikipedia.org/wiki/Paired_difference_test)
+/// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
+
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Paired<T: Float> {
@@ -475,6 +496,14 @@ pub fn paired_ci<T: Float>(
 ///
 /// Structure to collect statistics on two unpaired samples.
 ///
+/// Given two independent samples, the goal is to compute the confidence interval
+/// of the difference between their means.
+/// Unlike with paired observations ([`Paired`]), the two samples do not have to
+/// have the same length.
+/// However, comparing with unpaired observations typically requires considerably
+/// more observations to reach the same degree of statistical accuracy. This is
+/// why paired observations are preferred when the circumstances allow.
+/// 
 /// # Examples
 ///
 /// ```
@@ -490,6 +519,12 @@ pub fn paired_ci<T: Float>(
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95))?;
 /// # Ok::<(),error::CIError>(())
 /// ```
+///
+/// # References
+/// 
+/// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
+/// * [Wikipedia article on Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test)
+/// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
 ///
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
