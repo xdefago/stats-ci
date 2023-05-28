@@ -1,5 +1,8 @@
 //!
-//! Interval over a partially ordered type (NB: floating point numbers are only partially ordered because of `NaN`).
+//! Implements the [`Interval`] enum, which represents a confidence interval
+//! over a partially ordered type
+//! 
+//! Note that floating point numbers are only partially ordered because of `NaN`.
 //!
 
 use num_traits::float::FloatCore;
@@ -13,20 +16,74 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 ///
 /// # Examples
 ///
+/// ## Creation
 /// ```
 /// use stats_ci::*;
-///
+/// let interval = Interval::new(0., 10.)?;
+/// let interval = Interval::new_upper(0.);
+/// let interval = Interval::new_lower(10.);
+/// # Ok::<(),stats_ci::error::IntervalError>(())
+/// ```
+/// 
+/// ## Accessors
+/// ```
+/// # use stats_ci::*;
 /// let interval = Interval::new(0., 10.)?;
 /// assert_eq!(interval.low(), Some(0.));
 /// assert_eq!(interval.high(), Some(10.));
-/// assert!(interval.contains(&5.));
-/// assert!(!interval.contains(&20.));
-///
-/// let interval = Interval::try_from(0..=10)?;
-/// assert_eq!(interval.low(), Some(0));
-/// assert_eq!(interval.high(), Some(10));
+/// assert_eq!(interval.low_f(), 0.);
+/// assert_eq!(interval.high_f(), 10.);
+/// assert_eq!(interval.width(), Some(10.));
+/// assert_eq!(interval.is_one_sided(), false);
+/// assert_eq!(interval.is_two_sided(), true);
+/// assert_eq!(interval.is_upper(), false);
+/// assert_eq!(interval.is_lower(), false);
+/// assert_eq!(interval.is_degenerate(), false);
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
+/// 
+/// ## Comparison
+/// ```
+/// # use stats_ci::*;
+/// let interval = Interval::new(0., 10.)?;
+/// let interval2 = Interval::new(8., 15.)?;
+/// let interval3 = Interval::new(2., 5.)?;
+/// assert!(interval.intersects(&interval2));
+/// assert!(interval3.is_included_in(&interval));
+/// assert!(interval.includes(&interval3));
+/// assert!(interval3 < interval2);
+/// assert!(interval == Interval::new(0., 10.)?);
+/// assert!(interval.contains(&5.));
+/// assert!(!interval.contains(&20.));
+/// # Ok::<(),stats_ci::error::IntervalError>(())
+/// ```
+/// 
+/// ## Operations
+/// ```
+/// # use stats_ci::*;
+/// let interval = Interval::new(2., 4.)?;
+/// assert_eq!(interval * 2., Interval::new(4., 8.)?);
+/// assert_eq!(interval + 2., Interval::new(4., 6.)?);
+/// assert_eq!(interval - 2., Interval::new(0., 2.)?);
+/// assert_eq!(interval / 2., Interval::new(1., 2.)?);
+/// # Ok::<(),stats_ci::error::IntervalError>(())
+/// ```
+/// 
+/// ## Conversions
+/// ```
+/// # use stats_ci::*;
+/// let interval = Interval::new(2., 4.)?;
+/// assert_eq!(interval, Interval::try_from(2. ..= 4.)?);
+/// assert_eq!(interval, Interval::try_from((2., 4.))?);
+/// assert_eq!(interval, Interval::try_from((Some(2.), Some(4.)))?);
+/// assert_eq!(Interval::from(..= 10.), Interval::new_lower(10.));
+/// assert_eq!(Interval::from(2. ..), Interval::new_upper(2.));
+/// assert_eq!(format!("{}", interval), String::from("[2, 4]"));
+/// assert_eq!(format!("{}", Interval::new_lower(3.)), String::from("(<-,3]"));
+/// assert_eq!(format!("{}", Interval::new_upper(2.)), String::from("[2,->)"));
+/// # Ok::<(),stats_ci::error::IntervalError>(())
+/// ```
+/// 
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Interval<T>
@@ -632,7 +689,7 @@ macro_rules! impl_for_floats {
 }
 impl_for_floats!(f32, f64);
 
-impl<T: Ord> TryFrom<RangeInclusive<T>> for Interval<T> {
+impl<T: PartialOrd> TryFrom<RangeInclusive<T>> for Interval<T> {
     type Error = IntervalError;
 
     /// Create an interval from an inclusive range.

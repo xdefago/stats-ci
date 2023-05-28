@@ -1,5 +1,5 @@
 //!
-//! Implements the [`Confidence`] enum, which represents a confidence interval.
+//! Implements the [`Confidence`] enum, which represents a confidence level and direction.
 //!
 
 ///
@@ -7,11 +7,15 @@
 ///
 /// # Examples
 ///
+/// ## Creation
+/// 
 /// To create a two-sided confidence interval with 95% confidence:
 /// ```
 /// # use stats_ci::Confidence;
 /// #
 /// let confidence = Confidence::new_two_sided(0.95);
+/// // alternatively:
+/// let confidence = Confidence::new(0.95);
 /// ```
 ///
 /// To create an upper one-sided confidence interval with 90% confidence:
@@ -28,6 +32,41 @@
 /// let confidence = Confidence::new_lower(0.99);
 /// ```
 ///
+/// ## Accessors
+/// 
+/// The confidence object provides several accessors:
+/// ```
+/// # use stats_ci::Confidence;
+/// #
+/// let confidence = Confidence::new(0.95);
+/// assert_eq!(confidence.level(), 0.95);
+/// assert_eq!(confidence.percent(), 95.);
+/// assert_eq!(confidence.kind(), "two-sided");
+/// assert!(confidence.is_two_sided());
+/// assert!(!confidence.is_one_sided());
+/// assert!(!confidence.is_upper());
+/// assert!(!confidence.is_lower());
+/// ```
+/// 
+/// ## Conversions
+/// 
+/// ```
+/// # use stats_ci::Confidence;
+/// #
+/// let confidence = Confidence::new_upper(0.95);
+/// assert_eq!(confidence.flipped(), Confidence::new_lower(0.95));
+/// ```
+/// 
+/// ## Comparison
+/// 
+/// ```
+/// # use stats_ci::Confidence;
+/// #
+/// let confidence = Confidence::new(0.95);
+/// assert!(confidence > Confidence::new(0.9));
+/// assert!(confidence < Confidence::new(0.99));
+/// ```
+/// 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Confidence {
