@@ -74,7 +74,8 @@ let data = [
     The 95% confidence interval on the median yields \[4.3, 10.6\].
     In this case, both bounds of the interval are observed values.
 
-* In this example, the data was actually taken from an exponential distribution with parameter λ = 0.1 (mean = 1/λ = 10 and median = ln(2)/λ = 6.93147…). In this special case, we can verify that both theoretical mean and median are indeed contained in their respective confidence interval.
+* __Theoretical distribution__ <br>
+    In this example, the data was actually taken from an _exponential_ distribution with parameter λ = 0.1 (mean = 1/λ = 10 and median = ln(2)/λ = 6.93147…). In this special case, we can verify that both theoretical mean and median are indeed contained in their respective confidence interval.
 
 # Examples
 
@@ -87,7 +88,7 @@ float or integer types.
 
 
 ## Mean and median
-Given the example discussed above, the intervals can be computed on the mean or on quantiles (e.g., median) as described below:
+Given the example discussed above, the intervals can be computed on the _mean_ or on _quantiles_ (e.g., median) as described below:
 ```rust
 // 1. import the crate
 use stats_ci::*;
@@ -118,7 +119,7 @@ if let Ok(ci) = quantile::ci(confidence, data, 0.5) {
 }
 ```
 
-Similarly, the confidence interval on the geometric and the harmonic mean can be computed as follows.
+Similarly, the confidence interval on the _geometric mean_ and the _harmonic mean_ can be computed as follows.
 ```rust
 # use stats_ci::*;
 let data = [ 10.6, 6.6, /* ... */ ];
@@ -138,8 +139,8 @@ let ci = proportion::ci(confidence, population, successes).unwrap();
 println!("Loss rate: {}", ci);
 // > Loss rate: [0.007238518896069928, 0.010938644303608623]
 //
-// which means that the loss rate is estimated (95% confidence) to be
-// between 0.7238% and 1.0939%.
+// which means that the loss rate is estimated (95% confidence) to
+// be between 0.7238% and 1.0939%.
 
 // One-sided confidence
 let confidence = Confidence::new_lower(0.95);
@@ -164,8 +165,8 @@ let ci = proportion::ci_if(confidence, data, |x| x <= 10).unwrap();
 println!("ci: {}", ci);
 // > ci: [0.2992980081982124, 0.7007019918017876]
 //
-// yields the estimated proportion of numbers that are less or equal
-// to 10, based on data obtained from random sampling.
+// yields the estimated proportion of numbers that are less or
+// equal to 10, based on data obtained from random sampling.
 ```
 
 ## Comparison
@@ -182,11 +183,14 @@ conditions and for the exact same input.
 ```rust
 use stats_ci::*;
 // Zinc concentration in water samples from a river
+// (from <https://online.stat.psu.edu/stat500/lesson/7/7.3/7.3.2>)
 let data_bottom_water = [
-   0.430, 0.266, 0.567, 0.531, 0.707, 0.716, 0.651, 0.589, 0.469, 0.723,
+    0.430, 0.266, 0.567, 0.531, 0.707, 0.716, 0.651, 0.589, 0.469,
+    0.723,
 ];
 let data_surface_water = [
-  0.415, 0.238, 0.390, 0.410, 0.605, 0.609, 0.632, 0.523, 0.411, 0.612,
+    0.415, 0.238, 0.390, 0.410, 0.605, 0.609, 0.632, 0.523, 0.411,
+    0.612,
 ];
 let confidence = Confidence::new(0.95);
 let ci = comparison::Paired::ci(
@@ -213,6 +217,7 @@ With this crate, unpaired observation is very similar to paired observations:
 use stats_ci::*;
 // Gain in weight of 19 female rats between 28 and 84 days after birth.
 // 12 were fed on a high protein diet and 7 on a low protein diet.
+// (from <https://www.statsdirect.co.uk/help/parametric_methods/utt.htm>)
 let data_high_protein = [
     134., 146., 104., 119., 124., 161., 107., 83., 113., 129., 97., 123.,
 ];
