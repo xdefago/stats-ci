@@ -1,5 +1,6 @@
 ///
-/// This is the code used as examples in the README.md file.
+/// This is the code used as examples in earlier versions of the
+/// README.md file.
 /// It is used to ensure that the code snippets compile, are
 /// up-to-date, and work as intended.
 ///
