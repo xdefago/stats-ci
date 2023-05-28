@@ -449,49 +449,6 @@ impl<F: Float> std::ops::Add<Self> for Paired<F> {
     }
 }
 
-#[deprecated(note = "Use Paired::ci instead")]
-///
-/// Given two samples such that each measurement in the first sample is paired with a measurement in
-/// the second sample, compute the confidence interval of the difference between the means of the
-/// two samples.
-///
-/// This function is deprecated in favor of [`Paired::ci`].
-///
-/// # Arguments
-///
-/// * `confidence` - the confidence level
-/// * `data1` - the first sample
-/// * `data2` - the second sample
-///
-/// # Returns
-///
-/// The confidence interval of the difference as a result.
-///
-/// # Errors
-///
-/// * [`CIError::DifferentSampleSizes`] - if the two samples do not have the same length
-///
-/// # Notes
-///
-/// If the interval includes zero, the difference is not significant.
-/// If the interval is strictly positive (resp. negative), the mean of the first sample is significantly
-/// greater (resp. smaller) than the mean of the second sample.
-///
-/// # References
-///
-/// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
-/// * [Wikipedia article on paired difference test](https://en.wikipedia.org/wiki/Paired_difference_test)
-/// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
-///
-pub fn paired_ci<T: Float>(
-    confidence: Confidence,
-    data_a: &[T],
-    data_b: &[T],
-) -> CIResult<Interval<T>> {
-    let mut stats = Paired::default();
-    stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
-    stats.ci_mean(confidence)
-}
 
 ///
 /// Structure to collect statistics on two unpaired samples.
@@ -913,49 +870,6 @@ impl<F: Float> std::ops::Add<Self> for Unpaired<F> {
             stats_b: self.stats_b + rhs.stats_b,
         }
     }
-}
-
-#[deprecated(note = "Use Unpaired::ci instead")]
-///
-/// Given two independent samples, compute the confidence interval of the difference between their means.
-/// Unlike [`paired_ci`], the two samples do not have to have the same length.
-/// However, comparing with unpaired observations typically requires considerably more observations to
-/// reach the same conclusions.
-///
-/// This function is deprecated in favor of [`Unpaired::ci`].
-///
-/// # Arguments
-///
-/// * `confidence` - the confidence level
-/// * `data_a` - the first sample
-/// * `data_b` - the second sample
-///
-/// # Returns
-///
-/// The confidence interval of the difference as a result.
-///
-/// # Notes
-///
-/// If the interval includes zero, the difference is not significant.
-/// If the interval is strictly positive (resp. negative), the mean of the first sample is significantly
-/// greater (resp. smaller) than the mean of the second sample.
-///
-/// [`paired_ci`]: fn.paired_ci.html
-///
-/// # References
-///
-/// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
-/// * [Wikipedia article on Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test)
-/// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
-///
-pub fn unpaired_ci<T: Float>(
-    confidence: Confidence,
-    data_a: &[T],
-    data_b: &[T],
-) -> CIResult<Interval<T>> {
-    let mut stats = comparison::Unpaired::<T>::default();
-    stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
-    stats.ci_mean(confidence)
 }
 
 #[cfg(test)]
