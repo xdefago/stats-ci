@@ -8,7 +8,7 @@
 /// # Examples
 ///
 /// ## Creation
-/// 
+///
 /// To create a two-sided confidence interval with 95% confidence:
 /// ```
 /// # use stats_ci::Confidence;
@@ -33,7 +33,7 @@
 /// ```
 ///
 /// ## Accessors
-/// 
+///
 /// The confidence object provides several accessors:
 /// ```
 /// # use stats_ci::Confidence;
@@ -47,18 +47,18 @@
 /// assert!(!confidence.is_upper());
 /// assert!(!confidence.is_lower());
 /// ```
-/// 
+///
 /// ## Conversions
-/// 
+///
 /// ```
 /// # use stats_ci::Confidence;
 /// #
 /// let confidence = Confidence::new_upper(0.95);
 /// assert_eq!(confidence.flipped(), Confidence::new_lower(0.95));
 /// ```
-/// 
+///
 /// ## Comparison
-/// 
+///
 /// ```
 /// # use stats_ci::Confidence;
 /// #
@@ -66,7 +66,7 @@
 /// assert!(confidence > Confidence::new(0.9));
 /// assert!(confidence < Confidence::new(0.99));
 /// ```
-/// 
+///
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Confidence {

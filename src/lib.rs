@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-
 #![crate_type = "lib"]
 #![crate_name = "stats_ci"]
 #![forbid(unsafe_code)]

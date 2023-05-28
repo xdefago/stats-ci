@@ -1,7 +1,7 @@
 //!
 //! Implements the [`Interval`] enum, which represents a confidence interval
 //! over a partially ordered type
-//! 
+//!
 //! Note that floating point numbers are only partially ordered because of `NaN`.
 //!
 
@@ -24,7 +24,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// let interval = Interval::new_lower(10.);
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
-/// 
+///
 /// ## Accessors
 /// ```
 /// # use stats_ci::*;
@@ -41,7 +41,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// assert_eq!(interval.is_degenerate(), false);
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
-/// 
+///
 /// ## Comparison
 /// ```
 /// # use stats_ci::*;
@@ -57,7 +57,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// assert!(!interval.contains(&20.));
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
-/// 
+///
 /// ## Operations
 /// ```
 /// # use stats_ci::*;
@@ -68,7 +68,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// assert_eq!(interval / 2., Interval::new(1., 2.)?);
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
-/// 
+///
 /// ## Conversions
 /// ```
 /// # use stats_ci::*;
@@ -83,7 +83,7 @@ use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 /// assert_eq!(format!("{}", Interval::new_upper(2.)), String::from("[2,->)"));
 /// # Ok::<(),stats_ci::error::IntervalError>(())
 /// ```
-/// 
+///
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Interval<T>
