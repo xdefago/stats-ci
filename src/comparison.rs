@@ -132,24 +132,24 @@ use num_traits::Float;
 
 ///
 /// Structure to collect statistics on two paired samples.
-/// 
+///
 /// Paired observations are when each measurement in the first sample is paired with
 /// a measurement in the second sample.
 /// For instance, when measuring the performance of two algorithms, the same input
 /// data is used for both algorithms to yield a pair of related observations.
-/// 
+///
 /// When observations cannot naturally be paired, the samples must be compared using
 /// unpaired observations (see [`Unpaired`]). Typically, unpaired observations require
 /// noticeably more observations to achieve the same statistical significance.
-/// 
+///
 /// # Examples
-/// 
+///
 /// The example below considers the zinc concentration in water samples from a river.
 /// Each sample is taken at the same location, but one at the bottom of the river and
 /// the other at the surface. Thus, those measurements are paired (bottom and surface).
 /// See <https://online.stat.psu.edu/stat500/lesson/7/7.3/7.3.2> for details on this
 /// example.
-/// 
+///
 /// ```
 /// # use stats_ci::*;
 /// // Zinc concentration in water samples from a river
@@ -164,7 +164,7 @@ use num_traits::Float;
 /// stats.extend(data_bottom_water, data_surface_water).unwrap();
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
 /// ```
-/// 
+///
 /// # References
 ///
 /// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
@@ -439,9 +439,10 @@ impl<T: Float> Default for Paired<T> {
     }
 }
 
-impl<F: Float> std::ops::Add<Self> for Paired<F> {
+impl<F: Float> std::ops::Add for Paired<F> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             stats: self.stats + rhs.stats,
@@ -449,6 +450,12 @@ impl<F: Float> std::ops::Add<Self> for Paired<F> {
     }
 }
 
+impl<F: Float> std::ops::AddAssign for Paired<F> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.stats += rhs.stats;
+    }
+}
 
 ///
 /// Structure to collect statistics on two unpaired samples.
@@ -460,7 +467,7 @@ impl<F: Float> std::ops::Add<Self> for Paired<F> {
 /// However, comparing with unpaired observations typically requires considerably
 /// more observations to reach the same degree of statistical accuracy. This is
 /// why paired observations are preferred when the circumstances allow.
-/// 
+///
 /// # Examples
 ///
 /// ```
@@ -478,7 +485,7 @@ impl<F: Float> std::ops::Add<Self> for Paired<F> {
 /// ```
 ///
 /// # References
-/// 
+///
 /// * R. Jain, The Art of Computer Systems Performance Analysis, Wiley, 1991.
 /// * [Wikipedia article on Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test)
 /// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
@@ -861,14 +868,23 @@ impl<T: Float> Unpaired<T> {
     }
 }
 
-impl<F: Float> std::ops::Add<Self> for Unpaired<F> {
+impl<F: Float> std::ops::Add for Unpaired<F> {
     type Output = Self;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
             stats_a: self.stats_a + rhs.stats_a,
             stats_b: self.stats_b + rhs.stats_b,
         }
+    }
+}
+
+impl<F: Float> std::ops::AddAssign for Unpaired<F> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.stats_a += rhs.stats_a;
+        self.stats_b += rhs.stats_b;
     }
 }
 

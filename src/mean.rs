@@ -443,12 +443,19 @@ impl<F: Float> Arithmetic<F> {
     }
 }
 
-impl<F: Float> std::ops::Add<Self> for Arithmetic<F> {
+impl<F: Float> std::ops::Add for Arithmetic<F> {
     type Output = Self;
 
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         self.add(rhs)
+    }
+}
+
+impl<F: Float> std::ops::AddAssign for Arithmetic<F> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        *self = self.add(rhs);
     }
 }
 
@@ -596,12 +603,19 @@ impl<F: Float> Default for Harmonic<F> {
     }
 }
 
-impl<F: Float> std::ops::Add<Self> for Harmonic<F> {
+impl<F: Float> std::ops::Add for Harmonic<F> {
     type Output = Self;
 
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         self.add(rhs)
+    }
+}
+
+impl<F: Float> std::ops::AddAssign for Harmonic<F> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        *self = self.add(rhs);
     }
 }
 
@@ -746,12 +760,19 @@ impl<F: Float> Default for Geometric<F> {
     }
 }
 
-impl<F: Float> std::ops::Add<Self> for Geometric<F> {
+impl<F: Float> std::ops::Add for Geometric<F> {
     type Output = Self;
 
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         self.add(rhs)
+    }
+}
+
+impl<F: Float> std::ops::AddAssign for Geometric<F> {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        *self = self.add(rhs);
     }
 }
 
@@ -987,31 +1008,101 @@ mod tests {
     }
 
     #[test]
-    fn test_stats_sum() {
+    fn test_arithmetic_add() {
         const VALUE: f32 = 0.1;
         let size = 1_000_000;
 
         let mut stats_ref = Arithmetic::default();
         let mut stats_summed = Arithmetic::default();
+        let mut stats_summed_in_place = Arithmetic::default();
         for _ in 0..size {
             stats_ref.append(VALUE).unwrap();
 
             let mut new_stat = Arithmetic::default();
             new_stat.append(VALUE).unwrap();
             stats_summed = stats_summed + new_stat;
+            stats_summed_in_place += new_stat;
         }
 
         assert_eq!(stats_ref.sample_count(), size);
         assert_eq!(stats_summed.sample_count(), size);
+        assert_eq!(stats_summed_in_place.sample_count(), size);
 
         assert_eq!(stats_ref.sample_mean(), stats_summed.sample_mean());
         assert_eq!(stats_ref.sample_variance(), stats_summed.sample_variance());
         assert_eq!(stats_ref.sample_std_dev(), stats_summed.sample_std_dev());
         assert_eq!(stats_ref.sample_sem(), stats_summed.sample_sem());
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed_in_place.sample_mean());
+        assert_eq!(
+            stats_ref.sample_variance(),
+            stats_summed_in_place.sample_variance()
+        );
+        assert_eq!(
+            stats_ref.sample_std_dev(),
+            stats_summed_in_place.sample_std_dev()
+        );
+        assert_eq!(stats_ref.sample_sem(), stats_summed_in_place.sample_sem());
     }
 
     #[test]
-    fn test_blah() -> CIResult<()> {
+    fn test_geometric_add() {
+        const VALUE: f32 = 0.1;
+        let size = 1_000_000;
+
+        let mut stats_ref = Geometric::default();
+        let mut stats_summed = Geometric::default();
+        let mut stats_summed_in_place = Geometric::default();
+        for _ in 0..size {
+            stats_ref.append(VALUE).unwrap();
+
+            let mut new_stat = Geometric::default();
+            new_stat.append(VALUE).unwrap();
+            stats_summed = stats_summed + new_stat;
+            stats_summed_in_place += new_stat;
+        }
+
+        assert_eq!(stats_ref.sample_count(), size);
+        assert_eq!(stats_summed.sample_count(), size);
+        assert_eq!(stats_summed_in_place.sample_count(), size);
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed.sample_mean());
+        assert_eq!(stats_ref.sample_sem(), stats_summed.sample_sem());
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed_in_place.sample_mean());
+        assert_eq!(stats_ref.sample_sem(), stats_summed_in_place.sample_sem());
+    }
+
+    #[test]
+    fn test_harmonic_add() {
+        const VALUE: f32 = 0.1;
+        let size = 1_000_000;
+
+        let mut stats_ref = Harmonic::default();
+        let mut stats_summed = Harmonic::default();
+        let mut stats_summed_in_place = Harmonic::default();
+        for _ in 0..size {
+            stats_ref.append(VALUE).unwrap();
+
+            let mut new_stat = Harmonic::default();
+            new_stat.append(VALUE).unwrap();
+            stats_summed = stats_summed + new_stat;
+            stats_summed_in_place += new_stat;
+        }
+
+        assert_eq!(stats_ref.sample_count(), size);
+        assert_eq!(stats_summed.sample_count(), size);
+        assert_eq!(stats_summed_in_place.sample_count(), size);
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed.sample_mean());
+        assert_eq!(stats_ref.sample_sem(), stats_summed.sample_sem());
+
+        assert_eq!(stats_ref.sample_mean(), stats_summed_in_place.sample_mean());
+        assert_eq!(stats_ref.sample_sem(), stats_summed_in_place.sample_sem());
+    }
+
+    #[test]
+    fn test_misc() -> CIResult<()> {
         let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
         let stats = mean::Arithmetic::from_iter(data)?;
         assert_eq!(stats.sample_count(), 10);

@@ -147,6 +147,24 @@ impl Stats {
     }
 }
 
+impl std::ops::Add for Stats {
+    type Output = Self;
+
+    #[inline]
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            population: self.population + rhs.population,
+        }
+    }
+}
+
+impl std::ops::AddAssign for Stats {
+    #[inline]
+    fn add_assign(&mut self, rhs: Self) {
+        self.population += rhs.population;
+    }
+}
+
 ///
 /// Compute the confidence interval for a given quantile, assuming that the data is __already sorted__.
 /// This is the function to call if the data is known to be sorted,
@@ -507,5 +525,17 @@ mod tests {
             assert_eq!(interval, Interval::new(5, 12)?);
         }
         Ok(())
+    }
+
+    #[test]
+    fn test_proportion_add() {
+        let stats1 = quantile::Stats::new(100);
+        let stats2 = quantile::Stats::new(250);
+        let stats = stats1 + stats2;
+        assert_eq!(stats, quantile::Stats::new(350));
+
+        let mut stats = quantile::Stats::new(100);
+        stats += quantile::Stats::new(250);
+        assert_eq!(stats, quantile::Stats::new(350));
     }
 }

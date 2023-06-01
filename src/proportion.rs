@@ -281,6 +281,26 @@ impl std::ops::Add for Stats {
     }
 }
 
+impl std::ops::AddAssign for Stats {
+    ///
+    /// Combines two statistics objects by adding the number of samples and the number of successes.
+    ///
+    /// Complexity: \\( O(1) \\)
+    ///
+    /// # Examples
+    /// ```
+    /// # use stats_ci::*;
+    /// let mut stats1 = proportion::Stats::new(100, 50);
+    /// let stats2 = proportion::Stats::new(200, 100);
+    /// stats1 += stats2;
+    /// assert_eq!(stats1, proportion::Stats::new(300, 150));
+    /// ```
+    fn add_assign(&mut self, rhs: Self) {
+        self.population += rhs.population;
+        self.successes += rhs.successes;
+    }
+}
+
 ///
 /// Computes the (two sided) confidence interval over the proportion of true values in a given sample.
 ///
@@ -665,6 +685,18 @@ mod tests {
         let confidence = Confidence::TwoSided(0.95);
         let ci = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
         assert_abs_diff_eq!(ci, Interval::new(0.299, 0.701).unwrap(), epsilon = 1e-2);
+    }
+
+    #[test]
+    fn test_proportion_add() {
+        let stats1 = proportion::Stats::new(100, 50);
+        let stats2 = proportion::Stats::new(200, 100);
+        let stats = stats1 + stats2;
+        assert_eq!(stats, proportion::Stats::new(300, 150));
+
+        let mut stats = proportion::Stats::new(100, 50);
+        stats += proportion::Stats::new(200, 100);
+        assert_eq!(stats, proportion::Stats::new(300, 150));
     }
 
     #[test]
