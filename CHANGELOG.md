@@ -5,7 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.12 (2023-06-01)
+
+### Documentation
+
+ - <csr-id-7cefe8ac6e41663fb4f8ba22033367153cff2ac8/> add links; describe statistics;
+   also merge contribution text
+ - <csr-id-cdb522b18e129a001395da3aa2b1a2b9dd1f709a/> extend docs for `Paired` and `Unpaired`
+ - <csr-id-ea85129dc9839b50172db5ed23a6a0241786c886/> extend docs for Confidence and Interval
+ - <csr-id-44624e21593dfb71fda76db0ecac6aa656735920/> reformat text and code
+
+### New Features
+
+ - <csr-id-a535db442576f9ab419d7a72b09f658e80330175/> add AddAssign and relevant tests
+ - <csr-id-2922a8b3279768d34a38c203c884413f0b067e41/> add AddAssign and relevant tests
+
+### Other
+
+ - <csr-id-72b6099f2f5ddead0376bf08bf4d4aa99b9773b1/> update description
+
+### Style
+
+ - <csr-id-3785dbb741a2c9e58dd9276243835d7f5173c07c/> reformat code
+ - <csr-id-b65214924fd3e26c421c4591d5a87b3094175aad/> rename `state` to `stats` for consistency
+
+### Test
+
+ - <csr-id-a613057380473a8cabb3b88d3a2ef295dd914fdc/> update comment
+
+### Refactor (BREAKING)
+
+ - <csr-id-49e145e9e0d09a25e43cfcd6ec031d9379a4e175/> delete deprecated functions
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 12 commits contributed to the release over the course of 5 calendar days.
+ - 5 days passed between releases.
+ - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Merge ([`111e38f`](https://github.com/xdefago/stats-ci/commit/111e38f3c8b1a2466a5e02708fb93c239e653ce9))
+    - Add AddAssign and relevant tests ([`a535db4`](https://github.com/xdefago/stats-ci/commit/a535db442576f9ab419d7a72b09f658e80330175))
+    - Add AddAssign and relevant tests ([`2922a8b`](https://github.com/xdefago/stats-ci/commit/2922a8b3279768d34a38c203c884413f0b067e41))
+    - Delete deprecated functions ([`49e145e`](https://github.com/xdefago/stats-ci/commit/49e145e9e0d09a25e43cfcd6ec031d9379a4e175))
+    - Add links; describe statistics; ([`7cefe8a`](https://github.com/xdefago/stats-ci/commit/7cefe8ac6e41663fb4f8ba22033367153cff2ac8))
+    - Extend docs for `Paired` and `Unpaired` ([`cdb522b`](https://github.com/xdefago/stats-ci/commit/cdb522b18e129a001395da3aa2b1a2b9dd1f709a))
+    - Reformat code ([`3785dbb`](https://github.com/xdefago/stats-ci/commit/3785dbb741a2c9e58dd9276243835d7f5173c07c))
+    - Extend docs for Confidence and Interval ([`ea85129`](https://github.com/xdefago/stats-ci/commit/ea85129dc9839b50172db5ed23a6a0241786c886))
+    - Update description ([`72b6099`](https://github.com/xdefago/stats-ci/commit/72b6099f2f5ddead0376bf08bf4d4aa99b9773b1))
+    - Update comment ([`a613057`](https://github.com/xdefago/stats-ci/commit/a613057380473a8cabb3b88d3a2ef295dd914fdc))
+    - Reformat text and code ([`44624e2`](https://github.com/xdefago/stats-ci/commit/44624e21593dfb71fda76db0ecac6aa656735920))
+    - Rename `state` to `stats` for consistency ([`b652149`](https://github.com/xdefago/stats-ci/commit/b65214924fd3e26c421c4591d5a87b3094175aad))
+</details>
+
 ## v0.0.11 (2023-05-27)
+
+<csr-id-290ce9786a54b9430b22e9dcd559f8ee4911479a/>
+<csr-id-b276bc94b23694b60b85d820f32705732fd8df86/>
+<csr-id-3ea954c464977c136139a7c0932ec68faaa36b87/>
+<csr-id-960fef8d4d5108cb214f4e0b9dbd095b01fda771/>
+<csr-id-4a696e04aa2013ab73392d4a6319e96d703ecdbf/>
+<csr-id-f632e853d4de2c422b6c5433cff96c71daa4afce/>
+<csr-id-c973aee0231082781f32bd6ed91cd9e648d9d43c/>
+<csr-id-4588bcad924b68b296dfb6f15914b56cb8506057/>
 
 ### Documentation
 
@@ -67,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 14 commits contributed to the release over the course of 3 calendar days.
+ - 15 commits contributed to the release over the course of 3 calendar days.
  - 3 days passed between releases.
  - 14 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -79,6 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.11 ([`4517225`](https://github.com/xdefago/stats-ci/commit/45172257daef16e6412d256826832c7af5c705b7))
     - Update criterion version ([`290ce97`](https://github.com/xdefago/stats-ci/commit/290ce9786a54b9430b22e9dcd559f8ee4911479a))
     - Combine README and root doc ([`633f570`](https://github.com/xdefago/stats-ci/commit/633f5707e2725aa21000236b07cb601627f4daf0))
     - Improve style based on clippy ([`960fef8`](https://github.com/xdefago/stats-ci/commit/960fef8d4d5108cb214f4e0b9dbd095b01fda771))
