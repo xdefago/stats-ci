@@ -6,36 +6,36 @@
 /// Confidence level of a confidence interval.
 ///
 /// ## Operations
-/// 
+///
 /// ### Creation
-/// 
+///
 /// * [`Confidence::new`] - create a new two-sided confidence interval with the given confidence level
 /// * [`Confidence::new_two_sided`] - _idem_
 /// * [`Confidence::new_upper`] - create a new one-sided upper confidence interval with the given confidence level
 /// * [`Confidence::new_lower`] - create a new one-sided lower confidence interval with the given confidence level
-/// 
+///
 /// ### Accessors
-/// 
+///
 /// * [`Confidence::level`] - return the confidence level of the interval as a number in the range (0, 1)
 /// * [`Confidence::percent`] - return the confidence level of the interval as a percentage
 /// * [`Confidence::kind`] - return the kind of the confidence interval as a string (in English)
-/// 
+///
 /// ### Characteristics
 ///
 /// * [`Confidence::is_two_sided`] - test if the confidence interval is two-sided
 /// * [`Confidence::is_one_sided`] - test if the confidence interval is one-sided
 /// * [`Confidence::is_upper`] - test if the confidence interval is upper (one-sided)
 /// * [`Confidence::is_lower`] - test if the confidence interval is lower (one-sided)
-/// 
+///
 /// ### Conversions
-/// 
+///
 /// * [`Confidence::flipped`] - return the confidence interval with the same confidence level but flipped (e.g., upper to lower)
-/// 
+///
 /// ### Comparison
-/// 
+///
 /// [`Confidence`] implements [`PartialOrd`] where some confidence `a` is less than some confidence `b`
 /// if they are of the same kind and the confidence level of `a` is less than the confidence level of `b`.
-/// 
+///
 /// # Examples
 ///
 /// ## Creation
