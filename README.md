@@ -81,7 +81,7 @@ let data = [
 
 This crate makes it easy to compute confidence intervals based on sample data for various situations, including mean, quantiles, proportions, and comparison.
 
-This crate exports a type [`Confidence`] to express a confidence level and
+This crate is build around a type [`Confidence`] to express a confidence level and
 a type [`Interval`] to represent a confidence interval.
 Intervals are generic and can be instantiated for various types, beyond the usual
 float or integer types.

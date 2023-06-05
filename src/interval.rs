@@ -2,7 +2,7 @@
 //! Implements the [`Interval`] enum, which represents a confidence interval
 //! over a partially ordered type
 //!
-//! Note that floating point numbers are only partially ordered because of `NaN`.
+//! Note that floating point numbers are only partially ordered because of `NaN` values.
 //!
 
 use num_traits::float::FloatCore;
@@ -10,10 +10,81 @@ use std::ops::RangeBounds;
 use std::ops::Sub;
 use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 
-/// Interval over a partially ordered type (NB: floating point numbers are partially ordered because of `NaN`).
-/// The interval is defined by its lower and upper bounds.
-/// One-sided intervals (with a single concrete bound) are also supported.
+/// Interval over a partially ordered type (NB: floating point numbers are only partially ordered because of `NaN` values).
+/// The interval is defined by its lower and upper bounds. One-sided intervals (with a single concrete bound) are also supported.
+/// In this crate, intervals are considered inclusive of their (finite) bounds.
+/// 
+/// ## Type parameters
+/// 
+/// * `T`: The type over which the interval is defined. It must be partially ordered.
+/// 
+/// ## Variants
+/// 
+/// * `TwoSided(T, T)`: Two-sided interval with lower and upper bounds. The interval is defined as [low, high]. The bounds are included in the interval.
+/// * `UpperOneSided(T)`: Upper one-sided interval with a lower bound. The interval is defined as [low, +∞). The lower bound is included in the interval.
+/// * `LowerOneSided(T)`: Lower one-sided interval with an upper bound. The interval is defined as (-∞, high]. The upper bound is included in the interval.
+/// 
+/// Intervals support various operations that depend on the type `T` over which they are defined.
+/// 
+/// ## Operations
+/// 
+/// ### Creation
+/// 
+/// * [`Self::new(low, high)`](#method.new): Create a new interval from its left and right bounds for ordered types with equality.
+/// * [`Self::new_upper(low)`](#method.new_upper): Create a new upper one-sided interval from its left bound.
+/// * [`Self::new_lower(high)`](#method.new_lower): Create a new lower one-sided interval from its right bound.
+/// 
+/// ### Accessors
+/// 
+/// * [`Self::low()`](#method.low): Get the lower bound of the interval (if any) for partially ordered types.
+/// * [`Self::high()`](#method.high): Get the upper bound of the interval (if any) for partially ordered types.
+/// * [`Self::low_f()`](#method.low_f): Get the lower bound of the interval (if any) for floating point types.
+/// * [`Self::high_f()`](#method.high_f): Get the upper bound of the interval (if any) for floating point types.
+/// * [`Self::low_i()`](#method.low_i): Get the lower bound of the interval (if any) for signed integer types.
+/// * [`Self::high_i()`](#method.high_i): Get the upper bound of the interval (if any) for signed integer types.
+/// * [`Self::low_u()`](#method.low_u): Get the lower bound of the interval (if any) for unsigned integer types.
+/// * [`Self::high_u()`](#method.high_u): Get the upper bound of the interval (if any) for unsigned integer types.
+/// * [`Self::low_as_ref()`](#method.low_as_ref): Get a reference to the lower bound of the interval (if any).
+/// * [`Self::high_as_ref()`](#method.high_as_ref): Get a reference to the upper bound of the interval (if any).
+/// * [`Self::left()`](#method.left): Get the left bound of the interval (if any).
+/// * [`Self::right()`](#method.right): Get the right bound of the interval (if any).
+/// 
+/// ### Characteristics
+/// 
+/// * [`Self::is_two_sided()`](#method.is_two_sided): Test whether the interval is two-sided.
+/// * [`Self::is_one_sided()`](#method.is_one_sided): Test whether the interval is one-sided.
+/// * [`Self::is_upper()`](#method.is_upper): Test whether the interval is an upper one-sided interval.
+/// * [`Self::is_lower()`](#method.is_lower): Test whether the interval is a lower one-sided interval.
+/// * [`Self::is_degenerate()`](#method.is_degenerate): Test whether the interval is degenerate.
+/// 
+/// ### Comparison
+/// 
+/// * [`Self::intersects(other)`](#method.intersects): Test whether the interval intersects another interval.
+/// * [`Self::is_included_in(other)`](#method.is_included_in): Test whether the interval is included in another interval.
+/// * [`Self::includes(other)`](#method.includes): Test whether the interval includes another interval.
+/// * [`Self::contains(x)`](#method.contains): Test whether the interval contains a value.
+/// * approximate equality with [`approx`](https://docs.rs/approx/0.3.3/approx/) if the `approx` feature is enabled.
+/// 
+/// ### Operators with a scalar value
+/// 
+/// * [`Self::mul(rhs)`](#method.mul): Multiply the interval by a value.
+/// * [`Self::div(rhs)`](#method.div): Divide the interval by a value.
+/// * [`Self::add(rhs)`](#method.add): Add a value to the interval.
+/// * [`Self::sub(rhs)`](#method.sub): Subtract a value from the interval.
+/// 
+/// ### Operators with another interval
+/// 
+/// * [`Self::relative_to(reference)`](#method.relative_to): Given two intervals, compute the relative interval compared to the reference (argument). The relative interval is defined as the interval of the ratios of the two intervals.
+/// 
+/// ### Conversions
+/// 
+/// * [`Self::try_from(value)`](#method.try_from): Create a new interval from a tuple of bounds. The first element of the tuple is the lower bound, the second element is the upper bound. If the lower bound is greater than the upper bound, an error is returned.
+/// * [`Self::from(range)`](#method.from): Create a new interval from a range. The range must be bounded. If the lower bound is greater than the upper bound, an error is returned.
 ///
+/// ### Display
+/// 
+/// * [`Self::fmt()`](#method.fmt): Format the interval as a string.
+///  
 /// # Examples
 ///
 /// ## Creation
