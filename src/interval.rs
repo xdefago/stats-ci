@@ -5,9 +5,10 @@
 //! Note that floating point numbers are only partially ordered because of `NaN` values.
 //!
 
+use num_traits::Num;
 use num_traits::float::FloatCore;
 use std::ops::RangeBounds;
-use std::ops::Sub;
+use std::ops::{Add,Sub,Mul,Div,Neg};
 use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 
 /// Interval over a partially ordered type (NB: floating point numbers are only partially ordered because of `NaN` values).
@@ -643,7 +644,7 @@ where
     }
 }
 
-impl<F: std::ops::Mul<F, Output = F> + PartialOrd + Copy> std::ops::Mul<F> for Interval<F> {
+impl<F: Mul<F, Output = F> + PartialOrd + Copy> Mul<F> for Interval<F> {
     type Output = Self;
 
     fn mul(self, rhs: F) -> Self::Output {
@@ -651,7 +652,7 @@ impl<F: std::ops::Mul<F, Output = F> + PartialOrd + Copy> std::ops::Mul<F> for I
     }
 }
 
-impl<F: std::ops::Div<F, Output = F> + PartialOrd + Copy> std::ops::Div<F> for Interval<F> {
+impl<F: Div<F, Output = F> + PartialOrd + Copy> Div<F> for Interval<F> {
     type Output = Self;
 
     fn div(self, rhs: F) -> Self::Output {
@@ -659,7 +660,7 @@ impl<F: std::ops::Div<F, Output = F> + PartialOrd + Copy> std::ops::Div<F> for I
     }
 }
 
-impl<F: std::ops::Add<F, Output = F> + PartialOrd + Copy> std::ops::Add<F> for Interval<F> {
+impl<F: Add<F, Output = F> + PartialOrd + Copy> Add<F> for Interval<F> {
     type Output = Self;
 
     fn add(self, rhs: F) -> Self::Output {
@@ -667,11 +668,75 @@ impl<F: std::ops::Add<F, Output = F> + PartialOrd + Copy> std::ops::Add<F> for I
     }
 }
 
-impl<F: std::ops::Sub<F, Output = F> + PartialOrd + Copy> std::ops::Sub<F> for Interval<F> {
+impl<F: Sub<F, Output = F> + PartialOrd + Copy> Sub<F> for Interval<F> {
     type Output = Self;
 
     fn sub(self, rhs: F) -> Self::Output {
         self.applied_both(|x| x - rhs)
+    }
+}
+
+impl<F: Neg<Output = F> + PartialOrd + Copy> Neg for Interval<F> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        self.applied_both(|x| -x)
+    }
+}
+
+impl<F: Num + PartialOrd + Copy> Add for Interval<F> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
+                Interval::TwoSided(a + x, b + y)
+            }
+            (Interval::TwoSided(a, _) | Interval::UpperOneSided(a), Interval::UpperOneSided(x)) => {
+                Interval::UpperOneSided(a + x)
+            }
+            (Interval::TwoSided(_, b) | Interval::LowerOneSided(b), Interval::LowerOneSided(y)) => {
+                Interval::LowerOneSided(b + y)
+            }
+            (Interval::UpperOneSided(a), Interval::TwoSided(x, _)) => {
+                Interval::UpperOneSided(a + x)
+            }
+            (Interval::LowerOneSided(b), Interval::TwoSided(_, y)) => {
+                Interval::LowerOneSided(b + y)
+            }
+            (Interval::UpperOneSided(_), Interval::LowerOneSided(_)) 
+            | (Interval::LowerOneSided(_), Interval::UpperOneSided(_)) => {
+                panic!("Cannot add one-sided intervals with different directions (all values interval)")
+            }
+        }
+    }
+}
+
+impl<F: Num + PartialOrd + Copy> Sub for Interval<F> {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Interval::TwoSided(a, b), Interval::TwoSided(x, y)) => {
+                Interval::TwoSided(a - y, b - x)
+            }
+            (Interval::TwoSided(_, b) | Interval::LowerOneSided(b), Interval::UpperOneSided(x)) => {
+                Interval::LowerOneSided(b - x)
+            }
+            (Interval::TwoSided(a, _) | Interval::UpperOneSided(a), Interval::LowerOneSided(y)) => {
+                Interval::UpperOneSided(a - y)
+            }
+            (Interval::UpperOneSided(a), Interval::TwoSided(_, y)) => {
+                Interval::UpperOneSided(a - y)
+            }
+            (Interval::LowerOneSided(b), Interval::TwoSided(x, _)) => {
+                Interval::LowerOneSided(b - x)
+            }
+            (Interval::UpperOneSided(_), Interval::UpperOneSided(_)) 
+            | (Interval::LowerOneSided(_), Interval::LowerOneSided(_)) => {
+                panic!("Cannot subtract one-sided intervals of the same directions (empty interval)")
+            }
+        }
     }
 }
 
