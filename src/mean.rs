@@ -40,7 +40,7 @@
 //!     37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let stats = mean::Arithmetic::from_iter(data)?;
+//! let stats = mean::Arithmetic::from_iter(&data)?;
 //! // reference values computed in python / numpy
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 53.67, epsilon = 1e-6);
@@ -61,7 +61,7 @@
 //! #    37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
-//! let stats = mean::Geometric::from_iter(data)?;
+//! let stats = mean::Geometric::from_iter(&data)?;
 //! // reference values computed in python / numpy
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-6);
@@ -81,7 +81,7 @@
 //! #    37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
-//! let stats = mean::Harmonic::from_iter(data)?;
+//! let stats = mean::Harmonic::from_iter(&data)?;
 //! // reference values computed in python / numpy
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 30.031313156339586, epsilon = 1e-6);
@@ -106,7 +106,7 @@ use num_traits::Float;
 /// ```
 /// use stats_ci::*;
 /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
-/// let stats = mean::Arithmetic::from_iter(data)?;
+/// let stats = mean::Arithmetic::from_iter(&data)?;
 /// assert_eq!(stats.sample_count(), 10);
 /// assert_eq!(stats.sample_mean(), 5.5);
 /// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
@@ -135,7 +135,7 @@ pub trait StatisticsOps<F: Float>: Default {
     /// # use approx::*;
     /// use stats_ci::*;
     /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
-    /// let stats = mean::Arithmetic::from_iter(data)?;
+    /// let stats = mean::Arithmetic::from_iter(&data)?;
     /// assert_eq!(stats.sample_count(), 10);
     /// assert_eq!(stats.sample_mean(), 5.5);
     /// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
@@ -148,11 +148,14 @@ pub trait StatisticsOps<F: Float>: Default {
     /// ```
     /// # use stats_ci::*;
     /// # let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
-    /// let stats = mean::Arithmetic::new().extend(data)?;
+    /// let stats = mean::Arithmetic::new().extend(&data)?;
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
-    fn from_iter<I: IntoIterator<Item = F>>(data: I) -> CIResult<Self> {
+    fn from_iter<I>(data: &I) -> CIResult<Self>
+    where
+        for<'a> &'a I: IntoIterator<Item = &'a F>,
+    {
         let mut stats = Self::default();
         stats.extend(data)?;
         Ok(stats)
@@ -212,9 +215,12 @@ pub trait StatisticsOps<F: Float>: Default {
     ///
     /// * [`CIError::NonPositiveValue`] - If the input data is invalid (for harmonic/geometric means).
     ///
-    fn extend<I: IntoIterator<Item = F>>(&mut self, data: I) -> CIResult<()> {
+    fn extend<I>(&mut self, data: &I) -> CIResult<()>
+    where
+        for<'a> &'a I: IntoIterator<Item = &'a F>,
+    {
         for x_i in data {
-            self.append(x_i)?;
+            self.append(*x_i)?;
         }
         Ok(())
     }
@@ -238,9 +244,9 @@ pub trait StatisticsOps<F: Float>: Default {
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
     ///
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
     where
-        I: IntoIterator<Item = F>;
+        for<'a> &'a I: IntoIterator<Item = &'a F>;
 }
 
 macro_rules! impl_statistics_ops_for {
@@ -267,9 +273,9 @@ macro_rules! impl_statistics_ops_for {
                 self.sample_count()
             }
             #[inline]
-            fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+            fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
             where
-                I: IntoIterator<Item = F>,
+                for<'a> &'a I: IntoIterator<Item = &'a F>,
             {
                 <$x>::ci(confidence, data)
             }
@@ -435,9 +441,9 @@ impl<F: Float> Arithmetic<F> {
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
     ///
-    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    pub fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
     where
-        I: IntoIterator<Item = F>,
+        for<'a> &'a I: IntoIterator<Item = &'a F>,
     {
         Self::from_iter(data)?.ci_mean(confidence)
     }
@@ -587,9 +593,9 @@ impl<F: Float> Harmonic<F> {
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
     ///
-    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    pub fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
     where
-        I: IntoIterator<Item = F>,
+        for<'a> &'a I: IntoIterator<Item = &'a F>,
     {
         Self::from_iter(data)?.ci_mean(confidence)
     }
@@ -744,9 +750,9 @@ impl<F: Float> Geometric<F> {
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
     ///
-    pub fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+    pub fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
     where
-        I: IntoIterator<Item = F>,
+        for<'a> &'a I: IntoIterator<Item = &'a F>,
     {
         Self::from_iter(data)?.ci_mean(confidence)
     }
@@ -796,7 +802,7 @@ impl<F: Float> std::ops::AddAssign for Geometric<F> {
 ///    37., 72., 62., 77., 63., 100., 40., 84., 77., 39., 71., 61., 17., 77.,
 /// ];
 /// let confidence = Confidence::new_two_sided(0.95);
-/// let ci = mean::Arithmetic::ci(confidence, data)?;
+/// let ci = mean::Arithmetic::ci(confidence, &data)?;
 /// // arithmetic mean: 52.5
 ///
 /// use num_traits::Float;
@@ -825,17 +831,17 @@ pub trait MeanCI<T: PartialOrd> {
     /// * [`CIError::InvalidInputData`] - If the input data contains invalid values (e.g. NaN)
     /// * [`CIError::FloatConversionError`] - If some data cannot be converted to a float
     ///
-    fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<T>>
+    fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<T>>
     where
-        I: IntoIterator<Item = T>;
+        for<'a> &'a I: IntoIterator<Item = &'a T>;
 }
 
 macro_rules! impl_mean_ci_for {
     ( $x:ty ) => {
         impl<F: Float> MeanCI<F> for $x {
-            fn ci<I>(confidence: Confidence, data: I) -> CIResult<Interval<F>>
+            fn ci<I>(confidence: Confidence, data: &I) -> CIResult<Interval<F>>
             where
-                I: IntoIterator<Item = F>,
+                for<'a> &'a I: IntoIterator<Item = &'a F>,
             {
                 <$x>::ci(confidence, data)
             }
@@ -864,7 +870,7 @@ mod tests {
         ];
 
         let confidence = Confidence::new_two_sided(0.95);
-        let ci = Arithmetic::ci(confidence, data)?;
+        let ci = Arithmetic::ci(confidence, &data)?;
         // mean: 53.67
         // stddev: 28.097613040716798
         // reference values computed in python
@@ -878,16 +884,16 @@ mod tests {
         assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67);
 
-        let one_sided_ci = Arithmetic::ci(Confidence::UpperOneSided(0.975), data)?;
+        let one_sided_ci = Arithmetic::ci(Confidence::UpperOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
-        let one_sided_ci = Arithmetic::ci(Confidence::LowerOneSided(0.975), data)?;
+        let one_sided_ci = Arithmetic::ci(Confidence::LowerOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let mut stats = Arithmetic::default();
-        stats.extend(data.iter().copied())?;
+        stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
 
         assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
@@ -917,7 +923,7 @@ mod tests {
         ];
 
         let confidence = Confidence::new_two_sided(0.95);
-        let ci = Geometric::ci(confidence, data)?;
+        let ci = Geometric::ci(confidence, &data)?;
         // geometric mean: 43.7268032829256
         //
         // reference values computed in python:
@@ -926,16 +932,16 @@ mod tests {
         assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
 
-        let one_sided_ci = Geometric::ci(Confidence::UpperOneSided(0.975), data)?;
+        let one_sided_ci = Geometric::ci(Confidence::UpperOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
-        let one_sided_ci = Geometric::ci(Confidence::LowerOneSided(0.975), data)?;
+        let one_sided_ci = Geometric::ci(Confidence::LowerOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let mut stats = Geometric::default();
-        stats.extend(data.iter().copied())?;
+        stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
         assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
@@ -964,7 +970,7 @@ mod tests {
         ];
 
         let confidence = Confidence::new_two_sided(0.95);
-        let ci = Harmonic::ci(confidence, data)?;
+        let ci = Harmonic::ci(confidence, &data)?;
         // harmonic mean: 30.031313156339586
         //
         // reference values computed in python:
@@ -973,11 +979,11 @@ mod tests {
         assert_abs_diff_eq!(ci.low_f(), 23.614092539657168, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.high_f(), 41.237860649168255, epsilon = 1e-8);
 
-        let one_sided_ci = Harmonic::ci(Confidence::UpperOneSided(0.975), data)?;
+        let one_sided_ci = Harmonic::ci(Confidence::UpperOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
-        let one_sided_ci = Harmonic::ci(Confidence::LowerOneSided(0.975), data)?;
+        let one_sided_ci = Harmonic::ci(Confidence::LowerOneSided(0.975), &data)?;
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -988,7 +994,7 @@ mod tests {
             0.17621009, 2.31810064, 0.15633061, 2.55137878, 1.11043948, 1.35923319, 1.58385561,
             0.63431437, 0.49993148, 0.49168534, 0.11533354,
         ];
-        let ci = Harmonic::ci(confidence, data)?;
+        let ci = Harmonic::ci(confidence, &data)?;
         // harmonic mean: 0.38041820166550844
         //
         // reference values computed in python:
@@ -998,7 +1004,7 @@ mod tests {
         assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
 
         let mut stats = Harmonic::default();
-        stats.extend(data.iter().copied())?;
+        stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
         assert_abs_diff_eq!(stats.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
         assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
@@ -1104,7 +1110,7 @@ mod tests {
     #[test]
     fn test_misc() -> CIResult<()> {
         let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
-        let stats = mean::Arithmetic::from_iter(data)?;
+        let stats = mean::Arithmetic::from_iter(&data)?;
         assert_eq!(stats.sample_count(), 10);
         assert_eq!(stats.sample_mean(), 5.5);
         assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);

@@ -21,7 +21,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     // 1. create a statistics object
     let mut stats = mean::Arithmetic::new();
     // 2. add data
-    stats.extend(data)?;
+    stats.extend(&data)?;
 
     // 3. define a confidence level
     let confidence = Confidence::new_two_sided(0.95);
@@ -60,7 +60,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     println!("high: {:?}", ci.high()); // high: None
 
     // get statistics for other means (harmonic)
-    let stats = mean::Harmonic::from_iter(data)?;
+    let stats = mean::Harmonic::from_iter(&data)?;
     let ci = stats.ci_mean(confidence)?;
     println!("harmonic mean: {}", stats.sample_mean());
     //     harmonic mean: 30.03131315633959
@@ -68,7 +68,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     //     ci: [23.614092539460778, 41.23786064976718]
 
     // get statistics for other means (geometric)
-    let stats = mean::Geometric::from_iter(data)?;
+    let stats = mean::Geometric::from_iter(&data)?;
     let ci = stats.ci_mean(confidence)?;
     println!("geometric mean: {}", stats.sample_mean());
     //     geometric mean: 43.7268032829256
@@ -76,7 +76,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     //     ci: [37.731050052007795, 50.675327686564806]
 
     // incremental/intermediate statistics also work
-    let mut stats = mean::Arithmetic::from_iter(data)?;
+    let mut stats = mean::Arithmetic::from_iter(&data)?;
     let ci = stats.ci_mean(confidence)?;
     // a. confidence interval from the original data
     println!("incr ci: {}", ci);
@@ -95,7 +95,7 @@ fn block_1() -> stats_ci::CIResult<()> {
     let stats = data
         .clone()
         .par_iter()
-        .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+        .map(|&x| mean::Arithmetic::from_iter(&[x]).unwrap())
         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
     println!("parallel ci: {}", stats.ci_mean(confidence)?);
     //     parallel ci: [48.09482399055084, 59.24517600944916]
@@ -111,11 +111,11 @@ fn block_2() -> stats_ci::CIResult<()> {
     let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     let confidence = Confidence::new_two_sided(0.95);
-    let ci = quantile::ci(confidence, data, quantile)?;
+    let ci = quantile::ci(confidence, &data, quantile)?;
     assert_eq!(ci, Interval::new(5, 12)?);
 
     let confidence = Confidence::new_two_sided(0.8);
-    let ci = quantile::ci(confidence, data, quantile)?;
+    let ci = quantile::ci(confidence, &data, quantile)?;
     assert_eq!(ci, Interval::new(6, 11)?);
 
     let data = [

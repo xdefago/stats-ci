@@ -18,12 +18,12 @@ fn bench_mean_arithmetic(c: &mut Criterion) {
         });
 
         group.bench_with_input(BenchmarkId::new("<f64>", size), &data, |b, data| {
-            b.iter(|| mean::Arithmetic::<f64>::ci(confidence, data.clone()))
+            b.iter(|| mean::Arithmetic::<f64>::ci(confidence, data))
         });
 
         let data = data.iter().map(|&x| x as f32).collect::<Vec<_>>();
         group.bench_with_input(BenchmarkId::new("<f32>", size), &data, |b, data| {
-            b.iter(|| mean::Arithmetic::<f32>::ci(confidence, data.clone()))
+            b.iter(|| mean::Arithmetic::<f32>::ci(confidence, data))
         });
     }
     group.finish();
@@ -39,15 +39,15 @@ fn bench_mean_category(c: &mut Criterion) {
         let data = (0..size).map(|_| rng.gen::<f64>()).collect::<Vec<_>>();
 
         group.bench_with_input(BenchmarkId::new("Arithmetic", size), &data, |b, data| {
-            b.iter(|| mean::Arithmetic::ci(confidence, data.clone()))
+            b.iter(|| mean::Arithmetic::ci(confidence, data))
         });
 
         group.bench_with_input(BenchmarkId::new("Harmonic", size), &data, |b, data| {
-            b.iter(|| mean::Harmonic::ci(confidence, data.clone()))
+            b.iter(|| mean::Harmonic::ci(confidence, data))
         });
 
         group.bench_with_input(BenchmarkId::new("Geometric", size), &data, |b, data| {
-            b.iter(|| mean::Geometric::ci(confidence, data.clone()))
+            b.iter(|| mean::Geometric::ci(confidence, data))
         });
     }
     group.finish();
@@ -65,7 +65,7 @@ fn bench_mean_rayon(c: &mut Criterion) {
         let data = (0..size).map(|_| rng.gen::<f64>()).collect::<Vec<_>>();
 
         group.bench_with_input(BenchmarkId::new("Sequential", size), &data, |b, data| {
-            b.iter(|| mean::Arithmetic::from_iter(data.clone())?.ci_mean(confidence))
+            b.iter(|| mean::Arithmetic::from_iter(data)?.ci_mean(confidence))
         });
 
         group.bench_with_input(
@@ -76,7 +76,13 @@ fn bench_mean_rayon(c: &mut Criterion) {
                     let stats = data
                         .clone()
                         .par_chunks(1000)
-                        .map(|chunk| mean::Arithmetic::from_iter(chunk.iter().copied()).unwrap())
+                        .map(|chunk| {
+                            let mut stats = mean::Arithmetic::new();
+                            for x in chunk {
+                                stats.append(*x).unwrap();
+                            }
+                            stats
+                        })
                         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 
                     stats.ci_mean(confidence)
@@ -92,7 +98,7 @@ fn bench_mean_rayon(c: &mut Criterion) {
                     let stats = data
                         .clone()
                         .par_iter()
-                        .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+                        .map(|&x| mean::Arithmetic::from_iter(&[x]).unwrap())
                         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 
                     stats.ci_mean(confidence)

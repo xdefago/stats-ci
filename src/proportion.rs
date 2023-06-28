@@ -10,7 +10,7 @@
 //!     false, false, false, true, false, true, false, false, true, false
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
-//! let interval = proportion::ci_true(confidence, data)?;
+//! let interval = proportion::ci_true(confidence, &data)?;
 //! use approx::*;
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
 //! # Ok::<(),error::CIError>(())
@@ -25,7 +25,7 @@
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let mut stats = proportion::Stats::default();
-//! stats.extend(data);
+//! stats.extend(&data);
 //! let interval = stats.ci(confidence)?;
 //! # use approx::*;
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
@@ -217,11 +217,20 @@ impl Stats {
     /// # use stats_ci::*;
     /// let data = [true, false, true, true, false, true, true, false, true, true];
     /// let mut stats = proportion::Stats::default();
-    /// stats.extend(data);
+    /// stats.extend(&data);
     /// assert_eq!(stats, proportion::Stats::new(10, 7));
     /// ```
-    pub fn extend<I: IntoIterator<Item = bool>>(&mut self, data: I) {
-        self.extend_if(data, |x| x)
+    pub fn extend<I>(&mut self, data: &I)
+    where
+        for<'a> &'a I: IntoIterator<Item = &'a bool>,
+    {
+        for &x_i in data {
+            if x_i {
+                self.add_success();
+            } else {
+                self.add_failure();
+            }
+        }
     }
 
     ///
@@ -239,13 +248,13 @@ impl Stats {
     /// # use stats_ci::*;
     /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     /// let mut stats = proportion::Stats::default();
-    /// stats.extend_if(data.iter(), |&x| x <= 5);
+    /// stats.extend_if(&data, |&x| x <= 5);
     /// assert_eq!(stats, proportion::Stats::new(10, 5));
     /// ```
-    pub fn extend_if<T, I, F>(&mut self, data: I, is_success: F)
+    pub fn extend_if<T, I, F>(&mut self, data: &I, is_success: F)
     where
-        I: IntoIterator<Item = T>,
-        F: Fn(T) -> bool,
+        for<'a> &'a I: IntoIterator<Item = &'a T>,
+        F: Fn(&T) -> bool,
     {
         for x_i in data {
             if is_success(x_i) {
@@ -328,7 +337,7 @@ impl std::ops::AddAssign for Stats {
 ///     false, false, false, true, false, true, false, false, true, false
 /// ];
 /// let confidence = Confidence::new_two_sided(0.95);
-/// let interval = proportion::ci_true(confidence, data)?;
+/// let interval = proportion::ci_true(confidence, &data)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
 /// # Ok::<(),error::CIError>(())
 /// ```
@@ -337,10 +346,10 @@ impl std::ops::AddAssign for Stats {
 ///
 /// The confidence interval is computed using the function [`ci_wilson`] (Wilson score interval).
 ///
-pub fn ci_true<T: IntoIterator<Item = bool>>(
-    confidence: Confidence,
-    data: T,
-) -> CIResult<Interval<f64>> {
+pub fn ci_true<I>(confidence: Confidence, data: &I) -> CIResult<Interval<f64>>
+where
+    for<'a> &'a I: IntoIterator<Item = &'a bool>,
+{
     let mut stats = Stats::default();
     stats.extend(data);
     stats.ci(confidence)
@@ -371,17 +380,19 @@ pub fn ci_true<T: IntoIterator<Item = bool>>(
 /// # use approx::*;
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 /// let confidence = Confidence::new_two_sided(0.95);
-/// let interval = proportion::ci_if(confidence, data, |x| x <= 10)?;
+/// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
-pub fn ci_if<T, I: IntoIterator<Item = T>, F: Fn(T) -> bool>(
-    confidence: Confidence,
-    data: I,
-    cond: F,
-) -> CIResult<Interval<f64>> {
-    ci_true(confidence, data.into_iter().map(cond))
+pub fn ci_if<T, I, F>(confidence: Confidence, data: &I, cond: F) -> CIResult<Interval<f64>>
+where
+    for<'a> &'a I: IntoIterator<Item = &'a T>,
+    F: Fn(&T) -> bool,
+{
+    let mut stats = Stats::default();
+    stats.extend_if(data, cond);
+    stats.ci(confidence)
 }
 
 ///

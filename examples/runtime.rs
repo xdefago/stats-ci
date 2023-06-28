@@ -21,7 +21,7 @@ fn main() {
     println!("Sequential call:");
     let population = source_population.clone();
     let start = Instant::now();
-    let stats = mean::Arithmetic::from_iter(population).unwrap();
+    let stats = mean::Arithmetic::from_iter(&population).unwrap();
     let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
     let elapsed = start.elapsed();
     println!("Elapsed: {:?}", elapsed);
@@ -32,7 +32,7 @@ fn main() {
     let start = Instant::now();
     let ci = population
         .par_iter()
-        .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+        .map(|&x| mean::Arithmetic::from_iter(&[x]).unwrap())
         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2)
         .ci_mean(Confidence::new_two_sided(0.95))
         .unwrap();
@@ -45,7 +45,13 @@ fn main() {
     let start = Instant::now();
     let ci = population
         .par_chunks(CHUNK_SIZE)
-        .map(|chunk| mean::Arithmetic::from_iter(chunk.iter().copied()).unwrap())
+        .map(|chunk| {
+            let mut stats = mean::Arithmetic::new();
+            for x in chunk {
+                stats.append(*x).unwrap();
+            }
+            stats
+        })
         .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2)
         .ci_mean(Confidence::new_two_sided(0.95))
         .unwrap();

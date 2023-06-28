@@ -39,7 +39,7 @@ mod tests {
         let confidence = Confidence::new(0.95);
 
         // 4a. compute the interval for the arithmetic mean
-        if let Ok(ci) = mean::Arithmetic::<f64>::ci(confidence, data) {
+        if let Ok(ci) = mean::Arithmetic::<f64>::ci(confidence, &data) {
             // display the interval
             println!("{}% c.i. for the mean = {}", confidence.percent(), ci);
             if !ci.contains(&10.) {
@@ -47,7 +47,7 @@ mod tests {
             }
         }
         // 4b. compute the interval for the median (i.e., 0.5-quantile)
-        if let Ok(ci) = quantile::ci(confidence, data, 0.5) {
+        if let Ok(ci) = quantile::ci::<f64, _>(confidence, &data, 0.5) {
             // display the interval
             println!("{}% c.i. for the median = {}", confidence.percent(), ci);
             if !ci.contains(&6.93147) {

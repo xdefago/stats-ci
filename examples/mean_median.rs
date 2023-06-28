@@ -56,7 +56,7 @@ fn main() {
 
     // compute the sample stats
     let sample_median = sample[sample.len() / 2];
-    let stats = mean::Arithmetic::from_iter(sample.clone()).unwrap();
+    let stats = mean::Arithmetic::from_iter(&sample).unwrap();
 
     // show the sample stats
     println!("Sample mean: {}", stats.sample_mean());

@@ -60,7 +60,7 @@ fn main() {
 
     // show the sample ci (95%)
     let confidence = Confidence::new_two_sided(0.95);
-    let ci = proportion::ci_if(confidence, sample.clone(), |x| x == 1).unwrap();
+    let ci = proportion::ci_if(confidence, &sample, |&x| x == 1).unwrap();
     println!(
         "Sample proportion ci ({} {}%): {}",
         confidence.kind(),
@@ -70,7 +70,7 @@ fn main() {
 
     // show the sample ci (99%)
     let confidence = Confidence::new_lower(0.99);
-    let ci = proportion::ci_if(confidence, sample.clone(), |x| x == 1).unwrap();
+    let ci = proportion::ci_if(confidence, &sample, |&x| x == 1).unwrap();
     println!(
         "Sample proportion ci ({} {}%): {}",
         confidence.kind(),
@@ -80,7 +80,7 @@ fn main() {
 
     // show confidence that a number is even
     let confidence = Confidence::new_two_sided(0.95);
-    let ci = proportion::ci_if(confidence, sample.clone(), |x| x % 2 == 0).unwrap();
+    let ci = proportion::ci_if(confidence, &sample, |&x| x % 2 == 0).unwrap();
     println!(
         "\nProportion of even numbers ({} {}%): {}",
         confidence.kind(),

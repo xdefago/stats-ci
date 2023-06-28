@@ -102,7 +102,7 @@ let data = [
 let confidence = Confidence::new(0.95);
 
 // 4a. compute the interval for the arithmetic mean
-if let Ok(ci) = mean::Arithmetic::ci(confidence, data) {
+if let Ok(ci) = mean::Arithmetic::ci(confidence, &data) {
     // display the interval
     println!("{}% c.i. for the mean = {}", confidence.percent(), ci);
     if ! ci.contains(&10.) {
@@ -110,7 +110,7 @@ if let Ok(ci) = mean::Arithmetic::ci(confidence, data) {
     }
 }
 // 4b. compute the interval for the median (i.e., 0.5-quantile)
-if let Ok(ci) = quantile::ci(confidence, data, 0.5) {
+if let Ok(ci) = quantile::ci(confidence, &data, 0.5) {
     // display the interval
     println!("{}% c.i. for the median = {}", confidence.percent(), ci);
     if ! ci.contains(&6.93147) {
@@ -124,8 +124,8 @@ Similarly, the confidence interval on the _geometric mean_ and the _harmonic mea
 # use stats_ci::*;
 let data = [ 10.6, 6.6, /* ... */ ];
 let confidence = Confidence::new(0.95);
-let ci = mean::Geometric::ci(confidence, data);
-let ci = mean::Harmonic::ci(confidence, data);
+let ci = mean::Geometric::ci(confidence, &data);
+let ci = mean::Harmonic::ci(confidence, &data);
 ```
 
 ## Proportions
@@ -161,7 +161,7 @@ let data = [
     15, 19
 ];
 let confidence = Confidence::new(0.95);
-let ci = proportion::ci_if(confidence, data, |x| x <= 10).unwrap();
+let ci = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
 println!("ci: {}", ci);
 // > ci: [0.2992980081982124, 0.7007019918017876]
 //
@@ -254,16 +254,16 @@ let confidence = Confidence::new(0.95);
 // 4. create a statistics object
 let mut stats = mean::Arithmetic::new();
 // 5. add data
-stats.extend(data).unwrap();
+stats.extend(&data).unwrap();
 // shortcut: combines 4. and 5.
-let mut stats = mean::Arithmetic::from_iter(data).unwrap();
+let mut stats = mean::Arithmetic::from_iter(&data).unwrap();
 
 // 6. compute the confidence interval over the mean for some
 //    confidence level
 let ci = stats.ci_mean(confidence).unwrap();
 
 // 7. add more data
-stats.extend([ 10.7, 9.8, /* … */ ]).unwrap();
+stats.extend(&[ 10.7, 9.8, /* … */ ]).unwrap();
 // 8. compute the new confidence interval
 let ci = stats.ci_mean(confidence).unwrap();
 // 9. or maybe with a different confidence level
@@ -303,7 +303,7 @@ let confidence = Confidence::new(0.95);
 let stats = data
     .clone()
     .par_iter()
-    .map(|&x| mean::Arithmetic::from_iter([x]).unwrap())
+    .map(|&x| mean::Arithmetic::from_iter(&[x]).unwrap())
     .reduce(|| mean::Arithmetic::new(), |s1, s2| s1 + s2);
 // 5. (as before:) compute the confidence interval
 let ci = stats.ci_mean(confidence).unwrap();

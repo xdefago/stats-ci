@@ -42,7 +42,7 @@ fn test_case(case_file: &Path) -> Result<(), Box<dyn std::error::Error>> {
     let reference_ci = Interval::new(case.ci_low, case.ci_high)?;
 
     let confidence = Confidence::new_two_sided(case.level);
-    let computed_ci = mean::Arithmetic::ci(confidence, case.data.into_iter())?;
+    let computed_ci = mean::Arithmetic::ci(confidence, &case.data)?;
 
     let diff_low = (computed_ci.low_f() - reference_ci.low_f()).abs();
     let diff_high = (computed_ci.high_f() - reference_ci.high_f()).abs();

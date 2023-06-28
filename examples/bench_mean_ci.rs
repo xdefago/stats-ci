@@ -68,13 +68,13 @@ where
         let data_b = data_a.clone();
 
         let start = std::time::Instant::now();
-        let stats = <A as StatisticsOps<f64>>::from_iter(data_a).unwrap();
+        let stats = <A as StatisticsOps<f64>>::from_iter(&data_a).unwrap();
         let _ = stats.ci_mean(confidence);
         let elapsed = start.elapsed();
         time_a.push(elapsed);
 
         let start = std::time::Instant::now();
-        let stats = <B as StatisticsOps<f64>>::from_iter(data_b).unwrap();
+        let stats = <B as StatisticsOps<f64>>::from_iter(&data_b).unwrap();
         let _ = stats.ci_mean(confidence);
         let elapsed = start.elapsed();
         time_b.push(elapsed);
@@ -90,8 +90,8 @@ where
         .map(|t| t.as_micros() as f64)
         .collect::<Vec<_>>();
 
-    let a_ci = mean::Arithmetic::ci(confidence, micros_a.clone()).unwrap();
-    let b_ci = mean::Arithmetic::ci(confidence, micros_b.clone()).unwrap();
+    let a_ci = mean::Arithmetic::ci(confidence, &micros_a).unwrap();
+    let b_ci = mean::Arithmetic::ci(confidence, &micros_b).unwrap();
     let paired = comparison::Paired::ci(confidence, &micros_a, &micros_b).unwrap();
     println!("A   :   {} µs", a_ci);
     println!("B   :   {} µs", b_ci);

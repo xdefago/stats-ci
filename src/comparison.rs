@@ -67,7 +67,7 @@
 //! # ];
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let mut stats = comparison::Paired::default();
-//! stats.extend(data_bottom_water, data_surface_water)?;
+//! stats.extend(&data_bottom_water, &data_surface_water)?;
 //! let ci = stats.ci_mean(confidence)?;
 //! let mean = stats.sample_mean();
 //! # Ok::<(),error::CIError>(())
@@ -114,7 +114,7 @@
 //! # let data_low_protein = [70., 118., 101., 85., 107., 132., 94.];
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let mut stats = comparison::Unpaired::default();
-//! stats.extend(data_high_protein, data_low_protein)?;
+//! stats.extend(&data_high_protein, &data_low_protein)?;
 //! let ci = stats.ci_mean(confidence)?;
 //! # Ok::<(),error::CIError>(())
 //! ```
@@ -161,7 +161,7 @@ use num_traits::Float;
 /// ];
 ///
 /// let mut stats = comparison::Paired::default();
-/// stats.extend(data_bottom_water, data_surface_water).unwrap();
+/// stats.extend(&data_bottom_water, &data_surface_water).unwrap();
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95)).unwrap();
 /// ```
 ///
@@ -220,16 +220,19 @@ impl<T: Float> Paired<T> {
     /// ```
     /// # use stats_ci::*;
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend_tuple([(1., 2.), (3., 4.)])?;
+    /// stats.extend_tuple(&[(1., 2.), (3., 4.)])?;
     /// # assert_eq!(stats.sample_count(), 2);
     /// # assert_eq!(stats.sample_mean(), -1.);
     /// # Ok::<(),error::CIError>(())
     /// ```
-    pub fn extend_tuple<I>(&mut self, iter: I) -> CIResult<()>
+    pub fn extend_tuple<I>(&mut self, iter: &I) -> CIResult<()>
     where
-        I: IntoIterator<Item = (T, T)>,
+        for<'a> &'a I: IntoIterator<Item = &'a (T, T)>,
     {
-        self.stats.extend(iter.into_iter().map(|(x, y)| x - y))
+        for &(x, y) in iter.into_iter() {
+            self.stats.append(x - y)?;
+        }
+        Ok(())
     }
 
     ///
@@ -250,15 +253,15 @@ impl<T: Float> Paired<T> {
     /// ```
     /// # use stats_ci::*;
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend([1., 3.], [2., 4.])?;
+    /// stats.extend(&[1., 3.], &[2., 4.])?;
     /// # assert_eq!(stats.sample_count(), 2);
     /// # assert_eq!(stats.sample_mean(), -1.);
     /// # Ok::<(),error::CIError>(())
     /// ```
-    pub fn extend<I1, I2>(&mut self, data_a: I1, data_b: I2) -> CIResult<()>
+    pub fn extend<I1, I2>(&mut self, data_a: &I1, data_b: &I2) -> CIResult<()>
     where
-        I1: IntoIterator<Item = T>,
-        I2: IntoIterator<Item = T>,
+        for<'a> &'a I1: IntoIterator<Item = &'a T>,
+        for<'b> &'b I2: IntoIterator<Item = &'b T>,
     {
         let mut data_a = data_a.into_iter();
         let mut data_b = data_b.into_iter();
@@ -267,7 +270,7 @@ impl<T: Float> Paired<T> {
             match (data_a.next(), data_b.next()) {
                 (Some(x), Some(y)) => {
                     count += 1;
-                    self.stats.append(x - y)?
+                    self.stats.append(*x - *y)?
                 }
                 (None, None) => return Ok(()),
                 // returns error if iterables have different lengths
@@ -297,7 +300,7 @@ impl<T: Float> Paired<T> {
     /// let data_a = [1., 2., 3.];
     /// let data_b = [4., 5., 6.];
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend(data_a, data_b)?;
+    /// stats.extend(&data_a, &data_b)?;
     /// let mean = stats.sample_mean();
     /// assert_eq!(mean, -3.);
     /// # Ok::<(),error::CIError>(())
@@ -316,7 +319,7 @@ impl<T: Float> Paired<T> {
     /// let data_a = [1., 2., 3.];
     /// let data_b = [4., 5., 6.];
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend(data_a, data_b)?;
+    /// stats.extend(&data_a, &data_b)?;
     /// let sem = stats.sample_sem();
     /// assert_eq!(sem, 0.);
     /// # Ok::<(),error::CIError>(())
@@ -335,7 +338,7 @@ impl<T: Float> Paired<T> {
     /// let data_a = [1., 2., 3.];
     /// let data_b = [4., 5., 6.];
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend(data_a, data_b)?;
+    /// stats.extend(&data_a, &data_b)?;
     /// let count = stats.sample_count();
     /// assert_eq!(count, 3);
     /// # Ok::<(),error::CIError>(())
@@ -369,7 +372,7 @@ impl<T: Float> Paired<T> {
     /// let data_a = [1., 2., 3.];
     /// let data_b = [4., 5., 6.];
     /// let mut stats = comparison::Paired::default();
-    /// stats.extend(data_a, data_b)?;
+    /// stats.extend(&data_a, &data_b)?;
     /// let confidence = Confidence::new_two_sided(0.95);
     /// let ci = stats.ci_mean(confidence)?;
     /// assert_eq!(ci, Interval::new(-3., -3.)?);
@@ -424,9 +427,13 @@ impl<T: Float> Paired<T> {
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
-    pub fn ci(confidence: Confidence, data_a: &[T], data_b: &[T]) -> CIResult<Interval<T>> {
+    pub fn ci<Ia, Ib>(confidence: Confidence, data_a: &Ia, data_b: &Ib) -> CIResult<Interval<T>>
+    where
+        for<'a> &'a Ia: IntoIterator<Item = &'a T>,
+        for<'a> &'a Ib: IntoIterator<Item = &'a T>,
+    {
         let mut stats = Paired::default();
-        stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
+        stats.extend(data_a, data_b)?;
         stats.ci_mean(confidence)
     }
 }
@@ -479,7 +486,7 @@ impl<F: Float> std::ops::AddAssign for Paired<F> {
 /// ];
 /// let data_low_protein = [70., 118., 101., 85., 107., 132., 94.];
 /// let mut stats = comparison::Unpaired::default();
-/// stats.extend(data_high_protein, data_low_protein)?;
+/// stats.extend(&data_high_protein, &data_low_protein)?;
 /// let ci = stats.ci_mean(Confidence::new_two_sided(0.95))?;
 /// # Ok::<(),error::CIError>(())
 /// ```
@@ -519,8 +526,8 @@ impl<T: Float> Unpaired<T> {
     ///
     /// ```
     /// # use stats_ci::*;
-    /// let stats_a = mean::Arithmetic::from_iter([1., 2., 3.])?;
-    /// let stats_b = mean::Arithmetic::from_iter([4., 5., 6.])?;
+    /// let stats_a = mean::Arithmetic::from_iter(&[1., 2., 3.])?;
+    /// let stats_b = mean::Arithmetic::from_iter(&[4., 5., 6.])?;
     /// let stats = comparison::Unpaired::new(stats_a, stats_b);
     /// # Ok::<(),error::CIError>(())
     /// ```
@@ -544,14 +551,14 @@ impl<T: Float> Unpaired<T> {
     ///
     /// ```
     /// # use stats_ci::*;
-    /// let stats = comparison::Unpaired::from_iter([1., 2., 3.], [4., 5., 6.])?;
+    /// let stats = comparison::Unpaired::from_iter(&[1., 2., 3.], &[4., 5., 6.])?;
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
-    pub fn from_iter<Ia, Ib>(data_a: Ia, data_b: Ib) -> CIResult<Self>
+    pub fn from_iter<Ia, Ib>(data_a: &Ia, data_b: &Ib) -> CIResult<Self>
     where
-        Ia: IntoIterator<Item = T>,
-        Ib: IntoIterator<Item = T>,
+        for<'a> &'a Ia: IntoIterator<Item = &'a T>,
+        for<'b> &'b Ib: IntoIterator<Item = &'b T>,
     {
         let mut stats = Self::default();
         stats.extend_a(data_a)?;
@@ -589,7 +596,7 @@ impl<T: Float> Unpaired<T> {
     ///
     /// ```
     /// # use stats_ci::*;
-    /// # let mut stats = comparison::Unpaired::from_iter([1., 2. ,3.], [4., 5., 6.])?;
+    /// # let mut stats = comparison::Unpaired::from_iter(&[1., 2. ,3.], &[4., 5., 6.])?;
     /// let mean_b = stats.stats_b().sample_mean();
     /// # Ok::<(),error::CIError>(())
     /// ```
@@ -670,12 +677,15 @@ impl<T: Float> Unpaired<T> {
     /// ```
     /// # use stats_ci::*;
     /// let mut stats = comparison::Unpaired::default();
-    /// stats.extend_a([1., 2., 3.])?;
+    /// stats.extend_a(&[1., 2., 3.])?;
     /// # assert_eq!(stats.stats_a().sample_count(), 3);
     /// # assert_eq!(stats.stats_a().sample_mean(), 2.);
     /// # Ok::<(),error::CIError>(())
     /// ```
-    pub fn extend_a(&mut self, data_a: impl IntoIterator<Item = T>) -> CIResult<()> {
+    pub fn extend_a<I>(&mut self, data_a: &I) -> CIResult<()>
+    where
+        for<'a> &'a I: IntoIterator<Item = &'a T>,
+    {
         self.stats_a.extend(data_a)
     }
 
@@ -695,12 +705,15 @@ impl<T: Float> Unpaired<T> {
     /// ```
     /// # use stats_ci::*;
     /// let mut stats = comparison::Unpaired::default();
-    /// stats.extend_b([1., 2., 3.])?;
+    /// stats.extend_b(&[1., 2., 3.])?;
     /// # assert_eq!(stats.stats_b().sample_count(), 3);
     /// # assert_eq!(stats.stats_b().sample_mean(), 2.);
     /// # Ok::<(),error::CIError>(())
     /// ```
-    pub fn extend_b(&mut self, data_b: impl IntoIterator<Item = T>) -> CIResult<()> {
+    pub fn extend_b<I>(&mut self, data_b: &I) -> CIResult<()>
+    where
+        for<'a> &'a I: IntoIterator<Item = &'a T>,
+    {
         self.stats_b.extend(data_b)
     }
 
@@ -721,17 +734,17 @@ impl<T: Float> Unpaired<T> {
     /// ```
     /// # use stats_ci::*;
     /// let mut stats = comparison::Unpaired::default();
-    /// stats.extend([1., 2., 3.], [4., 5., 6.])?;
+    /// stats.extend(&[1., 2., 3.], &[4., 5., 6.])?;
     /// # assert_eq!(stats.stats_a().sample_count(), 3);
     /// # assert_eq!(stats.stats_a().sample_mean(), 2.);
     /// # assert_eq!(stats.stats_b().sample_count(), 3);
     /// # assert_eq!(stats.stats_b().sample_mean(), 5.);
     /// # Ok::<(),error::CIError>(())
     /// ```
-    pub fn extend<Ia, Ib>(&mut self, data_a: Ia, data_b: Ib) -> CIResult<()>
+    pub fn extend<Ia, Ib>(&mut self, data_a: &Ia, data_b: &Ib) -> CIResult<()>
     where
-        Ia: IntoIterator<Item = T>,
-        Ib: IntoIterator<Item = T>,
+        for<'a> &'a Ia: IntoIterator<Item = &'a T>,
+        for<'b> &'b Ib: IntoIterator<Item = &'b T>,
     {
         self.stats_a.extend(data_a)?;
         self.stats_b.extend(data_b)?;
@@ -759,7 +772,7 @@ impl<T: Float> Unpaired<T> {
     /// # use stats_ci::*;
     /// let confidence = Confidence::new_two_sided(0.95);
     /// let mut stats = comparison::Unpaired::default();
-    /// stats.extend([1., 2., 3.], [4., 5., 6.])?;
+    /// stats.extend(&[1., 2., 3.], &[4., 5., 6.])?;
     /// let ci = stats.ci_mean(confidence)?;
     /// # Ok::<(),error::CIError>(())
     /// ```
@@ -861,9 +874,13 @@ impl<T: Float> Unpaired<T> {
     /// * [Wikipedia article on Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test#Independent_two-sample_t-test)
     /// * PennState. Stat 500. Lesson 7: Comparing Two Population Parameters. [Online](https://online.stat.psu.edu/stat500/lesson/7)
     ///
-    pub fn ci(confidence: Confidence, data_a: &[T], data_b: &[T]) -> CIResult<Interval<T>> {
+    pub fn ci<Ia, Ib>(confidence: Confidence, data_a: &Ia, data_b: &Ib) -> CIResult<Interval<T>>
+    where
+        for<'a> &'a Ia: IntoIterator<Item = &'a T>,
+        for<'a> &'a Ib: IntoIterator<Item = &'a T>,
+    {
         let mut stats = Self::default();
-        stats.extend(data_a.iter().copied(), data_b.iter().copied())?;
+        stats.extend(data_a, data_b)?;
         stats.ci_mean(confidence)
     }
 }
@@ -981,7 +998,7 @@ mod tests {
             .collect::<Vec<_>>();
 
         let mut stats = comparison::Paired::default();
-        let res = stats.extend(data1, data2);
+        let res = stats.extend(&data1, &data2);
         assert!(res.is_err());
         match res.unwrap_err() {
             CIError::DifferentSampleSizes(a, b) => {

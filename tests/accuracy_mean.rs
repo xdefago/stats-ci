@@ -119,7 +119,7 @@ where
         let sample: Vec<T> = (0..sample_size)
             .map(|_| distribution.sample(&mut rng))
             .collect();
-        let ci = <C>::ci(confidence, sample)?;
+        let ci = <C>::ci(confidence, &sample)?;
         if ci.contains(&mean) {
             success += 1;
         }

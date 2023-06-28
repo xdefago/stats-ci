@@ -70,7 +70,7 @@ where
         let sample = (0..sample_size)
             .map(|_| distrib.sample(&mut rng))
             .collect::<Vec<_>>();
-        let ci = proportion::ci_true(confidence, sample)?;
+        let ci = proportion::ci_true(confidence, &sample)?;
 
         if ci.contains(&target) {
             hits += 1;
