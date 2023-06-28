@@ -214,7 +214,7 @@ pub fn ci_sorted_unchecked<T>(
     sorted: &[T],
     quantile: f64,
 ) -> CIResult<Interval<T>>
-where 
+where
     T: PartialOrd + Clone,
 {
     assert!(quantile > 0. && quantile < 1.);
