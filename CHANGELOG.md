@@ -5,7 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.13 (2023-06-28)
+
+### Documentation
+
+ - <csr-id-f95247fc0d28c8d64727d012034f639c9325a088/> add method index for Confidence and Interval
+
+### New Features
+
+ - <csr-id-4908f2cbc5e5d1dff54ba74d08ec6e337cbf4e95/> add Add and Sub between intervals
+
+### Style
+
+ - <csr-id-8a2a9bddc0b690e8ead4d315c7504bea222ab591/> reformat code
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release.
+ - 3 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Reformat code ([`8a2a9bd`](https://github.com/xdefago/stats-ci/commit/8a2a9bddc0b690e8ead4d315c7504bea222ab591))
+    - Add Add and Sub between intervals ([`4908f2c`](https://github.com/xdefago/stats-ci/commit/4908f2cbc5e5d1dff54ba74d08ec6e337cbf4e95))
+    - Add method index for Confidence and Interval ([`f95247f`](https://github.com/xdefago/stats-ci/commit/f95247fc0d28c8d64727d012034f639c9325a088))
+</details>
+
 ## v0.0.12 (2023-06-01)
+
+<csr-id-72b6099f2f5ddead0376bf08bf4d4aa99b9773b1/>
+<csr-id-3785dbb741a2c9e58dd9276243835d7f5173c07c/>
+<csr-id-b65214924fd3e26c421c4591d5a87b3094175aad/>
+<csr-id-a613057380473a8cabb3b88d3a2ef295dd914fdc/>
+<csr-id-49e145e9e0d09a25e43cfcd6ec031d9379a4e175/>
 
 ### Documentation
 
@@ -41,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 12 commits contributed to the release over the course of 5 calendar days.
+ - 13 commits contributed to the release over the course of 5 calendar days.
  - 5 days passed between releases.
  - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -53,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.0.12 ([`8d9850b`](https://github.com/xdefago/stats-ci/commit/8d9850bda7c76a474ef367c7798431bb30ab58f5))
     - Merge ([`111e38f`](https://github.com/xdefago/stats-ci/commit/111e38f3c8b1a2466a5e02708fb93c239e653ce9))
     - Add AddAssign and relevant tests ([`a535db4`](https://github.com/xdefago/stats-ci/commit/a535db442576f9ab419d7a72b09f658e80330175))
     - Add AddAssign and relevant tests ([`2922a8b`](https://github.com/xdefago/stats-ci/commit/2922a8b3279768d34a38c203c884413f0b067e41))
