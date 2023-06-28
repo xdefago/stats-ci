@@ -5,7 +5,9 @@
 [![Downloads](https://img.shields.io/crates/d/stats-ci)](https://crates.io/crates/stats-ci)
 [![Latest crates.io](https://img.shields.io/crates/v/stats-ci)](https://crates.io/crates/stats-ci)
 
-A library to help compute confidence intervals in various situations. 
+# stats-ci
+
+A pure Rust library for computing and working with confidence intervals on sample data. 
 
 This crate provides convenient means to help compute confidence intervals in multiple cases.
 It is meant to be used when analyzing experimental data and measurements.
