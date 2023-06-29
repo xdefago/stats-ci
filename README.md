@@ -25,6 +25,7 @@ in situations as follows:
 * [`quantile`] confidence intervals around a quantile (e.g., median) for arbitrary ordered data,
 * [`proportion`] confidence intervals for proportions.
 * [`comparison`] confidence intervals for comparisons (paired or unpaired observations).
+
 This is done using a type [`Confidence`] to express a confidence level and a type [`Interval`] to represent a confidence interval.
 
 This crate does not (yet) support the following:
