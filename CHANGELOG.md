@@ -5,7 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.0 (2023-06-29)
+
+### Documentation
+
+ - <csr-id-7a1712306cdc9c451a7f3abe44d97d5d66bcf28a/> add pointer to `Confidence` and `Interval`
+ - <csr-id-8b0e077b55df543150c2c4dd0cbf864df0d9803d/> add title and rephrase 1st sentence
+ - <csr-id-f95247fc0d28c8d64727d012034f639c9325a088/> add method index for Confidence and Interval
+
+### New Features
+
+ - <csr-id-4908f2cbc5e5d1dff54ba74d08ec6e337cbf4e95/> add Add and Sub between intervals
+
+### Other
+
+ - <csr-id-28f1c2289c9579d74bc3769692b9ff845cbfaec8/> update version numbers
+
+### Style
+
+ - <csr-id-2aba7a3e27426edae235e2b33c649aec0a1d63c6/> reformat code
+ - <csr-id-8a2a9bddc0b690e8ead4d315c7504bea222ab591/> reformat code
+
+### Refactor (BREAKING)
+
+ - <csr-id-731b7c6ba935b612db6174a55a91d12eb2d1e2c1/> borrow when collecting data
+   GIST / MOTIVATION:
+   The generic type of all methods collecting the data are changed to
+   borrow the iterator (or get is by reference). This helps reduce the
+   necessity to clone the data, both internally and on the caller's side.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 9 commits contributed to the release over the course of 24 calendar days.
+ - 28 days passed between releases.
+ - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Update changelog to integrate 0.0.13 ([`4263f76`](https://github.com/xdefago/stats-ci/commit/4263f76114dbe3cc3ef2543c239664740ea91db6))
+    - Add pointer to `Confidence` and `Interval` ([`7a17123`](https://github.com/xdefago/stats-ci/commit/7a1712306cdc9c451a7f3abe44d97d5d66bcf28a))
+    - Add title and rephrase 1st sentence ([`8b0e077`](https://github.com/xdefago/stats-ci/commit/8b0e077b55df543150c2c4dd0cbf864df0d9803d))
+    - Update version numbers ([`28f1c22`](https://github.com/xdefago/stats-ci/commit/28f1c2289c9579d74bc3769692b9ff845cbfaec8))
+    - Reformat code ([`2aba7a3`](https://github.com/xdefago/stats-ci/commit/2aba7a3e27426edae235e2b33c649aec0a1d63c6))
+    - Borrow when collecting data ([`731b7c6`](https://github.com/xdefago/stats-ci/commit/731b7c6ba935b612db6174a55a91d12eb2d1e2c1))
+    - Reformat code ([`8a2a9bd`](https://github.com/xdefago/stats-ci/commit/8a2a9bddc0b690e8ead4d315c7504bea222ab591))
+    - Add Add and Sub between intervals ([`4908f2c`](https://github.com/xdefago/stats-ci/commit/4908f2cbc5e5d1dff54ba74d08ec6e337cbf4e95))
+    - Add method index for Confidence and Interval ([`f95247f`](https://github.com/xdefago/stats-ci/commit/f95247fc0d28c8d64727d012034f639c9325a088))
+</details>
+
 ## v0.0.13 (2023-06-28)
+
+<csr-id-8a2a9bddc0b690e8ead4d315c7504bea222ab591/>
 
 ### Documentation
 
@@ -18,27 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Style
 
  - <csr-id-8a2a9bddc0b690e8ead4d315c7504bea222ab591/> reformat code
-
-### Commit Statistics
-
-<csr-read-only-do-not-edit/>
-
- - 3 commits contributed to the release.
- - 3 days passed between releases.
- - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 0 issues like '(#ID)' were seen in commit messages
-
-### Commit Details
-
-<csr-read-only-do-not-edit/>
-
-<details><summary>view details</summary>
-
- * **Uncategorized**
-    - Reformat code ([`8a2a9bd`](https://github.com/xdefago/stats-ci/commit/8a2a9bddc0b690e8ead4d315c7504bea222ab591))
-    - Add Add and Sub between intervals ([`4908f2c`](https://github.com/xdefago/stats-ci/commit/4908f2cbc5e5d1dff54ba74d08ec6e337cbf4e95))
-    - Add method index for Confidence and Interval ([`f95247f`](https://github.com/xdefago/stats-ci/commit/f95247fc0d28c8d64727d012034f639c9325a088))
-</details>
 
 ## v0.0.12 (2023-06-01)
 
