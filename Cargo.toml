@@ -52,7 +52,7 @@ rand_chacha = "0.3.1"
 nu-ansi-term = "0.50"
 # serde/toml used to load test data
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.8.10"
-lazy-regex = "3.0.0"
+toml = "0.8.12"
+lazy-regex = "3.1.0"
 criterion = "0.5.1"
-rayon = "1.7.0"
+rayon = "1.10.0"
