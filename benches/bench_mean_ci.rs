@@ -33,7 +33,7 @@ fn bench_mean_category(c: &mut Criterion) {
     let mut rng = rand::thread_rng();
     let confidence = Confidence::new_two_sided(0.95);
 
-    let mut group = c.benchmark_group("mean::*::ci (Artihmetic, Harmonic, Geometric)");
+    let mut group = c.benchmark_group("mean::*::ci (Arithmetic, Harmonic, Geometric)");
 
     for size in [100_000] {
         let data = (0..size).map(|_| rng.gen::<f64>()).collect::<Vec<_>>();
