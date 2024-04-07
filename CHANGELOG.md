@@ -5,7 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.1 (2024-04-07)
+
+### Documentation
+
+ - <csr-id-302fda26c6363edc3d4a4adb334fce0cc009e5ad/> add dependencies badge to README
+ - <csr-id-ccb46792d80a36fae58e5beccdd0d724d1374caa/> add paragraph separation
+
+### Other
+
+ - <csr-id-b08df103dbe834b7be6cd45ed18573f8f7301bef/> set version number to 0.1.1
+ - <csr-id-e274cf687f8a7cf2027bd5574ad42f2118c41e13/> add vscode meta data to .gitignore
+ - <csr-id-f037221eaeaf330b544201d0dfa33a307d3b82ca/> update dev dependencies
+ - <csr-id-82153a08357da00022534781358e38534734bc8d/> add deny configuration file
+ - <csr-id-b54f55b62020847617ee7372f39ab0fcda3cb224/> update test dependencies
+ - <csr-id-d05957bc03ecc1504284329e4a36e2c6c1604d17/> update deps (lazy-regex, nu-ansi-term)
+
+### Test
+
+ - <csr-id-84b5b1c8c51f6b2a9804911ece0e50f78be0f954/> fix spell in benchmarks
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 9 commits contributed to the release over the course of 282 calendar days.
+ - 282 days passed between releases.
+ - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Set version number to 0.1.1 ([`b08df10`](https://github.com/xdefago/stats-ci/commit/b08df103dbe834b7be6cd45ed18573f8f7301bef))
+    - Add vscode meta data to .gitignore ([`e274cf6`](https://github.com/xdefago/stats-ci/commit/e274cf687f8a7cf2027bd5574ad42f2118c41e13))
+    - Fix spell in benchmarks ([`84b5b1c`](https://github.com/xdefago/stats-ci/commit/84b5b1c8c51f6b2a9804911ece0e50f78be0f954))
+    - Update dev dependencies ([`f037221`](https://github.com/xdefago/stats-ci/commit/f037221eaeaf330b544201d0dfa33a307d3b82ca))
+    - Add dependencies badge to README ([`302fda2`](https://github.com/xdefago/stats-ci/commit/302fda26c6363edc3d4a4adb334fce0cc009e5ad))
+    - Add deny configuration file ([`82153a0`](https://github.com/xdefago/stats-ci/commit/82153a08357da00022534781358e38534734bc8d))
+    - Update test dependencies ([`b54f55b`](https://github.com/xdefago/stats-ci/commit/b54f55b62020847617ee7372f39ab0fcda3cb224))
+    - Update deps (lazy-regex, nu-ansi-term) ([`d05957b`](https://github.com/xdefago/stats-ci/commit/d05957bc03ecc1504284329e4a36e2c6c1604d17))
+    - Add paragraph separation ([`ccb4679`](https://github.com/xdefago/stats-ci/commit/ccb46792d80a36fae58e5beccdd0d724d1374caa))
+</details>
+
 ## v0.1.0 (2023-06-29)
+
+<csr-id-28f1c2289c9579d74bc3769692b9ff845cbfaec8/>
+<csr-id-2aba7a3e27426edae235e2b33c649aec0a1d63c6/>
+<csr-id-8a2a9bddc0b690e8ead4d315c7504bea222ab591/>
+<csr-id-731b7c6ba935b612db6174a55a91d12eb2d1e2c1/>
 
 ### Documentation
 
@@ -38,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 9 commits contributed to the release over the course of 24 calendar days.
+ - 10 commits contributed to the release over the course of 24 calendar days.
  - 28 days passed between releases.
  - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
@@ -50,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release stats-ci v0.1.0 ([`2503bd3`](https://github.com/xdefago/stats-ci/commit/2503bd3623265f4389f13541b771a2d3ff3b9147))
     - Update changelog to integrate 0.0.13 ([`4263f76`](https://github.com/xdefago/stats-ci/commit/4263f76114dbe3cc3ef2543c239664740ea91db6))
     - Add pointer to `Confidence` and `Interval` ([`7a17123`](https://github.com/xdefago/stats-ci/commit/7a1712306cdc9c451a7f3abe44d97d5d66bcf28a))
     - Add title and rephrase 1st sentence ([`8b0e077`](https://github.com/xdefago/stats-ci/commit/8b0e077b55df543150c2c4dd0cbf864df0d9803d))
