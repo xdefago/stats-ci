@@ -19,7 +19,7 @@ categories = ["mathematics", "science", ]
 default = ["approx", "std"]
 serde = ["dep:serde"]
 approx = ["dep:approx"]
-std = []
+std = ["arrayvec/std"]
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./resources/docs-header.html" ]
@@ -39,6 +39,8 @@ num-traits = "0.2.15"
 
 thiserror = "1.0.30"
 lazy_static = "1.4.0"
+
+arrayvec = { version = "0.7.4", default-features = false }
 
 serde = { version = "1.0", optional = true, features = ["derive"] }
 approx = { version = "0.5.1", optional = true }

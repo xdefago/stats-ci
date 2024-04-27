@@ -24,6 +24,14 @@
 //! ```
 use super::*;
 
+
+///
+/// This constant defines the maximum number of samples that can be handled
+/// by the [`ci_max_size`] function. That function is a version of [`ci`] that
+/// limited in the number of samples it can handle, but available in `no_std`
+/// and `no_alloc` environments (unlike [`ci`]]).
+pub const DATA_CAP: usize = 1024;
+
 ///
 /// Running statistics for quantiles
 ///
@@ -293,6 +301,70 @@ where
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
+
+///
+/// Compute the confidence interval for a given quantile.
+/// Use [`ci_sorted_unchecked`] instead if the data is already sorted.
+///
+/// Complexity: \\( O(n \log n) \\) where \\( n \\) is the number of samples.
+///
+/// # Arguments
+///
+/// * `confidence` - the confidence level (must be in (0, 1))
+/// * `data` - the sample data
+/// * `quantile` - the quantile to compute the confidence interval for (must be in (0, 1))
+///
+/// # Errors
+///
+/// * `TooFewSamples` - if the number of samples is too small to compute a confidence interval
+/// * `InvalidConfidenceLevel` - if the confidence level is not in the range (0, 1)
+/// * `InvalidQuantile` - if the quantile is not in the range (0, 1)
+///
+/// # Panics
+///
+/// * if the data contains elements that are not comparable (with their partial ordering).
+/// * if the number of elements in the data is too large (i.e. greater than [DATA_CAP]).
+///
+/// # Examples
+///
+/// ```
+/// # use stats_ci::*;
+/// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+/// let confidence = Confidence::new_two_sided(0.95);
+/// let quantile = 0.5; // median
+/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// assert_eq!(interval, Interval::new(5, 12)?);
+///
+/// let data2 = [2, 14, 13, 6, 8, 4, 15, 9, 3, 11, 10, 7, 1, 12, 5];
+/// let interval2 = quantile::ci(confidence, &data2, quantile)?;
+/// assert_eq!(interval, interval2);
+///
+/// let confidence = Confidence::new_two_sided(0.8);
+/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// assert_eq!(interval, Interval::new(6, 11)?);
+///
+/// let confidence = Confidence::new_two_sided(0.5);
+/// let quantile = 0.4; // 40th percentile
+/// let interval = quantile::ci(confidence, &data, quantile)?;
+/// assert_eq!(interval, Interval::new(5, 8)?);
+/// # Ok::<(),error::CIError>(())
+/// ```
+/// 
+/// Notes:
+/// 
+/// This function is limited by constant [DATA_CAP] in the number of samples it can handle.
+/// Trying to call it with more samples will result in a panic.
+pub fn ci_max_size<T, I, const CAP: usize>(confidence: Confidence, data: &I, quantile: f64) -> CIResult<Interval<T>>
+where
+    T: PartialOrd + Copy,
+    for<'a> &'a I: IntoIterator<Item = &'a T>,
+{
+    use arrayvec::ArrayVec;
+    let mut sorted: ArrayVec<T, CAP> = data.into_iter().copied().collect();
+    sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    ci_sorted_unchecked(confidence, &sorted, quantile)
+}
+
 
 ///
 /// Compute the indices of the confidence interval for a given quantile.
