@@ -5,11 +5,11 @@
 //! Note that floating point numbers are only partially ordered because of `NaN` values.
 //!
 
+use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{Bound, RangeBounds};
+use core::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 use num_traits::float::FloatCore;
 use num_traits::Num;
-use core::ops::{RangeBounds,Bound};
-use core::ops::{Add, Div, Mul, Neg, Sub};
-use core::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 
 /// Interval over a partially ordered type (NB: floating point numbers are only partially ordered because of `NaN` values).
 /// The interval is defined by its lower and upper bounds. One-sided intervals (with a single concrete bound) are also supported.

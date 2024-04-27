@@ -24,7 +24,6 @@
 //! ```
 use super::*;
 
-
 ///
 /// This constant defines the maximum number of samples that can be handled
 /// by the [`ci_max_size`] function. That function is a version of [`ci`] that
@@ -285,9 +284,9 @@ where
 /// assert_eq!(interval, Interval::new(5, 8)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
-/// 
+///
 /// Notes:
-/// 
+///
 /// This function is only available with the `std` feature enabled.
 /// This is because it uses a sorted [Vec] when finding the quantile,
 /// which is not available in `no_std` environments.
@@ -349,12 +348,16 @@ where
 /// assert_eq!(interval, Interval::new(5, 8)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
-/// 
+///
 /// Notes:
-/// 
+///
 /// This function is limited by constant [DATA_CAP] in the number of samples it can handle.
 /// Trying to call it with more samples will result in a panic.
-pub fn ci_max_size<T, I, const CAP: usize>(confidence: Confidence, data: &I, quantile: f64) -> CIResult<Interval<T>>
+pub fn ci_max_size<T, I, const CAP: usize>(
+    confidence: Confidence,
+    data: &I,
+    quantile: f64,
+) -> CIResult<Interval<T>>
 where
     T: PartialOrd + Copy,
     for<'a> &'a I: IntoIterator<Item = &'a T>,
@@ -364,7 +367,6 @@ where
     sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
     ci_sorted_unchecked(confidence, &sorted, quantile)
 }
-
 
 ///
 /// Compute the indices of the confidence interval for a given quantile.

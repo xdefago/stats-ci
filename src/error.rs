@@ -67,7 +67,6 @@ impl From<&str> for CIError {
     }
 }
 
-
 ///
 /// An error type for interval creation.
 ///
