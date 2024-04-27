@@ -12,8 +12,6 @@
 ///  
 pub type CIResult<T> = Result<T, CIError>;
 
-pub use crate::interval::IntervalError;
-
 use num_traits::Float;
 
 ///
@@ -67,6 +65,20 @@ impl From<&str> for CIError {
     fn from(s: &str) -> Self {
         CIError::Error(s.to_string())
     }
+}
+
+
+///
+/// An error type for interval creation.
+///
+#[allow(missing_docs)]
+#[derive(thiserror::Error, Debug)]
+pub enum IntervalError {
+    #[error("Invalid bounds: the left bound is greater than the right bound")]
+    InvalidBounds,
+
+    #[error("Empty interval")]
+    EmptyInterval,
 }
 
 ///

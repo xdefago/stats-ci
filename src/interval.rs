@@ -7,9 +7,9 @@
 
 use num_traits::float::FloatCore;
 use num_traits::Num;
-use std::ops::RangeBounds;
-use std::ops::{Add, Div, Mul, Neg, Sub};
-use std::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
+use core::ops::{RangeBounds,Bound};
+use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{RangeFrom, RangeInclusive, RangeToInclusive};
 
 /// Interval over a partially ordered type (NB: floating point numbers are only partially ordered because of `NaN` values).
 /// The interval is defined by its lower and upper bounds. One-sided intervals (with a single concrete bound) are also supported.
@@ -879,17 +879,17 @@ impl<T: PartialOrd> From<RangeToInclusive<T>> for Interval<T> {
 }
 
 impl<T: PartialOrd> RangeBounds<T> for Interval<T> {
-    fn start_bound(&self) -> std::ops::Bound<&T> {
+    fn start_bound(&self) -> Bound<&T> {
         match self.left() {
-            Some(low) => std::ops::Bound::Included(low),
-            None => std::ops::Bound::Unbounded,
+            Some(low) => Bound::Included(low),
+            None => Bound::Unbounded,
         }
     }
 
-    fn end_bound(&self) -> std::ops::Bound<&T> {
+    fn end_bound(&self) -> Bound<&T> {
         match self.right() {
-            Some(high) => std::ops::Bound::Excluded(high),
-            None => std::ops::Bound::Unbounded,
+            Some(high) => Bound::Excluded(high),
+            None => Bound::Unbounded,
         }
     }
 }
@@ -919,9 +919,9 @@ impl<T: PartialOrd + Clone> Clone for Interval<T> {
 
 impl<T: PartialOrd + Copy> Copy for Interval<T> {}
 
-use std::fmt::Display;
+use core::fmt::Display;
 impl<T: PartialOrd + Display> Display for Interval<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Interval::TwoSided(low, high) => write!(f, "[{}, {}]", low, high),
             Interval::UpperOneSided(low) => write!(f, "[{},->)", low),
@@ -930,9 +930,9 @@ impl<T: PartialOrd + Display> Display for Interval<T> {
     }
 }
 
-use std::hash::Hash;
+use core::hash::Hash;
 impl<T: PartialOrd + Hash> Hash for Interval<T> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         match self {
             Interval::TwoSided(low, high) => {
                 0.hash(state);
@@ -984,8 +984,8 @@ impl<T: PartialOrd> PartialOrd for Interval<T> {
     /// # }
     /// ```
     ///
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        use std::cmp::Ordering::*;
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        use core::cmp::Ordering::*;
         match (self, other) {
             (xy, ab) if xy == ab => Some(Equal),
             (
@@ -1001,18 +1001,7 @@ impl<T: PartialOrd> PartialOrd for Interval<T> {
     }
 }
 
-///
-/// An error type for interval creation.
-///
-#[allow(missing_docs)]
-#[derive(thiserror::Error, Debug)]
-pub enum IntervalError {
-    #[error("Invalid bounds: the left bound is greater than the right bound")]
-    InvalidBounds,
-
-    #[error("Empty interval")]
-    EmptyInterval,
-}
+pub use crate::error::IntervalError;
 
 /*
  *      #   # #   # ### #####   ##### #####  #### #####  ####
