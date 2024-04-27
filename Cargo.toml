@@ -19,6 +19,10 @@ categories = ["mathematics", "science", ]
 default = ["approx", "std"]
 serde = ["dep:serde"]
 approx = ["dep:approx"]
+# std is actually still a mandatory feature. The current issue is with errors,
+# core::error::Error is still only available as a nightly-only feature.
+# This should change soon; probably as rustc 1.79.0 is released.
+# After that, it is likely that thiserror will in turn support no_std.
 std = ["arrayvec/std"]
 
 [package.metadata.docs.rs]
