@@ -61,12 +61,6 @@ pub enum CIError {
     DifferentSampleSizes(usize, usize),
 }
 
-impl From<&str> for CIError {
-    fn from(s: &str) -> Self {
-        CIError::Error(s.to_string())
-    }
-}
-
 ///
 /// An error type for interval creation.
 ///
@@ -138,7 +132,7 @@ mod tests {
     use super::*;
 
     fn string_to_error() -> CIResult<()> {
-        Err("This is a string error")?
+        Err(CIError::Error("This is a string error".to_string()))?
     }
 
     #[test]
