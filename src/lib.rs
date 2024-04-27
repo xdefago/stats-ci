@@ -5,6 +5,7 @@
 #![deny(rustdoc::broken_intra_doc_links)]
 #![deny(rustdoc::private_intra_doc_links)]
 #![warn(missing_docs)]
+#![cfg_attr(all(not(test), not(feature = "std")), no_std)]
 
 pub mod comparison;
 pub mod error;

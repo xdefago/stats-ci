@@ -16,10 +16,10 @@ keywords = ["math", "statistics", "stats", "sampling", "analysis"]
 categories = ["mathematics", "science", ]
 
 [features]
-default = ["approx"]
+default = ["approx", "std"]
 serde = ["dep:serde"]
 approx = ["dep:approx"]
-
+std = []
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./resources/docs-header.html" ]

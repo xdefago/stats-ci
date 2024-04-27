@@ -147,7 +147,7 @@ impl Stats {
     }
 }
 
-impl std::ops::Add for Stats {
+impl core::ops::Add for Stats {
     type Output = Self;
 
     #[inline]
@@ -158,7 +158,7 @@ impl std::ops::Add for Stats {
     }
 }
 
-impl std::ops::AddAssign for Stats {
+impl core::ops::AddAssign for Stats {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.population += rhs.population;
@@ -277,6 +277,13 @@ where
 /// assert_eq!(interval, Interval::new(5, 8)?);
 /// # Ok::<(),error::CIError>(())
 /// ```
+/// 
+/// Notes:
+/// 
+/// This function is only available with the `std` feature enabled.
+/// This is because it uses a sorted [Vec] when finding the quantile,
+/// which is not available in `no_std` environments.
+#[cfg(any(test, feature = "std"))]
 pub fn ci<T, I>(confidence: Confidence, data: &I, quantile: f64) -> CIResult<Interval<T>>
 where
     T: PartialOrd + Copy,
