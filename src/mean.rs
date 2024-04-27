@@ -449,7 +449,7 @@ impl<F: Float> Arithmetic<F> {
     }
 }
 
-impl<F: Float> std::ops::Add for Arithmetic<F> {
+impl<F: Float> core::ops::Add for Arithmetic<F> {
     type Output = Self;
 
     #[inline]
@@ -458,7 +458,7 @@ impl<F: Float> std::ops::Add for Arithmetic<F> {
     }
 }
 
-impl<F: Float> std::ops::AddAssign for Arithmetic<F> {
+impl<F: Float> core::ops::AddAssign for Arithmetic<F> {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         *self = self.add(rhs);
@@ -609,7 +609,7 @@ impl<F: Float> Default for Harmonic<F> {
     }
 }
 
-impl<F: Float> std::ops::Add for Harmonic<F> {
+impl<F: Float> core::ops::Add for Harmonic<F> {
     type Output = Self;
 
     #[inline]
@@ -618,7 +618,7 @@ impl<F: Float> std::ops::Add for Harmonic<F> {
     }
 }
 
-impl<F: Float> std::ops::AddAssign for Harmonic<F> {
+impl<F: Float> core::ops::AddAssign for Harmonic<F> {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         *self = self.add(rhs);
@@ -766,7 +766,7 @@ impl<F: Float> Default for Geometric<F> {
     }
 }
 
-impl<F: Float> std::ops::Add for Geometric<F> {
+impl<F: Float> core::ops::Add for Geometric<F> {
     type Output = Self;
 
     #[inline]
@@ -775,7 +775,7 @@ impl<F: Float> std::ops::Add for Geometric<F> {
     }
 }
 
-impl<F: Float> std::ops::AddAssign for Geometric<F> {
+impl<F: Float> core::ops::AddAssign for Geometric<F> {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         *self = self.add(rhs);

@@ -68,28 +68,28 @@ impl<T: Float> PartialEq for KahanSum<T> {
     }
 }
 
-impl<T: Float + std::fmt::Display> std::fmt::Display for KahanSum<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<T: Float + core::fmt::Display> core::fmt::Display for KahanSum<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         self.value().fmt(f)
     }
 }
 
-impl<T: Float> std::ops::AddAssign<Self> for KahanSum<T> {
+impl<T: Float> core::ops::AddAssign<Self> for KahanSum<T> {
     fn add_assign(&mut self, rhs: Self) {
         kahan_add(&mut self.sum, rhs.sum, &mut self.compensation);
         kahan_add(&mut self.sum, rhs.compensation, &mut self.compensation);
     }
 }
 
-impl<T: Float> std::ops::AddAssign<T> for KahanSum<T> {
+impl<T: Float> core::ops::AddAssign<T> for KahanSum<T> {
     fn add_assign(&mut self, rhs: T) {
         kahan_add(&mut self.sum, rhs, &mut self.compensation);
     }
 }
 
-impl<T: Float, X> std::ops::Add<X> for KahanSum<T>
+impl<T: Float, X> core::ops::Add<X> for KahanSum<T>
 where
-    Self: std::ops::AddAssign<X>,
+    Self: core::ops::AddAssign<X>,
 {
     type Output = Self;
 

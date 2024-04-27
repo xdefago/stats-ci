@@ -266,7 +266,7 @@ impl Stats {
     }
 }
 
-impl std::ops::Add for Stats {
+impl core::ops::Add for Stats {
     type Output = Self;
 
     ///
@@ -290,7 +290,7 @@ impl std::ops::Add for Stats {
     }
 }
 
-impl std::ops::AddAssign for Stats {
+impl core::ops::AddAssign for Stats {
     ///
     /// Combines two statistics objects by adding the number of samples and the number of successes.
     ///

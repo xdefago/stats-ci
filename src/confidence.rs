@@ -288,7 +288,7 @@ impl Default for Confidence {
 impl PartialOrd for Confidence {
     // NB: the partial ordering obtained from derivation rule is unsound, so we need to
     // implement it manually.
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         match (self, other) {
             (Confidence::TwoSided(x), Confidence::TwoSided(y))
             | (Confidence::UpperOneSided(x), Confidence::UpperOneSided(y))

@@ -446,7 +446,7 @@ impl<T: Float> Default for Paired<T> {
     }
 }
 
-impl<F: Float> std::ops::Add for Paired<F> {
+impl<F: Float> core::ops::Add for Paired<F> {
     type Output = Self;
 
     #[inline]
@@ -457,7 +457,7 @@ impl<F: Float> std::ops::Add for Paired<F> {
     }
 }
 
-impl<F: Float> std::ops::AddAssign for Paired<F> {
+impl<F: Float> core::ops::AddAssign for Paired<F> {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.stats += rhs.stats;
@@ -885,7 +885,7 @@ impl<T: Float> Unpaired<T> {
     }
 }
 
-impl<F: Float> std::ops::Add for Unpaired<F> {
+impl<F: Float> core::ops::Add for Unpaired<F> {
     type Output = Self;
 
     #[inline]
@@ -897,7 +897,7 @@ impl<F: Float> std::ops::Add for Unpaired<F> {
     }
 }
 
-impl<F: Float> std::ops::AddAssign for Unpaired<F> {
+impl<F: Float> core::ops::AddAssign for Unpaired<F> {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.stats_a += rhs.stats_a;
