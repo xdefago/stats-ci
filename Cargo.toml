@@ -1,6 +1,6 @@
 [package]
 name = "stats-ci"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 repository = "https://github.com/xdefago/stats-ci"
@@ -38,7 +38,7 @@ harness = false
 
 
 [dependencies]
-statrs = "0.16.0"
+statrs = "0.17.0"
 num-traits = "0.2.15"
 
 thiserror = "1.0.30"
@@ -53,7 +53,7 @@ approx = { version = "0.5.1", optional = true }
 # dependencies for tests
 [dev-dependencies]
 rand = "0.8.5"
-rand_seeder = "0.2.3"
+rand_seeder = "0.3.0"
 rand_chacha = "0.3.1"
 nu-ansi-term = "0.50"
 # serde/toml used to load test data
