@@ -800,8 +800,8 @@ macro_rules! impl_for_ints {
                 fn from(value: Interval<$x>) -> Self {
                     match value {
                         Interval::TwoSided(low, high) => (low, high),
-                        Interval::UpperOneSided(low) => (low, <$x>::max_value()),
-                        Interval::LowerOneSided(high) => (<$x>::min_value(), high),
+                        Interval::UpperOneSided(low) => (low, <$x>::MAX),
+                        Interval::LowerOneSided(high) => (<$x>::MIN, high),
                     }
                 }
             }
