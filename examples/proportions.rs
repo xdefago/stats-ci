@@ -23,9 +23,10 @@ fn main() {
     println!();
 
     // generate data
-    let sample = (0..sample_size)
-        .map(|_| distrib.sample(&mut rng) as i64)
-        .collect::<Vec<_>>();
+    let sample = distrib
+        .sample_iter(&mut rng)
+        .take(sample_size)
+        .collect::<Vec<i64>>();
 
     // show the data
     if SAMPLE_SIZE < 100 {
