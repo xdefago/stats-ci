@@ -115,6 +115,7 @@ if let Ok(ci) = mean::Arithmetic::ci(confidence, &data) {
     }
 }
 // 4b. compute the interval for the median (i.e., 0.5-quantile)
+#[cfg(feature = "std")]
 if let Ok(ci) = quantile::ci(confidence, &data, 0.5) {
     // display the interval
     println!("{}% c.i. for the median = {}", confidence.percent(), ci);

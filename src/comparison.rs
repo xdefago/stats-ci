@@ -908,6 +908,7 @@ impl<F: Float> core::ops::AddAssign for Unpaired<F> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "approx")]
     use approx::*;
 
     #[test]
@@ -931,8 +932,12 @@ mod tests {
             )
             .unwrap();
 
-            println!("ci = {} (ref: )", ci);
-            println!("reference: (0.04299, 0.11781)");
+            #[cfg(feature = "std")]
+            {
+                println!("ci = {} (ref: )", ci);
+                println!("reference: (0.04299, 0.11781)");
+            }
+            #[cfg(feature = "approx")]
             assert_abs_diff_eq!(ci, Interval::new(0.04299, 0.11781).unwrap(), epsilon = 1e-4);
         }
         {
@@ -948,16 +953,24 @@ mod tests {
             )
             .unwrap();
 
-            println!("ci = {}", ci);
-            println!("reference: (-0.20, 0.32)");
+            #[cfg(feature = "std")]
+            {
+                println!("ci = {}", ci);
+                println!("reference: (-0.20, 0.32)");
+            }
+            #[cfg(feature = "approx")]
             assert_abs_diff_eq!(ci, Interval::new(-0.20, 0.32).unwrap(), epsilon = 1e-2);
 
             let data_pre = [140., 152., 153., 159., 150., 146.];
             let data_post = [150., 159., 170., 164., 148., 166.];
             let ci = Paired::ci(Confidence::new_two_sided(0.95), &data_post, &data_pre).unwrap();
 
-            println!("ci = {}", ci);
-            println!("reference: (1.03,17.97)");
+            #[cfg(feature = "std")]
+            {
+                println!("ci = {}", ci);
+                println!("reference: (1.03,17.97)");
+            }
+            #[cfg(feature = "approx")]
             assert_abs_diff_eq!(ci, Interval::new(1.03, 17.97).unwrap(), epsilon = 1e-2);
         }
     }
@@ -978,8 +991,12 @@ mod tests {
         )
         .unwrap();
 
-        println!("ci = {}", ci);
-        println!("reference: (-2.193679, 40.193679)");
+        #[cfg(feature = "std")]
+        {
+            println!("ci = {}", ci);
+            println!("reference: (-2.193679, 40.193679)");
+        }
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(
             ci,
             Interval::new(-2.193679, 40.193679).unwrap(),
@@ -987,6 +1004,7 @@ mod tests {
         );
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_paired_diff_length() {
         let sample_size = 10;
@@ -1002,6 +1020,7 @@ mod tests {
         assert!(res.is_err());
         match res.unwrap_err() {
             CIError::DifferentSampleSizes(a, b) => {
+                #[cfg(feature = "std")]
                 println!("DifferentSampleSizes({a},{b})");
                 assert_eq!(a, sample_size);
                 assert_eq!(b, sample_size + 1);

@@ -53,7 +53,7 @@ pub(crate) fn interval_bounds(
     (mean - span, mean + span)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "approx"))]
 mod tests {
     use super::*;
     use approx::*;

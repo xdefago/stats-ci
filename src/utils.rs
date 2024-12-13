@@ -132,6 +132,7 @@ fn kahan_add<T: Float>(current_sum: &mut T, x: T, compensation: &mut T) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "approx")]
     use approx::*;
 
     #[test]
@@ -148,17 +149,21 @@ mod tests {
             kahan_add(&mut kahan, x, &mut kahan_c);
         }
         let expected = iterations as Float * x;
-        println!("should be: {}", expected);
-        println!(
-            "normal: {} (diff: {:.0}%)",
-            normal,
-            (normal - expected) / expected * 100.
-        );
-        println!(
-            "kahan: {} (diff: {:.0}%)",
-            kahan,
-            (kahan - expected) / expected * 100.
-        );
+        #[cfg(feature = "std")]
+        {
+            println!("should be: {}", expected);
+            println!(
+                "normal: {} (diff: {:.0}%)",
+                normal,
+                (normal - expected) / expected * 100.
+            );
+            println!(
+                "kahan: {} (diff: {:.0}%)",
+                kahan,
+                (kahan - expected) / expected * 100.
+            );
+        }
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(expected, kahan, epsilon = 1e-10);
         assert!((expected - normal).abs() > 500_000.); // normal summation is not accurate for f32
     }
@@ -185,24 +190,30 @@ mod tests {
             }
         }
         let expected = iterations as Float * x;
-        println!("should be: {}", expected);
-        println!(
-            "normal: {} (diff: {:.0}%)",
-            normal,
-            (normal - expected) / expected * 100.
-        );
-        println!(
-            "kahan: {} (diff: {:.0}%)",
-            kahan,
-            (kahan.value() - expected) / expected * 100.
-        );
-        println!(
-            "kahan2: {} (diff: {:.0}%)",
-            kahan2,
-            (kahan2.value() - expected) / expected * 100.
-        );
-        assert_abs_diff_eq!(expected, kahan.value(), epsilon = 1e-10);
-        assert_abs_diff_eq!(expected, kahan2.value(), epsilon = 1e-10);
+        #[cfg(feature = "std")]
+        {
+            println!("should be: {}", expected);
+            println!(
+                "normal: {} (diff: {:.0}%)",
+                normal,
+                (normal - expected) / expected * 100.
+            );
+            println!(
+                "kahan: {} (diff: {:.0}%)",
+                kahan,
+                (kahan.value() - expected) / expected * 100.
+            );
+            println!(
+                "kahan2: {} (diff: {:.0}%)",
+                kahan2,
+                (kahan2.value() - expected) / expected * 100.
+            );
+        }
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(expected, kahan.value(), epsilon = 1e-10);
+            assert_abs_diff_eq!(expected, kahan2.value(), epsilon = 1e-10);
+        }
         assert!((expected - normal).abs() > 500_000.); // normal summation is not accurate for f32
     }
 

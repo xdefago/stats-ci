@@ -1,6 +1,7 @@
 // Tests to compare against test cases generated from numpy and stored in toml format
 // The python generation is done by tests/cases/generate_cases.py
 // The toml files are stored in tests/cases/
+#[cfg(feature = "approx")]
 use approx::*;
 use serde::Deserialize;
 use stats_ci::*;
@@ -57,6 +58,7 @@ fn test_case(case_file: &Path) -> Result<(), Box<dyn std::error::Error>> {
         common::color_closer_is_better(diff_high, 0., 1e-9)
             .paint(format!("Δhigh: {:3.10}", diff_high))
     );
+    #[cfg(feature = "approx")]
     assert_abs_diff_eq!(computed_ci, reference_ci, epsilon = 1e-4);
     Ok(())
 }

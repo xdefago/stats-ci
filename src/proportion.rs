@@ -11,8 +11,11 @@
 //! ];
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let interval = proportion::ci_true(confidence, &data)?;
+//! # #[cfg(feature="approx")]
+//! # {
 //! use approx::*;
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -27,8 +30,11 @@
 //! let mut stats = proportion::Stats::default();
 //! stats.extend(&data);
 //! let interval = stats.ci(confidence)?;
+//! # #[cfg(feature="approx")]
+//! # {
 //! # use approx::*;
 //! assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -54,8 +60,11 @@ use error::*;
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let pass_rate_ci = stats.ci(confidence)?;
 /// println!("Pass rate: {}", pass_rate_ci);
+/// # #[cfg(feature="approx")]
+/// # {
 /// # use approx::*;
 /// assert_abs_diff_eq!(pass_rate_ci, Interval::new(0.4878, 0.8077)?, epsilon = 1e-3);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -183,7 +192,6 @@ impl Stats {
     ///
     /// ```
     /// # use stats_ci::*;
-    /// # use approx::*;
     /// let data = [
     ///    true, false, true, true, false, true, true, false, true, true,
     ///   false, false, false, true, false, true, false, false, true, false
@@ -191,7 +199,11 @@ impl Stats {
     /// let confidence = Confidence::new_two_sided(0.95);
     /// let stats = proportion::Stats::from_iter(data);
     /// let interval = stats.ci(confidence)?;
+    /// # #[cfg(feature="approx")]
+    /// # {
+    /// # use approx::*;
     /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+    /// # }
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
@@ -331,14 +343,17 @@ impl core::ops::AddAssign for Stats {
 ///
 /// ```
 /// use stats_ci::*;
-/// # use approx::*;
 /// let data = [
 ///     true, false, true, true, false, true, true, false, true, true,
 ///     false, false, false, true, false, true, false, false, true, false
 /// ];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_true(confidence, &data)?;
+/// # #[cfg(feature="approx")]
+/// # {
+/// # use approx::*;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -377,11 +392,14 @@ where
 ///
 /// ```
 /// use stats_ci::*;
-/// # use approx::*;
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci_if(confidence, &data, |&x| x <= 10)?;
+/// # #[cfg(feature="approx")]
+/// # {
+/// # use approx::*;
 /// assert_abs_diff_eq!(interval, Interval::new(0.299, 0.701)?, epsilon = 1e-2);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -421,12 +439,15 @@ where
 ///
 /// ```
 /// use stats_ci::*;
-/// # use approx::*;
 /// let population = 500;
 /// let successes = 421;
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let interval = proportion::ci(confidence, population, successes)?;
+/// # #[cfg(feature="approx")]
+/// # {
+/// # use approx::*;
 /// assert_abs_diff_eq!(interval, Interval::new(0.81, 0.87)?, epsilon = 1e-2);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -667,6 +688,7 @@ pub fn ci_z_normal(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "approx")]
     use approx::*;
 
     #[test]
@@ -675,14 +697,17 @@ mod tests {
         let successes = 421;
         let confidence = Confidence::TwoSided(0.95);
         let ci = proportion::ci(confidence, population, successes)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(ci, Interval::new(0.81, 0.87)?, epsilon = 1e-2);
 
         let ci2 = proportion::ci(Confidence::UpperOneSided(0.975), population, successes)?;
         assert_eq!(ci2.high_f(), 1.);
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(ci2.low_f(), ci.low_f(), epsilon = 1e-2);
 
         let ci2 = proportion::ci(Confidence::LowerOneSided(0.975), population, successes)?;
         assert_eq!(ci2.low_f(), 0.);
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(ci2.high_f(), ci.high_f(), epsilon = 1e-2);
 
         Ok(())
@@ -695,6 +720,7 @@ mod tests {
         ];
         let confidence = Confidence::TwoSided(0.95);
         let ci = proportion::ci_if(confidence, &data, |&x| x <= 10).unwrap();
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(ci, Interval::new(0.299, 0.701).unwrap(), epsilon = 1e-2);
     }
 
@@ -719,8 +745,9 @@ mod tests {
         let stats = proportion::Stats::from_iter(grades.iter().map(|&x| x >= 60));
         let confidence = Confidence::new_two_sided(0.95);
         let pass_rate_ci = stats.ci(confidence)?;
+        #[cfg(feature = "std")]
         println!("Pass rate: {}", pass_rate_ci);
-        use approx::*;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(pass_rate_ci, Interval::new(0.4878, 0.8077)?, epsilon = 1e-3);
         Ok(())
     }
@@ -731,10 +758,12 @@ mod tests {
         let messages = 10_000;
         let losses = 89;
         let ci = proportion::ci(confidence, messages, losses).unwrap();
+        #[cfg(feature = "std")]
         println!("Loss rate: {}", ci);
 
         let confidence = Confidence::new_lower(0.95);
         let ci = proportion::ci(confidence, messages, losses).unwrap();
+        #[cfg(feature = "std")]
         println!("Loss rate less than: {}", ci);
     }
 }

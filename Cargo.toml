@@ -23,7 +23,7 @@ approx = ["dep:approx"]
 # core::error::Error is still only available as a nightly-only feature.
 # This should change soon; probably as rustc 1.79.0 is released.
 # After that, it is likely that thiserror will in turn support no_std.
-std = ["arrayvec/std"]
+std = ["arrayvec/std", "thiserror/std"]
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./resources/docs-header.html" ]
@@ -41,9 +41,9 @@ harness = false
 statrs = "0.18.0"
 num-traits = "0.2.15"
 
-thiserror = "2.0.6"
 lazy_static = "1.4.0"
 
+thiserror = { version = "2", default-features = false }
 arrayvec = { version = "0.7.4", default-features = false }
 
 serde = { version = "1.0", optional = true, features = ["derive"] }
@@ -58,6 +58,7 @@ rand_chacha = "0.3.1"
 nu-ansi-term = "0.50"
 # serde/toml used to load test data
 serde = { version = "1.0", features = ["derive"] }
+# approx = "0.5.1"
 toml = "0.8.12"
 lazy-regex = "3.1.0"
 criterion = "0.5.1"

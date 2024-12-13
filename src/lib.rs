@@ -5,7 +5,8 @@
 #![deny(rustdoc::broken_intra_doc_links)]
 #![deny(rustdoc::private_intra_doc_links)]
 #![warn(missing_docs)]
-#![cfg_attr(all(not(test), not(feature = "std")), no_std)]
+//#![cfg_attr(all(not(test), not(feature = "std")), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod comparison;
 pub mod error;
@@ -25,7 +26,8 @@ pub use interval::Interval;
 pub use mean::MeanCI;
 pub use mean::StatisticsOps;
 
-#[cfg(test)]
+//#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
 

@@ -42,10 +42,13 @@
 //! let confidence = Confidence::new_two_sided(0.95);
 //! let stats = mean::Arithmetic::from_iter(&data)?;
 //! // reference values computed in python / numpy
+//! # #[cfg(feature="approx")]
+//! # {
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 53.67, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.sample_std_dev(), 28.097613040716798, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-6);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -63,9 +66,12 @@
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let stats = mean::Geometric::from_iter(&data)?;
 //! // reference values computed in python / numpy
+//! # #[cfg(feature="approx")]
+//! # {
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(37.731050052224354, 50.67532768627392)?, epsilon = 1e-6);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -83,9 +89,12 @@
 //! # let confidence = Confidence::new_two_sided(0.95);
 //! let stats = mean::Harmonic::from_iter(&data)?;
 //! // reference values computed in python / numpy
+//! # #[cfg(feature="approx")]
+//! # {
 //! use approx::*;
 //! assert_abs_diff_eq!(stats.sample_mean(), 30.031313156339586, epsilon = 1e-6);
 //! assert_abs_diff_eq!(stats.ci_mean(confidence)?, Interval::new(23.614092539657168, 41.237860649168255)?, epsilon = 1e-6);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 //!
@@ -109,11 +118,18 @@ use num_traits::Float;
 /// let stats = mean::Arithmetic::from_iter(&data)?;
 /// assert_eq!(stats.sample_count(), 10);
 /// assert_eq!(stats.sample_mean(), 5.5);
+/// # #[cfg(feature="approx")]
+/// # {
+/// # use approx::*;
 /// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
+/// # }
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let ci = stats.ci_mean(confidence)?;
+/// # #[cfg(feature="approx")]
+/// # {
 /// # use approx::*;
 /// assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 pub trait StatisticsOps<F: Float>: Default {
@@ -132,13 +148,16 @@ pub trait StatisticsOps<F: Float>: Default {
     ///
     /// # Example
     /// ```
-    /// # use approx::*;
     /// use stats_ci::*;
     /// let data = [1., 2., 3., 4., 5., 6., 7., 8., 9., 10.];
     /// let stats = mean::Arithmetic::from_iter(&data)?;
     /// assert_eq!(stats.sample_count(), 10);
     /// assert_eq!(stats.sample_mean(), 5.5);
+    /// # #[cfg(feature="approx")]
+    /// # {
+    /// # use approx::*;
     /// assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
+    /// # }
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
@@ -645,11 +664,14 @@ impl<F: Float> Geometric<F> {
     /// # Example
     /// ```
     /// # use stats_ci::*;
-    /// # use approx::*;
     /// let mut stats = mean::Geometric::new();
     /// stats.append(10.)?;
     /// assert_eq!(stats.sample_count(), 1);
+    /// # #[cfg(feature="approx")]
+    /// # {
+    /// # use approx::*;
     /// assert_abs_diff_eq!(stats.sample_mean(), 10., epsilon = 1e-10);
+    /// # }
     /// # Ok::<(),error::CIError>(())
     /// ```
     ///
@@ -806,8 +828,11 @@ impl<F: Float> core::ops::AddAssign for Geometric<F> {
 /// // arithmetic mean: 52.5
 ///
 /// use num_traits::Float;
+/// # #[cfg(feature="approx")]
+/// # {
 /// use approx::*;
 /// assert_abs_diff_eq!(ci, Interval::new(48.094823990767836, 59.24517600923217)?, epsilon = 1e-3);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -856,6 +881,7 @@ impl_mean_ci_for!(Geometric<F>);
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "approx")]
     use approx::*;
 
     #[test]
@@ -880,15 +906,20 @@ mod tests {
         // import scipy.stats as st
         // st.t.interval(confidence=0.95, df=len(data)-1, loc=np.mean(data), scale=st.sem(data))
         // ```
-        assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67);
+        }
 
         let one_sided_ci = Arithmetic::ci(Confidence::UpperOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Arithmetic::ci(Confidence::LowerOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -896,15 +927,20 @@ mod tests {
         stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
 
-        assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, epsilon = 1e-8);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(ci.low_f(), 48.094823990767836, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.high_f(), 59.24517600923217, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.low_f() + ci.high_f(), 2. * 53.67, epsilon = 1e-8);
+        }
 
         let one_sided_ci = stats.ci_mean(Confidence::UpperOneSided(0.975))?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = stats.ci_mean(Confidence::LowerOneSided(0.975))?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -929,29 +965,39 @@ mod tests {
         // reference values computed in python:
         // in log space: (3.630483364286656, 3.9254391587458475)
         // [37.731050052224354, 50.67532768627392]
-        assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
+        }
 
         let one_sided_ci = Geometric::ci(Confidence::UpperOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Geometric::ci(Confidence::LowerOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
         let mut stats = Geometric::default();
         stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
-        assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(stats.sample_mean(), 43.7268032829256, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.low_f(), 37.731050052224354, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.high_f(), 50.67532768627392, epsilon = 1e-8);
+        }
 
         let one_sided_ci = stats.ci_mean(Confidence::UpperOneSided(0.975))?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = stats.ci_mean(Confidence::LowerOneSided(0.975))?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -976,14 +1022,19 @@ mod tests {
         // reference values computed in python:
         // in reciprocal space: (0.02424956057996111, 0.042347593849757906)
         // [41.237860649168255, 23.614092539657168]  (reversed by conversion from reciprocal space)
-        assert_abs_diff_eq!(ci.low_f(), 23.614092539657168, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.high_f(), 41.237860649168255, epsilon = 1e-8);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(ci.low_f(), 23.614092539657168, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.high_f(), 41.237860649168255, epsilon = 1e-8);
+        }
 
         let one_sided_ci = Harmonic::ci(Confidence::UpperOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.low_f(), ci.low_f());
         assert_eq!(one_sided_ci.high_f(), f64::INFINITY);
 
         let one_sided_ci = Harmonic::ci(Confidence::LowerOneSided(0.975), &data)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(one_sided_ci.high_f(), ci.high_f());
         assert_eq!(one_sided_ci.low_f(), f64::NEG_INFINITY);
 
@@ -1000,15 +1051,21 @@ mod tests {
         // reference values computed in python:
         // in reciprocal space: (1.1735238063066096, 4.083848080632111)
         // [0.8521343961033607, 0.2448670911003175]
-        assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
-        assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
+            assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
+        }
 
         let mut stats = Harmonic::default();
         stats.extend(&data)?;
         let ci = stats.ci_mean(confidence)?;
-        assert_abs_diff_eq!(stats.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
-        assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
-        assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
+        #[cfg(feature = "approx")]
+        {
+            assert_abs_diff_eq!(stats.sample_mean(), 0.38041820166550844, epsilon = 1e-8);
+            assert_abs_diff_eq!(ci.low_f(), 0.2448670911003175, epsilon = 1e-6);
+            assert_abs_diff_eq!(ci.high_f(), 0.8521343961033607, epsilon = 1e-6);
+        }
 
         Ok(())
     }
@@ -1113,9 +1170,11 @@ mod tests {
         let stats = mean::Arithmetic::from_iter(&data)?;
         assert_eq!(stats.sample_count(), 10);
         assert_eq!(stats.sample_mean(), 5.5);
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(stats.sample_sem(), 1.0092, epsilon = 1e-4);
         let confidence = Confidence::new_two_sided(0.95);
         let ci = stats.ci_mean(confidence)?;
+        #[cfg(feature = "approx")]
         assert_abs_diff_eq!(ci, Interval::new(3.3341, 7.6659)?, epsilon = 1e-4);
         Ok(())
     }

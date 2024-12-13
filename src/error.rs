@@ -44,13 +44,21 @@ pub enum CIError {
     #[error("Invalid input data found")]
     InvalidInputData,
 
+    #[cfg(not(feature = "std"))]
+    #[error("Float type conversion error: {0}")]
+    FloatConversionError(&'static str),
+    #[cfg(feature = "std")]
     #[error("Float type conversion error: {0}")]
     FloatConversionError(String),
 
     #[error("Index error: {0} should be in [0, {1})")]
     IndexError(f64, usize),
 
-    // wrapper errors
+    // #[cfg(not(feature="std"))]
+    // // wrapper errors
+    // #[error("String error: {0}")]
+    // Error(String),
+    #[cfg(feature = "std")]
     #[error("String error: {0}")]
     Error(String),
 
@@ -95,6 +103,7 @@ pub(crate) trait FloatConversion<F: Float> {
 }
 
 impl<F: Float> FloatConversion<F> for F {
+    #[cfg(feature = "std")]
     #[inline]
     fn try_f64(&self, var_name: &str) -> CIResult<f64> {
         self.to_f64().ok_or_else(|| {
@@ -104,6 +113,13 @@ impl<F: Float> FloatConversion<F> for F {
                 std::any::type_name::<F>()
             ))
         })
+    }
+
+    #[cfg(not(feature = "std"))]
+    #[inline]
+    fn try_f64(&self, _var_name: &str) -> CIResult<f64> {
+        self.to_f64()
+            .ok_or_else(|| CIError::FloatConversionError("Error converting to f64"))
     }
 }
 
@@ -115,6 +131,7 @@ pub(crate) trait FloatReverseConversion<F: num_traits::Float> {
 }
 
 impl<F: Float> FloatReverseConversion<F> for Option<F> {
+    #[cfg(feature = "std")]
     #[inline]
     fn convert(&self, var_name: &str) -> CIResult<F> {
         self.ok_or_else(|| {
@@ -125,8 +142,15 @@ impl<F: Float> FloatReverseConversion<F> for Option<F> {
             ))
         })
     }
+
+    #[cfg(not(feature = "std"))]
+    #[inline]
+    fn convert(&self, _var_name: &str) -> CIResult<F> {
+        self.ok_or_else(|| CIError::FloatConversionError("Error converting Option to CIResult"))
+    }
 }
 
+#[cfg(feature = "std")]
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -111,11 +111,19 @@ fn block_2() -> stats_ci::CIResult<()> {
     let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     let confidence = Confidence::new_two_sided(0.95);
+    #[cfg(feature = "std")]
     let ci = quantile::ci(confidence, &data, quantile)?;
+    #[cfg(not(feature = "std"))]
+    let ci =
+        quantile::ci_sorted_unchecked(confidence, &data, quantile)?;
     assert_eq!(ci, Interval::new(5, 12)?);
 
     let confidence = Confidence::new_two_sided(0.8);
+    #[cfg(feature = "std")]
     let ci = quantile::ci(confidence, &data, quantile)?;
+    #[cfg(not(feature = "std"))]
+    let ci =
+        quantile::ci_sorted_unchecked(confidence, &data, quantile)?;
     assert_eq!(ci, Interval::new(6, 11)?);
 
     let data = [
@@ -123,7 +131,11 @@ fn block_2() -> stats_ci::CIResult<()> {
         "M", "N", "O",
     ];
     let confidence = Confidence::new_two_sided(0.95);
+    #[cfg(feature = "std")]
     let ci = quantile::ci(confidence, &data, quantile)?;
+    #[cfg(not(feature = "std"))]
+    let ci =
+        quantile::ci_sorted_unchecked(confidence, &data, quantile)?;
     println!("ci: {}", ci); // ci: [E, L]
 
     Ok(())

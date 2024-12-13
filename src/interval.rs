@@ -1070,7 +1070,7 @@ mod tests {
         let interval = Interval::new_lower(10_i64);
         assert_eq!(interval.low(), None);
         assert_eq!(interval.high(), Some(10));
-        assert_eq!(interval.low_i(), std::i64::MIN);
+        assert_eq!(interval.low_i(), core::i64::MIN);
         assert_eq!(interval.high_i(), 10);
         assert!(!interval.is_degenerate());
         assert!(!interval.is_two_sided());
@@ -1148,7 +1148,7 @@ mod tests {
 
     #[test]
     fn test_interval_compare() -> Result<(), IntervalError> {
-        use std::cmp::Ordering::*;
+        use core::cmp::Ordering::*;
 
         let interval1 = Interval::new(0., 10.)?;
         let interval2 = Interval::new(0., 1.)?;
@@ -1303,6 +1303,7 @@ mod tests {
         assert_sync::<Interval<f64>>();
     }
 
+    #[cfg(feature = "approx")]
     #[test]
     fn test_approx() {
         use approx::*;

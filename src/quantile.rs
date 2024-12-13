@@ -5,6 +5,8 @@
 //!
 //! ```
 //! # use stats_ci::error;
+//! # #[cfg(feature = "std")]
+//! # {
 //! use stats_ci::{quantile,Confidence,Interval};
 //! let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 //! let confidence = Confidence::new_two_sided(0.95);
@@ -20,6 +22,7 @@
 //! let quantile = 0.4; // 40th percentile
 //! let interval = quantile::ci(confidence, &data, quantile)?;
 //! assert_eq!(interval, Interval::new(5, 8)?);
+//! # }
 //! # Ok::<(),error::CIError>(())
 //! ```
 use super::*;
@@ -290,7 +293,7 @@ where
 /// This function is only available with the `std` feature enabled.
 /// This is because it uses a sorted [Vec] when finding the quantile,
 /// which is not available in `no_std` environments.
-#[cfg(any(test, feature = "std"))]
+#[cfg(feature = "std")]
 pub fn ci<T, I>(confidence: Confidence, data: &I, quantile: f64) -> CIResult<Interval<T>>
 where
     T: PartialOrd + Copy,
@@ -328,6 +331,8 @@ where
 ///
 /// ```
 /// # use stats_ci::*;
+/// # #[cfg(feature = "std")]
+/// # {
 /// let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /// let confidence = Confidence::new_two_sided(0.95);
 /// let quantile = 0.5; // median
@@ -346,6 +351,7 @@ where
 /// let quantile = 0.4; // 40th percentile
 /// let interval = quantile::ci(confidence, &data, quantile)?;
 /// assert_eq!(interval, Interval::new(5, 8)?);
+/// # }
 /// # Ok::<(),error::CIError>(())
 /// ```
 ///
@@ -487,28 +493,31 @@ mod tests {
         let interval = quantile::ci_sorted_unchecked(confidence, &data, quantile)?;
         assert_eq!(interval, Interval::new("E", "L")?);
 
-        let data = [
-            'J', 'E', 'M', 'G', 'K', 'H', 'N', 'A', 'C', 'L', 'F', 'O', 'D', 'B', 'I',
-        ];
-        let confidence = Confidence::new_two_sided(0.95);
-        let quantile = 0.5; // median
-        let interval = quantile::ci(confidence, &data, quantile)?;
-        assert_eq!(interval, Interval::new('E', 'L')?);
+        #[cfg(feature = "std")]
+        {
+            let data = [
+                'J', 'E', 'M', 'G', 'K', 'H', 'N', 'A', 'C', 'L', 'F', 'O', 'D', 'B', 'I',
+            ];
+            let confidence = Confidence::new_two_sided(0.95);
+            let quantile = 0.5; // median
+            let interval = quantile::ci(confidence, &data, quantile)?;
+            assert_eq!(interval, Interval::new('E', 'L')?);
 
-        let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        let confidence = Confidence::new_two_sided(0.95);
-        let quantile = 0.5; // median
-        let interval = quantile::ci(confidence, &data, quantile)?;
-        assert_eq!(interval, Interval::new(5, 12)?);
+            let data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+            let confidence = Confidence::new_two_sided(0.95);
+            let quantile = 0.5; // median
+            let interval = quantile::ci(confidence, &data, quantile)?;
+            assert_eq!(interval, Interval::new(5, 12)?);
 
-        let confidence = Confidence::new_two_sided(0.8);
-        let interval = quantile::ci(confidence, &data, quantile)?;
-        assert_eq!(interval, Interval::new(6, 11)?);
+            let confidence = Confidence::new_two_sided(0.8);
+            let interval = quantile::ci(confidence, &data, quantile)?;
+            assert_eq!(interval, Interval::new(6, 11)?);
 
-        let confidence = Confidence::new_two_sided(0.5);
-        let quantile = 0.4; // 40th percentile
-        let interval = quantile::ci(confidence, &data, quantile)?;
-        assert_eq!(interval, Interval::new(5, 8)?);
+            let confidence = Confidence::new_two_sided(0.5);
+            let quantile = 0.4; // 40th percentile
+            let interval = quantile::ci(confidence, &data, quantile)?;
+            assert_eq!(interval, Interval::new(5, 8)?);
+        }
 
         Ok(())
     }
@@ -596,6 +605,7 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_median_ci_unsorted() -> CIResult<()> {
         use rand::seq::SliceRandom;
